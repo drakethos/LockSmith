@@ -1,0 +1,13 @@
+C:\Modding\Vahleim\VMod\obj\Debug\VMod.csproj.AssemblyReference.cache
+C:\Modding\Vahleim\VMod\obj\Debug\VMod.csproj.CoreCompileInputs.cache
+C:\Modding\Vahleim\VMod\bin\Debug\VMod.dll
+C:\Modding\Vahleim\VMod\bin\Debug\VMod.pdb
+C:\Modding\Vahleim\VMod\bin\Debug\0Harmony.dll
+C:\Modding\Vahleim\VMod\bin\Debug\assembly_valheim.dll
+C:\Modding\Vahleim\VMod\bin\Debug\BepInEx.dll
+C:\Modding\Vahleim\VMod\bin\Debug\Jotunn.dll
+C:\Modding\Vahleim\VMod\bin\Debug\UnityEngine.CoreModule.dll
+C:\Modding\Vahleim\VMod\bin\Debug\UnityEngine.dll
+C:\Modding\Vahleim\VMod\obj\Debug\VMod.csproj.CopyComplete
+C:\Modding\Vahleim\VMod\obj\Debug\VMod.dll
+C:\Modding\Vahleim\VMod\obj\Debug\VMod.pdb
