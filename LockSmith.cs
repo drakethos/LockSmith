@@ -1,12 +1,14 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using BepInEx;
 using HarmonyLib;
 using Jotunn.Configs;
 using UnityEngine;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using Jotunn.Utils;
+
 namespace LockSmith
 {
     [BepInPlugin("com.drakemods.LockSmith", "LockSmith", "0.0.1")]
