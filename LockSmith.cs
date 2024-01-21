@@ -18,136 +18,60 @@ namespace LockSmith
     {
         private readonly Harmony harmony = new Harmony("drakesmod.LockSmith");
 
-        // Your mod's custom localization
-        private CustomLocalization Localization;
+
+        private readonly ItemLib _itemLib;
+
+        public LockSmith()
+        {
+            _itemLib = new ItemLib();
+        }
+
+        public ItemLib ItemLib
+        {
+            get { return _itemLib; }
+        }
 
         private void Awake()
         {
             //Localizations();
-            PrefabManager.OnVanillaPrefabsAvailable += makeKeyItems;
+            PrefabManager.OnVanillaPrefabsAvailable += ItemLib.makeKeyItems;
 
             harmony.PatchAll();
         }
 
-        private void Localizations()
-        {
-            Localization = LocalizationManager.Instance.GetLocalization();
-            LocalizationManager.Instance.AddLocalization(Localization);
-
-            Localization.AddTranslation("English", new Dictionary<string, string>
-            {
-                { "item_setAccessKey", "Give Access Key" },
-                {
-                    "item_setAccessKey_desc",
-                    "Use this key on an door or box to allow a player to access it without ward access"
-                },
-                { "locksmith_giveaccess", "Set Access" },
-                { "locksmith_access_message", "Ready to set, other player touch the object!" },
-            });
-        }
-
-        private void makeKeyItems()
-        {
-            ItemConfig setAccessKeyConfig = new ItemConfig();
-            setAccessKeyConfig.Name = "Set Access Key"; //"$item_setAccessKey";
-            setAccessKeyConfig.Description = "use this key on a door or lock"; //"$item_setAccessKey_desc";
-            setAccessKeyConfig.CraftingStation = "piece_workbench";
-            setAccessKeyConfig.AddRequirement(new RequirementConfig("Stone", 1));
-            setAccessKeyConfig.AddRequirement(new RequirementConfig("Wood", 1));
-            makeItem("setAccessKey", setAccessKeyConfig, "CryptKey");
-            // ItemManager.Instance.AddRecipesFromJson("LockSmith/Assets/recipes.json");
-
-            setAccessKeyConfig.Name = "Public Key"; //"$item_setAccessKey";
-            setAccessKeyConfig.Description = "place this key in a box to make it public"; //"$item_setAccessKey_desc";
-            makeItem("publicKey", setAccessKeyConfig, "CryptKey");
-
-            setAccessKeyConfig.Name = "Personal Key"; //"$item_setAccessKey";
-            setAccessKeyConfig.Description =
-                "place this key in a box to make the owner, have access"; //"$item_setAccessKey_desc";
-            makeItem("personalKey", setAccessKeyConfig, "CryptKey");
-
-            PrefabManager.OnVanillaPrefabsAvailable -= makeKeyItems;
-
-            CreateKeyHints();
-        }
-
-        private void CreateKeyHints()
-        {
-            // Override "default" KeyHint with an empty config
-            KeyHintConfig KHC_base = new KeyHintConfig
-            {
-                Item = "setAccessKey"
-            };
-            KeyHintManager.Instance.AddKeyHint(KHC_base);
-
-            // Add custom KeyHints for specific pieces
-            KeyHintConfig KHC_make = new KeyHintConfig
-            {
-                Item = "setAccessKey",
-                //Piece = "make_testblueprint",
-                ButtonConfigs = new[]
-                {
-                    // Override vanilla "Attack" key text
-                    new ButtonConfig { Name = "Attack", HintToken = "$bprune_make" }
-                }
-            };
-            KeyHintManager.Instance.AddKeyHint(KHC_make);
-        }
-
-
-        private void makeItem(string name, ItemConfig itemConfig, string prefab)
-        {
-            makeItem(name, itemConfig.Name, itemConfig.Description, prefab,
-                new List<RequirementConfig>(itemConfig.Requirements), itemConfig.CraftingStation);
-        }
-
-        private void makeItem(string name, string gameName, string description, string prefab,
-            List<RequirementConfig> requirements, string craftingStation = "piece_workbench")
-        {
-            ItemConfig itemConfig = new ItemConfig();
-            itemConfig.Name = gameName;
-            itemConfig.Description = description;
-            itemConfig.CraftingStation = craftingStation;
-            foreach (var requirement in requirements)
-            {
-                itemConfig.AddRequirement(requirement);
-            }
-
-            CustomItem customItem = new CustomItem(name, prefab, itemConfig);
-            Debug.Log(customItem.ItemPrefab.name);
-            Debug.Log(customItem.ItemDrop.m_itemData.m_shared.m_name);
-            ItemManager.Instance.AddItem(customItem);
-        }
 
         [HarmonyPatch(typeof(Container))]
         // [HarmonyPatch(typeof(Container), "GetHoverText")]
-        class Private_mod
+        class ChestPatch
         {
+            private const string PublicKey = "Public Key";
+            private const string PrivateChest = "piece_chest_private(Clone)";
+            private const string PersonalKey = "Personal Key";
+
             [HarmonyPatch(typeof(Container), "CheckAccess")]
             static bool Prefix(ref Container.PrivacySetting ___m_privacy, ref Container __instance, ref bool __result,
                 long playerID)
             {
-                if (__instance.GetInventory().ContainsItemByName("Public Key"))
+                if (__instance.GetInventory().ContainsItemByName(PublicKey))
                 {
                     ___m_privacy = Container.PrivacySetting.Public;
                     __instance.m_checkGuardStone = false;
-                    Debug.Log(__instance.m_checkGuardStone);
                 }
                 else
                 {
                     __instance.m_checkGuardStone = true;
-                    if (__instance.name == "piece_chest_private(Clone)")
+                    if (__instance.name == PrivateChest)
                     {
                         ___m_privacy = Container.PrivacySetting.Private;
                         Debug.Log(__instance.m_checkGuardStone);
                     }
-
-                    if (__instance.GetInventory().ContainsItemByName("Personal Key"))
+                    // we need a better way this is like O of gajillian
+                    if (__instance.GetInventory().ContainsItemByName(PersonalKey))
                     {
                         Debug.Log(("Found personal key! check acess"));
                         foreach (ItemDrop.ItemData itemData in __instance.GetInventory().GetAllItems())
                         {
-                            if (itemData.m_shared.m_name == "Personal Key")
+                            if (itemData.m_shared.m_name == PersonalKey)
                                 Debug.Log(itemData.m_crafterName);
                             Debug.Log(itemData.m_shared.m_name);
                             if (itemData.m_crafterID == playerID)
@@ -167,7 +91,7 @@ namespace LockSmith
             [HarmonyPrefix]
             static bool PrefixHover(ref Container.PrivacySetting ___m_privacy, ref Container __instance)
             {
-                if (__instance.GetInventory().ContainsItemByName("Public Key"))
+                if (__instance.GetInventory().ContainsItemByName(PublicKey))
                 {
                     ___m_privacy = Container.PrivacySetting.Public;
                     __instance.m_checkGuardStone = false;
@@ -175,17 +99,17 @@ namespace LockSmith
                 else
                 {
                     __instance.m_checkGuardStone = true;
-                    if (__instance.name == "piece_chest_private(Clone)")
+                    if (__instance.name == PrivateChest)
                     {
                         ___m_privacy = Container.PrivacySetting.Private;
                     }
 
-                    if (__instance.GetInventory().ContainsItemByName("Personal Key"))
+                    if (__instance.GetInventory().ContainsItemByName(PersonalKey))
                     {
                         Debug.Log(("Found personal key! from hover"));
                         foreach (ItemDrop.ItemData itemData in __instance.GetInventory().GetAllItems())
                         {
-                            if (itemData.m_shared.m_name == "Personal Key")
+                            if (itemData.m_shared.m_name == PersonalKey)
                                 Debug.Log(itemData.m_crafterName);
                             Debug.Log(itemData.m_crafterID);
                             Debug.Log(itemData.m_shared.m_name);
@@ -209,16 +133,14 @@ namespace LockSmith
         [HarmonyPatch(typeof(Door), "GetHoverText")]
         class PublicDoor
         {
+            private const string BypassWard = "bypassward";
+
             private static bool Prefix(ref Door __instance)
             {
-                /*if (__instance.name == "Hayze_gate_01(Clone)" || __instance.name == "wood_door(Clone)")
-                {
-                    __instance.m_checkGuardStone = false;
-                }*/
-
+ 
                 ZNetView netView = __instance.GetComponent<ZNetView>();
-                Debug.Log(netView.GetZDO().GetBool("bypassward"));
-                if (netView.GetZDO().GetBool("bypassward"))
+                Debug.Log(netView.GetZDO().GetBool(BypassWard));
+                if (netView.GetZDO().GetBool(BypassWard))
                 {
                     __instance.m_checkGuardStone = false;
                     Debug.Log("triggerd bypassward");
@@ -228,7 +150,7 @@ namespace LockSmith
             }
 
             [HarmonyPatch(typeof(Door), "RPC_UseDoor")]
-            class patch3
+            class DoorPatch
             {
                 [HarmonyPrefix]
                 static bool Postfix(bool forward, Door __instance)
