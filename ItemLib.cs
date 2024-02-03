@@ -39,11 +39,10 @@ namespace LockSmith
             keyCutter.Requirements = new[] { new RequirementConfig("Stone", 15), new RequirementConfig("Wood", 10) };
             CustomPiece keyCutterPiece = new CustomPiece("piece_key_cutter", "piece_workbench", keyCutter);
             
-            Sprite var1 = AssetUtils.LoadSpriteFromFile("Assets/BlueKey.jpg");
-            Sprite var2 = AssetUtils.LoadSpriteFromFile("Assets/BrownKey.jpg");
-            Sprite var3 = AssetUtils.LoadSpriteFromFile("Assets/GoldKey.jpg");
-            Sprite var4 = AssetUtils.LoadSpriteFromFile("Assets/IronKey.jpg");
-
+            Sprite var1 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/BlueKey.jpg");
+            Sprite var2 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/BrownKey.jpg");
+            Sprite var3 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/GoldKey.jpg");
+            Sprite var4 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/IronKey.jpg");
             
             Object.Destroy(keyCutterPiece.PiecePrefab.GetComponent("StationExtension"));
             keyCutterPiece.PiecePrefab.AddComponent<CraftingStation>();
