@@ -3,7 +3,6 @@ using BepInEx.Logging;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using Jotunn.Utils;
 using UnityEngine;
 
 namespace LockSmith
@@ -38,12 +37,7 @@ namespace LockSmith
             keyCutter.Description = "Creates keys for unique abilities!";
             keyCutter.Requirements = new[] { new RequirementConfig("Stone", 15), new RequirementConfig("Wood", 10) };
             CustomPiece keyCutterPiece = new CustomPiece("piece_key_cutter", "piece_workbench", keyCutter);
-            
-            Sprite var1 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/BlueKey.jpg");
-            Sprite var2 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/BrownKey.jpg");
-            Sprite var3 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/GoldKey.jpg");
-            Sprite var4 = AssetUtils.LoadSpriteFromFile("LockSmith/Assets/IronKey.jpg");
-            
+
             Object.Destroy(keyCutterPiece.PiecePrefab.GetComponent("StationExtension"));
             keyCutterPiece.PiecePrefab.AddComponent<CraftingStation>();
             keyCutterPiece.PiecePrefab.GetComponent<CraftingStation>().m_showBasicRecipies = false;
@@ -57,16 +51,15 @@ namespace LockSmith
             makeItem("setAccessKey", setAccessKeyConfig, "CryptKey");
             // ItemManager.Instance.AddRecipesFromJson("LockSmith/Assets/recipes.json");
 
-            /*
             setAccessKeyConfig.Name = "Public Key"; //"$item_setAccessKey";
             setAccessKeyConfig.Description = "place this key in a box to make it public"; //"$item_setAccessKey_desc";
-            */
-//            makeItem("publicKey", setAccessKeyConfig, "CryptKey");
-            setAccessKeyConfig.Icons = new[] { var1, var2, var3, var4 };
+            makeItem("publicKey", setAccessKeyConfig, "CryptKey");
+
             setAccessKeyConfig.Name = "Personal Key"; //"$item_setAccessKey";
             setAccessKeyConfig.Description =
                 "place this key in a box to make the owner, have access"; //"$item_setAccessKey_desc";
             makeItem("personalKey", setAccessKeyConfig, "CryptKey");
+
             PrefabManager.OnVanillaPrefabsAvailable -= makeKeyItems;
 
             CreateKeyHints();
@@ -80,7 +73,6 @@ namespace LockSmith
                 Item = "setAccessKey"
             };
             KeyHintManager.Instance.AddKeyHint(KHC_base);
-            
         }
 
         private void makeItem(string name, ItemConfig itemConfig, string prefab)
@@ -103,6 +95,39 @@ namespace LockSmith
 
             CustomItem customItem = new CustomItem(name, prefab, itemConfig);
             ItemManager.Instance.AddItem(customItem);
+        }
+
+        private void makePiece(string name, string gameName, string prefab)
+        {
+            PieceConfig pieceConfig = new PieceConfig
+            {
+                PieceTable = "Hammer", // Add to the Hammer build menu
+                Category = "Public", // Optional category
+                Enabled = true,
+                Name = gameName
+            };
+            CustomPiece customPiece = new CustomPiece(name, prefab, pieceConfig);
+            
+            if (customPiece.Piece.GetComponentInChildren<Door>() != null)
+            {
+                Debug.Log($"Public Door version of piece {customPiece.Piece.name}");
+                customPiece.Piece.GetComponentInChildren<Door>().m_checkGuardStone = false;
+            }
+
+            if (customPiece.Piece.GetComponentInChildren<Container>())
+            {
+                Debug.Log($"Public Door version of piece {customPiece.Piece.name}");
+                customPiece.Piece.GetComponentInChildren<Container>().m_checkGuardStone = false;
+            }
+            PieceManager.Instance.AddPiece(customPiece);
+        }
+
+        public void addPublicPieces()
+        {
+            makePiece("piece_chest_wood_public", "Chest (public)", "piece_chest_wood");
+            makePiece("piece_chest_public", "Reinforced Chest (public)", "piece_chest");
+            makePiece("wood_door_public", "Wood Door (public)", "wood_door");
+            makePiece("wood_gate_public", "Wood Gate (public)", "wood_gate");
         }
     }
 }
