@@ -18,6 +18,8 @@
         <Website_Url>no site.com</Website_Url>
         <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
+        <LangVersion>latestmajor</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -104,6 +106,9 @@
         <None Include="App.config" />
         <None Include="packages.config" />
     </ItemGroup>
+    <ItemGroup>
+        <AssetsToCopy Include="Assets\**\*" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
         <PropertyGroup>
@@ -124,6 +129,10 @@
         <Copy
                 SourceFiles="$(TargetDir)$(TargetFileName)"
                 DestinationFolder="$(FullDestinationPath)\"/>
+        <!-- Copy assets -->
+        <Copy
+                SourceFiles="@(AssetsToCopy)"
+                DestinationFolder="$(FullDestinationPath)\Assets\"/>
     </Target>
 
     <Target Name="PackageMod" AfterTargets="Build">
@@ -140,7 +149,10 @@
         <Copy
                 SourceFiles="$(TargetDir)$(TargetFileName)"
                 DestinationFolder="$(ThunderstoreFolder)\"/>
-
+    
+        <Copy
+                SourceFiles="@(AssetsToCopy)"
+                DestinationFolder="$(ThunderstoreFolder)\Assets\"/>
         <!-- Zip the Thunderstore folder -->
         <Exec Command="powershell -Command Compress-Archive -Path '$(ThunderstoreFolder)\*' -DestinationPath '$(ZipOutput)' -Force"/>
     </Target>
@@ -156,8 +168,17 @@
     "dependencies": [ $(Dependencies) ]
 }' />
     </ItemGroup>
-    <ItemGroup>
+
+   <!-- <ItemGroup>
+      <Content Include="Assets\BlueKey.jpg" />
+      <Content Include="Assets\BrownKey.jpg" />
+      <Content Include="Assets\GoldKey.jpg" />
+      <Content Include="Assets\goldKey.png" />
+      <Content Include="Assets\IronKey.jpg" />
+      <Content Include="Assets\ironKey.png" />
+      <Content Include="Assets\MasterKey.jpg" />
+      <Content Include="Assets\newBox" />
       <Content Include="environment.props" />
       <Content Include="ILRepack.targets" />
-    </ItemGroup>
+    </ItemGroup>-->
 </Project>
