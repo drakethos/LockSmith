@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace LockSmith
 {
@@ -29,26 +31,56 @@ namespace LockSmith
             });
         }
 
+        public void recolor()
+        {
+            var trollClone = new CustomItem("HelmetTrollLeatherRed", "HelmetTrollLeather", new ItemConfig
+            {
+                Name = "Red Troll Hood",
+                Description = "Is red",
+                CraftingStation = CraftingStations.Workbench,
+                Requirements = new[] { new RequirementConfig("Wood", 1, 1, false) }
+            });
+            var trollObject = trollClone.ItemPrefab;
+            if (trollObject != null)
+            {
+                
+                Debug.Log("Found the troll prefab");
+                var trollMat = trollClone.ItemPrefab.GetComponentInChildren<Material>();
+                if (trollMat != null)
+                {
+                    
+                    Debug.Log("Found the material lets make it red!");
+                    trollMat.color = Color.red;
+                    Debug.Log("WE MADE IT");
+                }
+
+                trollClone.ItemPrefab.GetComponentInChildren<Renderer>();   
+            }
+
+            ItemManager.Instance.AddItem(trollClone);
+        }
+
         public void makeKeyItems()
         {
-            ItemConfig setAccessKeyConfig = new ItemConfig();
-            setAccessKeyConfig.Name = "Set Access Key"; //"$item_setAccessKey";
-            setAccessKeyConfig.Description = "use this key on a door or lock"; //"$item_setAccessKey_desc";
-            setAccessKeyConfig.CraftingStation = CraftingStations.Workbench;
-            
-            setAccessKeyConfig.AddRequirement(new RequirementConfig("Stone", 2));
-            setAccessKeyConfig.AddRequirement(new RequirementConfig("Wood", 1));
-            makeItem("setAccessKey", setAccessKeyConfig, "CryptKey");
-            // ItemManager.Instance.AddRecipesFromJson("LockSmith/Assets/recipes.json");
+            ItemConfig baseKey = new ItemConfig();
+            baseKey.Description = "use this key on a door or lock"; //"$item_setAccessKey_desc";
+            baseKey.CraftingStation = CraftingStations.Workbench;
+            RecipeConfig rec = new RecipeConfig()
+            {
+                RequireOnlyOneIngredient = true
+            };
+            baseKey.AddRequirement(new RequirementConfig("Stone", 2));
+            baseKey.AddRequirement(new RequirementConfig("Wood", 1));
 
-            setAccessKeyConfig.Name = "Public Key"; //"$item_setAccessKey";
-            setAccessKeyConfig.Description = "place this key in a box to make it public"; //"$item_setAccessKey_desc";
-            makeItem("publicKey", setAccessKeyConfig, "CryptKey");
 
-            setAccessKeyConfig.Name = "Personal Key"; //"$item_setAccessKey";
-            setAccessKeyConfig.Description =
+            baseKey.Name = "Public Key"; //"$item_setAccessKey";
+            baseKey.Description = "place this key in a box to make it public"; //"$item_setAccessKey_desc";
+            makeItem("publicKey", baseKey, "CryptKey");
+
+            baseKey.Name = "Personal Key"; //"$item_setAccessKey";
+            baseKey.Description =
                 "place this key in a box to make the owner, have access"; //"$item_setAccessKey_desc";
-            makeItem("personalKey", setAccessKeyConfig, "CryptKey");
+            makeItem("personalKey", baseKey, "CryptKey");
 
             PrefabManager.OnVanillaPrefabsAvailable -= makeKeyItems;
 
@@ -110,6 +142,13 @@ namespace LockSmith
                 customPiece.Piece.GetComponentInChildren<Container>().m_checkGuardStone = false;
             }
 
+            if (customPiece.Piece.GetComponentInChildren<PrivateArea>())
+            {
+                Debug.Log($" Removing ward from {customPiece.Piece.name}");
+                var privateArea = customPiece.Piece.GetComponentInChildren<PrivateArea>();
+                Object.Destroy(privateArea);
+            }
+
             PieceManager.Instance.AddPiece(customPiece);
         }
 
@@ -119,6 +158,46 @@ namespace LockSmith
             makePiece("piece_chest_public", "Reinforced Chest (public)", "piece_chest");
             makePiece("wood_door_public", "Wood Door (public)", "wood_door");
             makePiece("wood_gate_public", "Wood Gate (public)", "wood_gate");
+            //makePlainWard();
+            PrefabManager.OnVanillaPrefabsAvailable -= addPublicPieces;
+        }
+        
+        private void makePlainWard()
+        {
+            Debug.Log($"Making plain ward from guard_stone");
+
+            PieceConfig wardConfig = new PieceConfig();
+            wardConfig.Name = "Statue Odin";
+            wardConfig.Description = "Nothing to see here just a statue";
+            wardConfig.PieceTable = PieceTables.Hammer;
+            wardConfig.Category = PieceCategories.Furniture;
+            wardConfig.Requirements = new RequirementConfig[1]
+            {
+                new RequirementConfig()
+                {
+                    Item = "Stone",
+                    Amount = 20,
+                    Recover = true
+                }
+            };
+            CustomPiece wardPiece = new CustomPiece("odinStatue", "guard_stone", wardConfig);
+            wardConfig.Name = "Odin Statue 2";
+            CustomPiece wardPiece2 = new CustomPiece("odinStatue2", "dverger_guardstone", wardConfig);
+
+            removePrivateArea(wardPiece);
+            removePrivateArea(wardPiece2);
+
+            PieceManager.Instance.AddPiece(wardPiece);
+            PieceManager.Instance.AddPiece(wardPiece2);
+        }
+
+        private static void removePrivateArea(CustomPiece wardPiece)
+        {
+            if (wardPiece.Piece.GetComponentInChildren<PrivateArea>() != null)
+            {
+                var privateArea = wardPiece.Piece.GetComponentInChildren<PrivateArea>();
+                Object.Destroy(privateArea);
+            }
         }
     }
 }
