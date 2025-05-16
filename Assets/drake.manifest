@@ -1,0 +1,189 @@
+ManifestFileVersion: 0
+CRC: 4247885972
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 1811cfdfb2ef1120a89e790f11d024f3
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: a9f908a76419f9792904f10684beb81e
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 1811cfdfb2ef1120a89e790f11d024f3
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 82
+  Script: {instanceID: 0}
+- Class: 83
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 313648218, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1521249158, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 825357479, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1109157524, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1404409730, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 130663047, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 54271039, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 469224316, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 2094620348, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 489050665, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 2053127972, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: -866236644, guid: 723cde4087caa75bc7e160bd19cde5d6, type: 3}
+- Class: 114
+  Script: {fileID: -870746866, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1790797106, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 963225042, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: -1210150510, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1541706127, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: -2116187367, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1282597392, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: -2060124386, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: -1987483406, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 971010301, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 1559923330, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: -201937006, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 114
+  Script: {fileID: 895252998, guid: c1b78fa918b030faf1c1f6f6164daeb2, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 134
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+- Class: 198
+  Script: {instanceID: 0}
+- Class: 199
+  Script: {instanceID: 0}
+- Class: 205
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 241
+  Script: {instanceID: 0}
+- Class: 243
+  Script: {instanceID: 0}
+- Class: 245
+  Script: {instanceID: 0}
+- Class: 330
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: assembly_valheim
+  ClassName: Attack
+- AssemblyName: assembly_valheim
+  ClassName: DropTable
+- AssemblyName: assembly_valheim
+  ClassName: EffectList
+- AssemblyName: assembly_valheim
+  ClassName: EffectList/EffectData
+- AssemblyName: assembly_valheim
+  ClassName: HitData/DamageModifiers
+- AssemblyName: assembly_valheim
+  ClassName: HitData/DamageTypes
+- AssemblyName: assembly_valheim
+  ClassName: ItemDrop/ItemData
+- AssemblyName: assembly_valheim
+  ClassName: ItemDrop/ItemData/SharedData
+- AssemblyName: assembly_valheim
+  ClassName: Piece/Requirement
+- AssemblyName: assembly_valheim
+  ClassName: Raven/RavenText
+Assets:
+- Assets/Drake/locksmit/MasterKey.prefab
+- Assets/Drake/Chest/piece_chest_green.prefab
+- Assets/Drake/wall/coin.mat
+- Assets/Drake/Chest/chesttop.prefab
+- Assets/Drake/JVLmock_vfx_HitSparks.prefab
+- Assets/Drake/flame.png
+- Assets/Drake/wall/woodwall/wood_wall_white.png
+- Assets/Drake/odinStatue.PNG
+- Assets/Material/coin_lod.mat
+- Assets/Drake/wall/woodwall/wood_wall_white_half.prefab
+- Assets/Drake/Odin_Statue.prefab
+- Assets/Drake/wall/metalwall_0b.mat
+- Assets/Drake/wall/bronze_wall_2x2.prefab
+- Assets/Drake/locksmit/PrivateKey.prefab
+- Assets/Drake/wall/bronze_wall.png
+- Assets/Drake/Chest/chest.prefab
+- Assets/Drake/JVLmock_vfx_RockHit.prefab
+- Assets/Material/bronze.mat
+- Assets/Drake/wall/woodwall/woodwall_white.mat
+- Assets/Drake/wall/woodwall/woodwall_white_lowlod.mat
+- Assets/Drake/Flamebar.prefab
+- Assets/Material/Guardstone_OdenGlow_mat.mat
+- Assets/Drake/KeyMaker.prefab
+- Assets/Material/Guardstone_Oden_mat.mat
+- Assets/Drake/wall/woodwall/woodwall_white_worn.mat
+- Assets/Drake/wall/woodwall/woodwall_white.prefab
+- Assets/Drake/JVLmock_vfx_SawDust.prefab
+- Assets/Drake/Chest/greenchest.prefab
+- Assets/Drake/JVLmock_vfx_Place_stone_wall_4x2.prefab
+- Assets/Drake/wall/woodwall/wood_wall_white_quarter.prefab
+- Assets/Material/coin.mat
+- Assets/Drake/locksmit/MasterKeyCustom.prefab
+- Assets/Drake/piece_walltorch.prefab
+- Assets/Drake/Chest/HildirChest3_mat.mat
+- Assets/Drake/wall/woodwall/woodwall_white_worn_lowlod.mat
+- Assets/Drake/locksmit/PublicKey.prefab
+- Assets/Material/staffs_surtlingcore.mat
+- Assets/Drake/JVLmock_vfx_Place_wood_wall.prefab
+- Assets/Drake/wall/metalwall_b_worn.mat
+- Assets/Drake/wall/metalwall_b.mat
+Dependencies: []

@@ -69,18 +69,33 @@ namespace LockSmith
             {
                 RequireOnlyOneIngredient = true
             };
+           var masterKeyCustom  = LockSmith.LoadPrefab("MasterKeyCustom", LockSmith.box);
+           var masterKey  = LockSmith.LoadPrefab("MasterKey", LockSmith.box);
+           var publicKey  = LockSmith.LoadPrefab("PublicKey", LockSmith.box);
+           var publicKey2  = LockSmith.LoadPrefab("PublicKey2", LockSmith.box);
+           var privateKey  = LockSmith.LoadPrefab("PrivateKey", LockSmith.box);
+           
+           string publicKeyPrefab = "CryptKey", privateKeyPrefab = "CryptKey", masterKeyPrefab = "CryptKey";
+           
             baseKey.AddRequirement(new RequirementConfig("Stone", 2));
             baseKey.AddRequirement(new RequirementConfig("Wood", 1));
-
+    
 
             baseKey.Name = "Public Key"; //"$item_setAccessKey";
             baseKey.Description = "place this key in a box to make it public"; //"$item_setAccessKey_desc";
-            makeItem("publicKey", baseKey, "CryptKey");
+          
+            makeItem(baseKey, publicKey);
 
             baseKey.Name = "Personal Key"; //"$item_setAccessKey";
             baseKey.Description =
                 "place this key in a box to make the owner, have access"; //"$item_setAccessKey_desc";
-            makeItem("personalKey", baseKey, "CryptKey");
+            makeItem (baseKey, privateKey);
+            
+            makeItem(baseKey, masterKey);
+            
+            makeItem( baseKey, masterKeyCustom);
+            makeItem( baseKey, publicKey2);
+            
 
             PrefabManager.OnVanillaPrefabsAvailable -= makeKeyItems;
 
@@ -101,6 +116,12 @@ namespace LockSmith
         {
             makeItem(name, itemConfig.Name, itemConfig.Description, prefab,
                 new List<RequirementConfig>(itemConfig.Requirements), itemConfig.CraftingStation);
+        }
+
+        private void makeItem(ItemConfig itemConfig, GameObject prefab)
+        {
+            CustomItem customItem = new CustomItem(prefab, true, itemConfig);
+            ItemManager.Instance.AddItem(customItem);
         }
 
         private void makeItem(string name, string gameName, string description, string prefab,

@@ -168,17 +168,4 @@
     "dependencies": [ $(Dependencies) ]
 }' />
     </ItemGroup>
-
-   <!-- <ItemGroup>
-      <Content Include="Assets\BlueKey.jpg" />
-      <Content Include="Assets\BrownKey.jpg" />
-      <Content Include="Assets\GoldKey.jpg" />
-      <Content Include="Assets\goldKey.png" />
-      <Content Include="Assets\IronKey.jpg" />
-      <Content Include="Assets\ironKey.png" />
-      <Content Include="Assets\MasterKey.jpg" />
-      <Content Include="Assets\newBox" />
-      <Content Include="environment.props" />
-      <Content Include="ILRepack.targets" />
-    </ItemGroup>-->
 </Project>

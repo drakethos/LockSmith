@@ -65,9 +65,11 @@ namespace LockSmith
             PrefabManager.OnVanillaPrefabsAvailable += addBronze;
             PrefabManager.OnVanillaPrefabsAvailable += addBar;
             PrefabManager.OnVanillaPrefabsAvailable += addBox;
+            PrefabManager.OnVanillaPrefabsAvailable += addKeys;
             //Localizations();
             //     PrefabManager.OnVanillaPrefabsAvailable += ItemLib.makeKeyItems;
             PrefabManager.OnVanillaPrefabsAvailable += ItemLib.addPublicPieces;
+            PrefabManager.OnVanillaPrefabsAvailable += ItemLib.makeKeyItems;
             PrefabManager.OnVanillaPrefabsAvailable += ItemLib.recolor;
             harmony.PatchAll();
         }
@@ -240,7 +242,46 @@ namespace LockSmith
                     PieceTable = PieceTables.Hammer
 
                 });
+                var wallTorch = new CustomPiece(box, "piece_walltorch", true, new PieceConfig
+                {
+                    Requirements = new[]
+                    {
+                        new RequirementConfig("Iron", 1, 0, true), new RequirementConfig("Copper", 2, 0, true)
+                    },
+                    Name = "IronTorch",
+                    Category = PieceCategories.Furniture,
+                    PieceTable = PieceTables.Hammer
+
+                });
                 PieceManager.Instance.AddPiece(piece);
+                PieceManager.Instance.AddPiece(wallTorch);
+            }
+            else
+            {
+                Debug.LogError("Failed to load asset");
+            }
+        }
+        
+        private void addKeys()
+        {
+            GameObject KeyMaker = LoadPrefab("KeyMaker", box);
+            Debug.Log("Attempting to add assets");
+            if (KeyMaker != null)
+            {
+                var piece = new CustomPiece(box, "KeyMaker", true, new PieceConfig
+                {
+                    Requirements = new[]
+                    {
+                        new RequirementConfig("Rock", 5, 0, true), new RequirementConfig("Copper", 2, 0, true)
+                    },
+                    Name = "KeyMaker",
+                    Category = PieceCategories.Crafting,
+                    PieceTable = PieceTables.Hammer
+
+                });
+                PieceManager.Instance.AddPiece(piece);
+                CustomPieceTable keyMaker = new CustomPieceTable(piece.PiecePrefab);
+          
             }
             else
             {
@@ -248,7 +289,8 @@ namespace LockSmith
             }
         }
 
-        public GameObject LoadPrefab(string prefabName, AssetBundle bundle)
+
+        public static GameObject LoadPrefab(string prefabName, AssetBundle bundle)
         {
             if (bundle == null) return null;
 
