@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.CompilerServices;
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
-using Jotunn;
 using Jotunn.Configs;
 using UnityEngine;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using Logger = BepInEx.Logging.Logger;
-using Paths = BepInEx.Paths;
 
 namespace LockSmith
 {
@@ -31,6 +24,8 @@ namespace LockSmith
         public static AssetBundle box;
 
 
+        public static AssetBundle DrakeBundle;
+        public static AssetBundle PloamBundle;
         private readonly Harmony harmony = new Harmony("drakesmod.LockSmith");
 
         private readonly ItemLib _itemLib;
@@ -63,62 +58,95 @@ namespace LockSmith
             );
             PrefabManager.OnVanillaPrefabsAvailable += addWall;
             PrefabManager.OnVanillaPrefabsAvailable += addBronze;
-            PrefabManager.OnVanillaPrefabsAvailable += addBar;
             PrefabManager.OnVanillaPrefabsAvailable += addBox;
             PrefabManager.OnVanillaPrefabsAvailable += addKeys;
-            //Localizations();
-            //     PrefabManager.OnVanillaPrefabsAvailable += ItemLib.makeKeyItems;
-            PrefabManager.OnVanillaPrefabsAvailable += ItemLib.addPublicPieces;
+            PrefabManager.OnVanillaPrefabsAvailable += makeCustom;
             PrefabManager.OnVanillaPrefabsAvailable += ItemLib.makeKeyItems;
-            PrefabManager.OnVanillaPrefabsAvailable += ItemLib.recolor;
+            PrefabManager.OnVanillaPrefabsAvailable += ItemLib.addPublicPieces;
             harmony.PatchAll();
         }
 
-        private void addBundles()
+        private void makeCustom()
         {
+            GameObject ploam_prefab = LoadPrefab("Ploam", PloamBundle);
             string folder = "DrakeMod-LockSmith";
             string assetBundlePath = "DrakeMod-LockSmith/Assets/drake";
-            // JotunnPatches.bandage = AssetUtils.LoadAssetBundle("1010101110-vrp/Assets/bandage");
-
-            Debug.Log($"Loading Assets skippity do ${assetBundlePath} ");
             box = AssetUtils.LoadAssetBundle(assetBundlePath);
             if (box == null)
             {
                 Logger.LogError($"Failed to load AssetBundle from {assetBundlePath}");
             }
+
+            var ploam = new CustomItem(ploam_prefab, fixReference: true);
+            ItemManager.Instance.AddItem(ploam);
+
+            GameObject floam_barrel = LoadPrefab("barell_floam", PloamBundle);
+            GameObject gloam_barrel = LoadPrefab("barell_gloam", PloamBundle);
+            GameObject ploam_barrel = LoadPrefab("barell_ploam", PloamBundle);
+            GameObject ploam_ball = LoadPrefab("ploam_ball", PloamBundle);
+            GameObject bandit_mask = LoadPrefab("BanditMask", PloamBundle);
+
+            var floamReq = new[] { new RequirementConfig("Ploam", 20) };
+            var maskReq = new[] { new RequirementConfig("DeerHide", 5) };
+
+
+            addPiece("Floam Barrel", floam_barrel, floamReq);
+            addPiece("Gloam Barrel", gloam_barrel, floamReq);
+            addPiece("Ploam Barrel", ploam_barrel, floamReq);
+            addPiece("Ploam Ball", ploam_ball, floamReq);
+            addItem("Bandit Mask", bandit_mask, maskReq);
         }
 
-        private void addBar()
+        private void addItem(string name, GameObject prefab, RequirementConfig[] requirements)
         {
             try
             {
-                GameObject flamebar = LoadPrefab("Flamebar", box);
-                Debug.Log("Attempting to add assets");
-                if (flamebar != null)
+                if (prefab == null)
                 {
-                    ItemManager.Instance.AddItem(new CustomItem(box, "Flamebar", true, new ItemConfig
-                    {
-                        Name = "Flamebar",
-                        Description = "Its flamy",
-                        // CraftingStation = CraftingStations.Workbench,
-                        //    Requirements = new[] { new RequirementConfig("Stone", 1) }
-                    }));
+                    Debug.LogError("Unable to add item " + name);
+                    return;
+                }
+
+                Debug.Log("Attempting custom item");
+
+                var itemConfig = new ItemConfig();
+                itemConfig.Requirements = requirements;
+                itemConfig.CraftingStation = CraftingStations.Workbench;
+                var item = new CustomItem(prefab, true, itemConfig);
+
+                if (item != null)
+                {
+                    ZLog.Log("locksmith added item " + prefab.name);
+                    ItemManager.Instance.AddItem(item);
                 }
             }
-
             catch (Exception ex)
             {
-                Debug.LogError("Unable to load firemetal");
+                Debug.LogError("locksmith failed to add piece " + prefab);
+                Debug.LogError(ex);
             }
         }
+
+        private void addBundles()
+        {
+            string folder = "DrakeMod-LockSmith";
+            string assetBundlePath = "DrakeMod-LockSmith/Assets/ploam";
+            string assetBundlePath2 = "DrakeMod-LockSmith/Assets/drake";
+            Debug.Log($"Loading Assets skippity do ${assetBundlePath} ");
+            PloamBundle = AssetUtils.LoadAssetBundle(assetBundlePath);
+            if (PloamBundle == null)
+            {
+                Logger.LogError($"Failed to load AssetBundle from {assetBundlePath}");
+            }
+        }
+
 
         private void addWall()
         {
             addStatue();
             GameObject wall = LoadPrefab("woodwall_white", box);
             GameObject wallhalf = LoadPrefab("wood_wall_white_half", box);
-            GameObject gwall = LoadPrefab("gold_wall_4x2", box);
-            GameObject gmwall = LoadPrefab("goldmarble_1x1", box);
+
             Debug.Log("Attempting to add assets");
             if (wall != null)
             {
@@ -143,30 +171,6 @@ namespace LockSmith
                     Category = PieceCategories.Building,
                     PieceTable = PieceTables.Hammer
                 });
-                PieceManager.Instance.AddPiece(woodWall_half);
-                var piece2 = new CustomPiece(box, "gold_wall_4x2", true, new PieceConfig
-                {
-                    Requirements = new[]
-                    {
-                        new RequirementConfig("Coin", 50, 0, true)
-                    },
-                    Name = "Gold Wall",
-                    Category = PieceCategories.Building,
-                    PieceTable = PieceTables.Hammer
-                });
-                PieceManager.Instance.AddPiece(piece2);
-
-                var piece3 = new CustomPiece(box, "goldmarble_1x1", true, new PieceConfig
-                {
-                    Requirements = new[]
-                    {
-                        new RequirementConfig("Coin", 50, 0, true)
-                    },
-                    Name = "Gold Marble Wall",
-                    Category = PieceCategories.Building,
-                    PieceTable = PieceTables.Hammer
-                });
-                PieceManager.Instance.AddPiece(piece3);
             }
             else
             {
@@ -240,7 +244,6 @@ namespace LockSmith
                     Name = "Cool Chest",
                     Category = PieceCategories.Furniture,
                     PieceTable = PieceTables.Hammer
-
                 });
                 var wallTorch = new CustomPiece(box, "piece_walltorch", true, new PieceConfig
                 {
@@ -251,7 +254,6 @@ namespace LockSmith
                     Name = "IronTorch",
                     Category = PieceCategories.Furniture,
                     PieceTable = PieceTables.Hammer
-
                 });
                 PieceManager.Instance.AddPiece(piece);
                 PieceManager.Instance.AddPiece(wallTorch);
@@ -261,7 +263,7 @@ namespace LockSmith
                 Debug.LogError("Failed to load asset");
             }
         }
-        
+
         private void addKeys()
         {
             GameObject KeyMaker = LoadPrefab("KeyMaker", box);
@@ -277,18 +279,15 @@ namespace LockSmith
                     Name = "KeyMaker",
                     Category = PieceCategories.Crafting,
                     PieceTable = PieceTables.Hammer
-
                 });
                 PieceManager.Instance.AddPiece(piece);
                 CustomPieceTable keyMaker = new CustomPieceTable(piece.PiecePrefab);
-          
             }
             else
             {
                 Debug.LogError("Failed to load asset");
             }
         }
-
 
         public static GameObject LoadPrefab(string prefabName, AssetBundle bundle)
         {
@@ -307,35 +306,6 @@ namespace LockSmith
             return prefab;
         }
 
-
-        private static void addMaterial(GameObject prefab, string name)
-        {
-            try
-            {
-                if (prefab != null)
-                {
-                    var newPrefab = new CustomPrefab(prefab, true);
-                    PrefabManager.Instance.AddPrefab(newPrefab);
-                    ZLog.Log((object)("locksmith added material " + prefab));
-
-                    ItemManager.Instance.AddItem(new CustomItem(box, "Flamebar", true, new ItemConfig
-                    {
-                        Name = name,
-                        Description = "Its flamy",
-                        CraftingStation = CraftingStations.Workbench,
-                        Requirements = new[] { new RequirementConfig("Stone", 1) }
-                    }));
-                }
-                else
-                    ZLog.LogWarning((object)("locksmith did not find prefab " + name));
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError((object)("locksmith failed to add item " + name));
-                Debug.LogError((object)ex);
-            }
-        }
-
         private static void addPiece(string name,
             GameObject prefab,
             RequirementConfig[] reqs,
@@ -345,7 +315,7 @@ namespace LockSmith
             {
                 if (prefab == null)
                 {
-                    Debug.LogError("Unable to add item");
+                    Debug.LogError("Unable to add piece " + name);
                     return;
                 }
 

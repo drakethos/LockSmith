@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
 using Jotunn.Configs;
@@ -11,54 +10,6 @@ namespace LockSmith
 {
     public class ItemLib
     {
-        // Your mod's custom localization
-        private CustomLocalization Localization;
-
-        private void Localizations()
-        {
-            Localization = LocalizationManager.Instance.GetLocalization();
-            LocalizationManager.Instance.AddLocalization(Localization);
-
-            Localization.AddTranslation("English", new Dictionary<string, string>
-            {
-                { "item_setAccessKey", "Give Access Key" },
-                {
-                    "item_setAccessKey_desc",
-                    "Use this key on an door or box to allow a player to access it without ward access"
-                },
-                { "locksmith_giveaccess", "Set Access" },
-                { "locksmith_access_message", "Ready to set, other player touch the object!" },
-            });
-        }
-
-        public void recolor()
-        {
-            var trollClone = new CustomItem("HelmetTrollLeatherRed", "HelmetTrollLeather", new ItemConfig
-            {
-                Name = "Red Troll Hood",
-                Description = "Is red",
-                CraftingStation = CraftingStations.Workbench,
-                Requirements = new[] { new RequirementConfig("Wood", 1, 1, false) }
-            });
-            var trollObject = trollClone.ItemPrefab;
-            if (trollObject != null)
-            {
-                
-                Debug.Log("Found the troll prefab");
-                var trollMat = trollClone.ItemPrefab.GetComponentInChildren<Material>();
-                if (trollMat != null)
-                {
-                    
-                    Debug.Log("Found the material lets make it red!");
-                    trollMat.color = Color.red;
-                    Debug.Log("WE MADE IT");
-                }
-
-                trollClone.ItemPrefab.GetComponentInChildren<Renderer>();   
-            }
-
-            ItemManager.Instance.AddItem(trollClone);
-        }
 
         public void makeKeyItems()
         {
@@ -163,13 +114,6 @@ namespace LockSmith
                 customPiece.Piece.GetComponentInChildren<Container>().m_checkGuardStone = false;
             }
 
-            if (customPiece.Piece.GetComponentInChildren<PrivateArea>())
-            {
-                Debug.Log($" Removing ward from {customPiece.Piece.name}");
-                var privateArea = customPiece.Piece.GetComponentInChildren<PrivateArea>();
-                Object.Destroy(privateArea);
-            }
-
             PieceManager.Instance.AddPiece(customPiece);
         }
 
@@ -179,46 +123,6 @@ namespace LockSmith
             makePiece("piece_chest_public", "Reinforced Chest (public)", "piece_chest");
             makePiece("wood_door_public", "Wood Door (public)", "wood_door");
             makePiece("wood_gate_public", "Wood Gate (public)", "wood_gate");
-            //makePlainWard();
-            PrefabManager.OnVanillaPrefabsAvailable -= addPublicPieces;
-        }
-        
-        private void makePlainWard()
-        {
-            Debug.Log($"Making plain ward from guard_stone");
-
-            PieceConfig wardConfig = new PieceConfig();
-            wardConfig.Name = "Statue Odin";
-            wardConfig.Description = "Nothing to see here just a statue";
-            wardConfig.PieceTable = PieceTables.Hammer;
-            wardConfig.Category = PieceCategories.Furniture;
-            wardConfig.Requirements = new RequirementConfig[1]
-            {
-                new RequirementConfig()
-                {
-                    Item = "Stone",
-                    Amount = 20,
-                    Recover = true
-                }
-            };
-            CustomPiece wardPiece = new CustomPiece("odinStatue", "guard_stone", wardConfig);
-            wardConfig.Name = "Odin Statue 2";
-            CustomPiece wardPiece2 = new CustomPiece("odinStatue2", "dverger_guardstone", wardConfig);
-
-            removePrivateArea(wardPiece);
-            removePrivateArea(wardPiece2);
-
-            PieceManager.Instance.AddPiece(wardPiece);
-            PieceManager.Instance.AddPiece(wardPiece2);
-        }
-
-        private static void removePrivateArea(CustomPiece wardPiece)
-        {
-            if (wardPiece.Piece.GetComponentInChildren<PrivateArea>() != null)
-            {
-                var privateArea = wardPiece.Piece.GetComponentInChildren<PrivateArea>();
-                Object.Destroy(privateArea);
-            }
         }
     }
 }

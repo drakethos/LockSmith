@@ -149,10 +149,7 @@
         <Copy
                 SourceFiles="$(TargetDir)$(TargetFileName)"
                 DestinationFolder="$(ThunderstoreFolder)\"/>
-    
-        <Copy
-                SourceFiles="@(AssetsToCopy)"
-                DestinationFolder="$(ThunderstoreFolder)\Assets\"/>
+
         <!-- Zip the Thunderstore folder -->
         <Exec Command="powershell -Command Compress-Archive -Path '$(ThunderstoreFolder)\*' -DestinationPath '$(ZipOutput)' -Force"/>
     </Target>
@@ -167,5 +164,15 @@
     "website_url": "$(WebsiteUrl)",
     "dependencies": [ $(Dependencies) ]
 }' />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="ploam" />
+        <EmbeddedResource Include="Assets\steel" />
+        <EmbeddedResource Include="Assets\drake" />
+        <EmbeddedResource Include="Assets\ploam" />
+      <Content Include="environment.props" />
+      <Content Include="ILRepack.targets" />
+   
+       <AssetFiles Include="Assets\*.*" />
     </ItemGroup>
 </Project>
