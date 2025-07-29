@@ -4,9 +4,9 @@
         <BepInExPath>$(R2ModPath)\$(ProfileName)\BepInEx</BepInExPath>
         <CorlibPath>$(ValheimGamePath)\valheim_Data\Managed</CorlibPath>
         <PublicizedAssembliesPath>$(ValheimGamePath)\valheim_Data\Managed\publicized_assemblies</PublicizedAssembliesPath>
-        <R2ModPath>C:\Users\house\AppData\Roaming\r2modmanPlus-local\Valheim\profiles</R2ModPath>
+        <R2ModPath>C:\Users\Derrick\AppData\Roaming\r2modmanPlus-local\Valheim\profiles</R2ModPath>
         <!-- Define the profile name -->
-        <ProfileName>drakeTest</ProfileName>
+        <ProfileName>drake</ProfileName>
         <!-- Define the folder for the Thunderstore package -->
         <ThunderstoreBasePath>C:\modding\Thunderstore</ThunderstoreBasePath>
         <ThunderstoreFolder>$(ThunderstoreBasePath)\$(CompanyName)-$(AssemblyName)-$(Version)</ThunderstoreFolder>

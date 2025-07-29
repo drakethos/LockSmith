@@ -6,63 +6,10 @@ using Jotunn.Managers;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace LockSmith
+namespace DrakeLabs
 {
     public class ItemLib
     {
-
-        public void makeKeyItems()
-        {
-            ItemConfig baseKey = new ItemConfig();
-            baseKey.Description = "use this key on a door or lock"; //"$item_setAccessKey_desc";
-            baseKey.CraftingStation = CraftingStations.Workbench;
-            RecipeConfig rec = new RecipeConfig()
-            {
-                RequireOnlyOneIngredient = true
-            };
-           var masterKeyCustom  = LockSmith.LoadPrefab("MasterKeyCustom", LockSmith.box);
-           var masterKey  = LockSmith.LoadPrefab("MasterKey", LockSmith.box);
-           var publicKey  = LockSmith.LoadPrefab("PublicKey", LockSmith.box);
-           var publicKey2  = LockSmith.LoadPrefab("PublicKey2", LockSmith.box);
-           var privateKey  = LockSmith.LoadPrefab("PrivateKey", LockSmith.box);
-           
-           string publicKeyPrefab = "CryptKey", privateKeyPrefab = "CryptKey", masterKeyPrefab = "CryptKey";
-           
-            baseKey.AddRequirement(new RequirementConfig("Stone", 2));
-            baseKey.AddRequirement(new RequirementConfig("Wood", 1));
-    
-
-            baseKey.Name = "Public Key"; //"$item_setAccessKey";
-            baseKey.Description = "place this key in a box to make it public"; //"$item_setAccessKey_desc";
-          
-            makeItem(baseKey, publicKey);
-
-            baseKey.Name = "Personal Key"; //"$item_setAccessKey";
-            baseKey.Description =
-                "place this key in a box to make the owner, have access"; //"$item_setAccessKey_desc";
-            makeItem (baseKey, privateKey);
-            
-            makeItem(baseKey, masterKey);
-            
-            makeItem( baseKey, masterKeyCustom);
-            makeItem( baseKey, publicKey2);
-            
-
-            PrefabManager.OnVanillaPrefabsAvailable -= makeKeyItems;
-
-            CreateKeyHints();
-        }
-
-        private void CreateKeyHints()
-        {
-            // Override "default" KeyHint with an empty config
-            KeyHintConfig KHC_base = new KeyHintConfig
-            {
-                Item = "setAccessKey"
-            };
-            KeyHintManager.Instance.AddKeyHint(KHC_base);
-        }
-
         private void makeItem(string name, ItemConfig itemConfig, string prefab)
         {
             makeItem(name, itemConfig.Name, itemConfig.Description, prefab,
