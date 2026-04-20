@@ -53,18 +53,21 @@ namespace DrakeLabs
         {
             ItemConfig keyConfig = new ItemConfig
             {
-                Name        = "$dl_ward_key_name",
-                Description = "$dl_ward_key_desc",
+                Name        = "Ward Key",
+                Description = "Grants the holder access to Named and Key-Required chests and doors " +
+                              "inside a ward, even without being on the ward's permission list. " +
+                              "Craft one for each trusted visitor and hand it to them.",
                 CraftingStation = "piece_workbench",
                 RepairStation   = "piece_workbench",
-                MaxStackSize = 1
+                // Stack up to 20 so a ward owner can craft a batch and distribute them.
+                MaxStackSize = 20
             };
-            keyConfig.AddRequirement(new RequirementConfig("Wood",      2));
-            keyConfig.AddRequirement(new RequirementConfig("Iron",      1));
+            keyConfig.AddRequirement(new RequirementConfig("Wood",         2));
+            keyConfig.AddRequirement(new RequirementConfig("Iron",         1));
             keyConfig.AddRequirement(new RequirementConfig("SurtlingCore", 1));
 
-            // Clone from the Surtling Core icon/shape – close enough for a key item.
-            // Replace "SurtlingCore" with a dedicated prefab when artwork is ready.
+            // Cloned from SurtlingCore prefab as a placeholder until custom artwork exists.
+            // Replace "SurtlingCore" with a bespoke key prefab when art is ready.
             CustomItem keyItem = new CustomItem(AccessControl.KeyItemName, "SurtlingCore", keyConfig);
             ItemManager.Instance.AddItem(keyItem);
             Log.LogInfo("Ward Key item registered.");
