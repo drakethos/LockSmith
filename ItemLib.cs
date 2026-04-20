@@ -4,12 +4,17 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace DrakeLabs
 {
     public class ItemLib
     {
+        private ManualLogSource Log => Plugin.Log;
+
+        // ------------------------------------------------------------------
+        // Item registration
+        // ------------------------------------------------------------------
+
         private void makeItem(string name, ItemConfig itemConfig, string prefab)
         {
             makeItem(name, itemConfig.Name, itemConfig.Description, prefab,
@@ -38,27 +43,63 @@ namespace DrakeLabs
             ItemManager.Instance.AddItem(customItem);
         }
 
+        // ------------------------------------------------------------------
+        // Ward Key item
+        // Carrying this item grants access to any private chest/door on a ward
+        // even when the player is not on the ward's permission list.
+        // ------------------------------------------------------------------
+
+        public void AddKeyItem()
+        {
+            ItemConfig keyConfig = new ItemConfig
+            {
+                Name        = "Ward Key",
+                Description = "Grants the holder access to Named and Key-Required chests and doors " +
+                              "inside a ward, even without being on the ward's permission list. " +
+                              "Craft one for each trusted visitor and hand it to them.",
+                CraftingStation = "piece_workbench",
+                RepairStation   = "piece_workbench",
+                // Stack up to 20 so a ward owner can craft a batch and distribute them.
+                MaxStackSize = 20
+            };
+            keyConfig.AddRequirement(new RequirementConfig("Wood",         2));
+            keyConfig.AddRequirement(new RequirementConfig("Iron",         1));
+            keyConfig.AddRequirement(new RequirementConfig("SurtlingCore", 1));
+
+            // Cloned from SurtlingCore prefab as a placeholder until custom artwork exists.
+            // Replace "SurtlingCore" with a bespoke key prefab when art is ready.
+            CustomItem keyItem = new CustomItem(AccessControl.KeyItemName, "SurtlingCore", keyConfig);
+            ItemManager.Instance.AddItem(keyItem);
+            Log.LogInfo("Ward Key item registered.");
+        }
+
+        // ------------------------------------------------------------------
+        // Piece registration (public variants)
+        // ------------------------------------------------------------------
+
         private void makePiece(string name, string gameName, string prefab)
         {
             PieceConfig pieceConfig = new PieceConfig
             {
-                PieceTable = "Hammer", // Add to the Hammer build menu
-                Category = "Public", // Optional category
-                Enabled = true,
-                Name = gameName
+                PieceTable = "Hammer",
+                Category   = "Misc",
+                Enabled    = true,
+                Name       = gameName
             };
             CustomPiece customPiece = new CustomPiece(name, prefab, pieceConfig);
 
-            if (customPiece.Piece.GetComponentInChildren<Door>() != null)
+            Door door = customPiece.Piece.GetComponentInChildren<Door>();
+            if (door != null)
             {
-                Debug.Log($"Public Door version of piece {customPiece.Piece.name}");
-                customPiece.Piece.GetComponentInChildren<Door>().m_checkGuardStone = false;
+                Log.LogDebug($"Registering public Door piece: {customPiece.Piece.name}");
+                door.m_checkGuardStone = false;
             }
 
-            if (customPiece.Piece.GetComponentInChildren<Container>())
+            Container container = customPiece.Piece.GetComponentInChildren<Container>();
+            if (container != null)
             {
-                Debug.Log($"Public Door version of piece {customPiece.Piece.name}");
-                customPiece.Piece.GetComponentInChildren<Container>().m_checkGuardStone = false;
+                Log.LogDebug($"Registering public Container piece: {customPiece.Piece.name}");
+                container.m_checkGuardStone = false;
             }
 
             PieceManager.Instance.AddPiece(customPiece);
@@ -66,10 +107,10 @@ namespace DrakeLabs
 
         public void addPublicPieces()
         {
-            makePiece("piece_chest_wood_public", "Chest (public)", "piece_chest_wood");
-            makePiece("piece_chest_public", "Reinforced Chest (public)", "piece_chest");
-            makePiece("wood_door_public", "Wood Door (public)", "wood_door");
-            makePiece("wood_gate_public", "Wood Gate (public)", "wood_gate");
+            makePiece("piece_chest_wood_public", "Chest (Public)",            "piece_chest_wood");
+            makePiece("piece_chest_public",      "Reinforced Chest (Public)", "piece_chest");
+            makePiece("wood_door_public",         "Wood Door (Public)",        "wood_door");
+            makePiece("wood_gate_public",         "Wood Gate (Public)",        "wood_gate");
         }
     }
 }
