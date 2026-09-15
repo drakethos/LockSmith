@@ -1,0 +1,16 @@
+---
+description: Valheim modding — build, launch BepInEx, and smoke-test logs before calling work done
+alwaysApply: true
+---
+
+# Valheim Build + Smoke Test
+
+When working in a Valheim modding context on this project:
+
+1. **Build** the mod so it deploys into the active BepInEx/r2modman profile (normal project build).
+2. **Launch** Valheim via the profile’s BepInEx setup (r2modman/Gale/profile launch — not a bare `valheim.exe` without the mod loader unless the user says otherwise).
+3. **Smoke-test logs**: monitor basic BepInEx `LogOutput.log` output and confirm the game reaches a playable state without red errors/NPEs from this mod.
+4. **User gate**: if a full in-game check is needed, wait for user input before/during the play smoke test (login, load map, “we are playing”).
+5. Use the `/test-smoke-test` skill for the full launch → wait → monitor loop.
+
+Do not treat a successful compile alone as verification when runtime behavior changed.

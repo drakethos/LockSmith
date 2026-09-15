@@ -1,0 +1,31 @@
+---
+description: Better prompting loop — exclusions, context, role, and feedback under uncertainty
+alwaysApply: true
+---
+
+# Better Prompting Loop
+
+Adhere to industry-standard Cursor / AI prompting practices. Structure work around clear prompt layers, then close gaps with the user instead of guessing.
+
+## Prompt layers (use these deliberately)
+
+1. **Exclusion** — What not to touch: files, systems, refactors, scope creep, unrelated mods/features.
+2. **Context** — What you are working on: goals, current file/feature, constraints, Valheim/mod environment.
+3. **Role** — Who you are acting as (e.g. `/role-modder`, `/role-ui`, `/role-asset-creator`) and the standards that role implies.
+4. **Goal** — The success condition for this turn or task.
+5. **Constraints** — Hard limits: APIs, compatibility, style, “do not break X”.
+6. **Done criteria** — How to know the task is finished and verifiable.
+
+## Feedback under uncertainty
+
+- Get frequent feedback from the user whenever there is any gap and a low certainty.
+- Minimize hallucinations and missing the intent by gathering information to ensure the goal is met.
+- If multiple interpretations are plausible, ask a short clarifying question before large edits.
+- Prefer one precise question (or a tight set) over silent assumptions.
+
+## Practice
+
+- Restate exclusions and goal briefly when scope is ambiguous.
+- Do not invent APIs, log lines, asset fields, or game behavior you have not verified.
+- When blocked, ask; when certain, execute.
+- After meaningful progress, confirm the result matches intent when the change was speculative or multi-path.

@@ -1,0 +1,44 @@
+<Project>
+  <!-- environment.props is loaded by Jotunn Paths.props via SolutionDir (before Directory.Build continues). Do not Import it again here. -->
+  <Import Project="$(MSBuildThisFileDirectory)mod.package.props" Condition="Exists('$(MSBuildThisFileDirectory)mod.package.props')" />
+  <PropertyGroup>
+    <DrakeModBuildRoot Condition="Exists('$(MSBuildThisFileDirectory)..\build\DrakeMod.Build.props')">$(MSBuildThisFileDirectory)..\build\</DrakeModBuildRoot>
+    <DrakeModBuildRoot Condition="'$(DrakeModBuildRoot)' == '' and Exists('$(MSBuildThisFileDirectory)build\DrakeMod.Build.props')">$(MSBuildThisFileDirectory)build\</DrakeModBuildRoot>
+  </PropertyGroup>
+  <Import Project="$(DrakeModBuildRoot)DrakeMod.Build.props" Condition="'$(DrakeModBuildRoot)' != ''" />
+  <Import Project="$(MSBuildThisFileDirectory)mod.references.props" Condition="Exists('$(MSBuildThisFileDirectory)mod.references.props')" />
+  <!-- Cut 1 uses DrakeConfigSync from DrakeModsLibs (ServerSync stays embedded only in Libs). -->
+  <PropertyGroup>
+    <_WorkshopLibsProj Condition="Exists('$(MSBuildThisFileDirectory)..\DrakesWorkshop\DrakeModsLibs\DrakeModsLibs.csproj')">$(MSBuildThisFileDirectory)..\DrakesWorkshop\DrakeModsLibs\DrakeModsLibs.csproj</_WorkshopLibsProj>
+    <WorkshopLibsPluginFolder Condition="'$(WorkshopLibsPluginFolder)' == ''">DrakeMods-DrakeModsLibs</WorkshopLibsPluginFolder>
+    <!-- Prefer Gale DLL when present (active launcher); fall back to r2modman. -->
+    <WorkshopLibsDll Condition="'$(WorkshopLibsDll)' == '' and '$(GaleModPath)' != '' and '$(ProfileName)' != '' and Exists('$(GaleModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll')">$(GaleModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll</WorkshopLibsDll>
+    <WorkshopLibsDll Condition="'$(WorkshopLibsDll)' == '' and '$(R2ModPath)' != '' and '$(ProfileName)' != ''">$(R2ModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll</WorkshopLibsDll>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(_WorkshopLibsProj)' != ''">
+      <ItemGroup>
+        <ProjectReference Include="$(_WorkshopLibsProj)">
+          <Name>DrakeModsLibs</Name>
+          <Private>False</Private>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(WorkshopLibsDll)' != '' and Exists('$(WorkshopLibsDll)')">
+      <ItemGroup>
+        <Reference Include="DrakeModsLibs">
+          <HintPath>$(WorkshopLibsDll)</HintPath>
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <_WorkshopLibsReferenceMissing>true</_WorkshopLibsReferenceMissing>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Target Name="VerifyWorkshopLibsReference" BeforeTargets="ResolveReferences" Condition="'$(_WorkshopLibsReferenceMissing)' == 'true'">
+    <Error Text="DrakeModsLibs not found. Expected sibling ..\DrakesWorkshop\DrakeModsLibs, Gale/r2 profile DLL, or set WorkshopLibsDll." />
+  </Target>
+</Project>

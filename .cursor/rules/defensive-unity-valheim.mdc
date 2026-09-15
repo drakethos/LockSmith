@@ -1,0 +1,35 @@
+---
+description: Defensive Unity/Valheim coding — null guards, no NPE/missing-ref red logs from this mod
+alwaysApply: true
+---
+
+# Defensive Programming (Unity / Valheim)
+
+Always apply when writing or editing mod code. Not a role — a standing rule for all roles (modder, UI, asset creator).
+
+Harden code especially around game objects so this mod is never the cause of red error logs: NPEs, missing references, etc.
+
+## Rules
+
+1. **Null before use** on players, scene services, items, UI roots, cached components.
+2. **Unity null**: treat destroyed `UnityEngine.Object` as missing (`if (!obj)`), not only C# null.
+3. **No long chains** (`a.b.c.d`) on game objects — validate steps or cache after a safe resolve.
+4. **Lifecycle**: hook when objects exist; clear caches on destroy/logout/world unload.
+5. **Harmony**: early-return guards; do not let patch exceptions dump into the game loop when avoidable; log via the mod logger.
+6. **Lookups**: guard `GetComponent` / Find / dictionary access; handle missing explicitly.
+7. **Missing refs**: fail clearly once at registration/init, not as gameplay NPEs.
+8. **Log discipline**: one concise fault log — no per-frame error spam.
+
+```csharp
+// ❌ BAD
+var name = player.GetPlayerName();
+
+// ✅ GOOD
+if (player == null) return;
+var name = player.GetPlayerName();
+```
+
+```csharp
+// ✅ Unity fake-null
+if (cachedGo) cachedGo.SetActive(true);
+```

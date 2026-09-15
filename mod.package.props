@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <ThunderstoreName>LockSmith</ThunderstoreName>
+    <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
+    <RootNamespace>LockSmith</RootNamespace>
+    <AssemblyName>LockSmith</AssemblyName>
+    <Version>0.2.0</Version>
+    <BepInPluginName>LockSmith</BepInPluginName>
+    <BepInGuid>com.drakesworkshop.locksmith</BepInGuid>
+    <ModInfoClass>LockSmith</ModInfoClass>
+    <Description>Public/private chests and doors inside wards. Equip a Locksmith key, press E to toggle. Requires DrakeModsLibs.</Description>
+    <WebsiteUrl></WebsiteUrl>
+    <DeployAfterTargets>CopyBundlesToOutput</DeployAfterTargets>
+  </PropertyGroup>
+  <ItemGroup>
+    <ThunderstoreDependency Include="denikson-BepInExPack_Valheim-5.4.2350" />
+    <ThunderstoreDependency Include="ValheimModding-Jotunn-2.30.0" />
+    <ThunderstoreDependency Include="DrakeMods-DrakeModsLibs-0.9.1" />
+  </ItemGroup>
+</Project>
