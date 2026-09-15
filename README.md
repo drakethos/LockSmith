@@ -1,8 +1,11 @@
 # LockSmith
 
-Ward-friendly **public / private** access for player-built **chests** and **doors/gates**.
+Ward-friendly access for Valheim bases:
 
-Craft one Locksmith key, equip it like a tool, press **E** to flip a piece between ward-locked and open-to-everyone. No ward permit required for guests on public pieces. No new server rulebook for the core loop.
+- **Public / private** on normal chests and doors (inside wards)
+- **Personal / Team** on private-family chests (shared stash, no ward required)
+
+Craft one Locksmith key to **designate** a piece. After that, permitted players use **Alt+E** for public/private without holding the key. Key stays required for Team / Join setup.
 
 **Requires:** [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/), [Jotunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/), [DrakeModsLibs](https://thunderstore.io/c/valheim/p/DrakeMods/DrakeModsLibs/)
 
@@ -14,66 +17,75 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
-**0.2.0** — first public cut.
+**0.3.5** — designate pieces with the key; permitted Alt+E public/private without holding it.
 
 | Band | Meaning (this mod) |
 | --- | --- |
-| **0.2.x** | Chests + doors public/private, play-tested. Ready for Thunderstore. |
-| **0.3–0.4** | Optional access modes / integrations while the core stays stable. |
-| **0.5** | “Desired access story” feels complete enough for wider servers. |
-| **1.0** | Long-running server confidence (API settled, few surprise edge cases). |
-
-Version tracks **completeness of the intended access model** and **how hard it has been tested**, not commit count.
+| **0.2.x** | Chests + doors public/private |
+| **0.3.x** | + Personal/Team + guests + designate / no-key toggle |
+| **0.4** | Placeable public hammer pieces (no key) |
+| **0.5+** | Quest keys, RenameIt, Halvar, … |
+| **1.0** | Long-running server confidence |
 
 ## How to use
 
-1. Build a **Key Maker** and craft a **Locksmith Key** (or use your server’s recipe settings).
-2. **Equip** the key (tool-style — same idea as hammer / cultivator).
-3. Look at a player-built chest, door, or gate.
-4. Hover shows **Make public** / **Make private** instead of Open.
-5. Press **E** to toggle. Unequip the key to open/use the piece normally.
+### Designate a piece (key)
 
-Public pieces show **`[Public]`** on hover. Personal chests (`PrivacySetting.Private`) are never touched.
+1. Equip the **Locksmith Key**.
+2. Look at a player-built chest, door, or gate.
+3. **E** → **Enable LockSmith** (sets `locksmith_managed`). First use claims it.
+4. Unequip the key for day-to-day use.
+5. **ClearModifier+E** (default **Alt+E**, key equipped) → Clear LockSmith. Guests → confirm twice.
+6. **SetupModifier+E** (default **Shift+E**, key equipped) → Open/close Join.
+
+### Ward chests / doors — after designate
+
+1. If you have **ward or guest** access: **Alt+E** → public / private (**no key**).
+2. Strangers cannot toggle. **`[Public]`** means open — no Join/setup until private again.
+3. Key still needed for **Alt+E Join** open/close (Team-style guest list on that piece).
+
+### Private chests — Personal / Team
+
+1. Equip the key on a **private chest**.
+2. **E** → Personal ↔ Team (creator) — also designates.
+3. **Alt+E** → open/close **Join** (opt-in ready). Key required.
+4. Other character: **E** → Join access. Guests see names on hover; **Alt+E** → Leave access.
+5. Hover shows Open (not vanilla No access) when you have team/guest rights.
+
+### Ward chests / doors — partial guest access
+
+1. Designate with key, then **Alt+E** (with key) → open/close **Join**.
+2. A player **not** on the ward presses **E** while Join is open → guest list.
+3. Guests can open that chest/door without ward permit (`EnablePieceGuests`).
+4. Guests (and ward members) can **Alt+E** public/private without the key. Private chests are excluded.
 
 ### Config (synced)
 
 | Setting | Default | Notes |
 | --- | --- | --- |
-| `EnableChests` | on | Phase 1 |
-| `EnableDoors` | on | Phase 2 (doors + gates) |
+| `EnableChests` | on | Ward public/private chests |
+| `EnableDoors` | on | Ward public/private doors/gates |
+| `EnableGroupChests` | on | Personal/Team private chests |
+| `EnablePieceGuests` | on | Guest ACL on ward chests/doors |
+| `EnableOptInAccess` | on | Ward-style Join open / E to opt in |
 | `EnableKeyMode` | on | Craft / use the Locksmith key |
-| `EnablePieceMode` | off | Reserved — public hammer clones |
-| Key name / materials / station | KeyMaker + Bronze/Wood | Synced via DrakeModsLibs |
-
-## What this is good for (today)
-
-- Shop stalls and “take what you need” chests inside a ward
-- Inn doors / gateways guests can use without being on the ward
-- Keeping the rest of the base private without teaching players a custom key economy
+| `EnablePieceMode` | off | Reserved — Phase 4 hammer publics |
+| `EnableGuestPublicToggle` | on | Permitted Alt+E public/private (no key) |
+| `EnableDesignate` | on | Key must Enable LockSmith before no-key Alt+E |
+| `ClearModifier` | Alt | Local — key + modifier+E clears LockSmith |
+| `SetupModifier` | Shift | Local — key + modifier+E opens/closes Join |
+| `TeamLabelColor` | `#FF00FF` | Local only — color for Team/Guests labels |
 
 ## What’s next
 
-Version goals and backlog live in **[`docs/drakeVision.md`](docs/drakeVision.md)** (pull into plans). Short map:
+See **[`docs/drakeVision.md`](docs/drakeVision.md)**.
 
 | Version | Focus |
 | --- | --- |
-| **0.3** | Team / Group private chests (finish vanilla `Group` privacy) |
 | **0.4** | Placeable public chests/doors in a hammer tab (no key, no ZDO toggle) |
 | **0.3–0.4** | Compat with admin open / WardIsLove / other ward mods |
 | **Later** | Quest/swamp keys, RenameIt, unwarded locks, Halvar chests, … |
 
-## Design notes (why public/private first)
-
-The original “hand someone a key, oh no they lost it” fantasy is strong for **roleplay**, weak as the **only** model:
-
-| Approach | Use case | Cost |
-| --- | --- | --- |
-| **Public flag (shipped)** | Shops, inns, open gates | Almost none — ward still protects the rest |
-| **Named access on the piece** | One ally, one room | UX + storage; no item loss |
-| **Physical key item** | Rentals, quests, “locksmith” RP | Loss, theft, duplication, server drama |
-
-LockSmith keeps the shipped path boring-on-purpose. Extra modes should enhance RP **without** making every server invent key-custody rules.
-
 ## Feedback
 
-Bug reports and “this would help our RP server” notes welcome — especially if you tried public chests/doors on a real ward base.
+Bug reports and “this would help our RP server” notes welcome.

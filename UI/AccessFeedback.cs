@@ -8,7 +8,14 @@ public static class AccessFeedback
         if (user == null || string.IsNullOrEmpty(localizationToken))
             return;
 
-        var text = LockSmithLocalization.T(localizationToken);
-        user.Message(MessageHud.MessageType.Center, text);
+        ShowRaw(user, LockSmithLocalization.T(localizationToken));
+    }
+
+    public static void ShowRaw(Humanoid? user, string message)
+    {
+        if (user == null || string.IsNullOrEmpty(message))
+            return;
+
+        user.Message(MessageHud.MessageType.Center, message);
     }
 }

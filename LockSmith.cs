@@ -37,7 +37,7 @@ namespace LockSmith
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabs;
             _harmony.PatchAll();
-            Logger.LogInfo($"{ModName} {Version} Awake (Phase 1 chests + Phase 2 doors).");
+            Logger.LogInfo($"{ModName} {Version} Awake (0.3: chests/doors public + group private chests).");
         }
 
         private void OnVanillaPrefabs()

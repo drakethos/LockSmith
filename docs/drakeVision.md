@@ -4,7 +4,7 @@ Living target list for version goals. Pull sections into a Cursor plan when star
 
 **North star:** useful access options without overwhelming players or forcing RP servers into a thick rulebook.
 
-**Shipped:** `0.2.0` — ward chests + doors/gates, equip key → public/private, ZDO + `m_checkGuardStone`.
+**Shipped:** `0.3.0` — ward chests/doors public/private + Personal/Team private chests.
 
 ---
 
@@ -12,45 +12,29 @@ Living target list for version goals. Pull sections into a Cursor plan when star
 
 | Version | Name | Intent |
 | --- | --- | --- |
-| **0.3** | Phase 3 — team / private chest access | Highest next value; about to do |
-| **0.4** | Phase 4 — placeable public pieces (no key) | Hammer tab; prefab clones; no ZDO drama |
-| **0.3–0.4** | Compatibility hardening | Parallel concern while building 0.3/0.4 |
+| **0.3** | Phase 3 — team / private chest access | **Shipped in 0.3.0** |
+| **0.4** | Phase 4 — placeable public pieces (no key) | Next |
+| **0.3–0.4** | Compatibility hardening | Parallel concern while building 0.4 |
 | **0.5+** | Future options | Quest keys, RenameIt, unwarded locks, Halvar, etc. |
 
 Bump patch (`0.3.1`) for fixes; bump minor when a version goal’s *core* lands and is play-tested.
 
 ---
 
-## 0.3 — Phase 3 (next)
+## 0.3 — Phase 3 (shipped in 0.3.0)
 
 **Theme:** Finish vanilla’s unfinished **Group** privacy and make private-style chests actually shareable.
 
-### Goals
+### Shipped
 
-1. **Team / party private chest (Group privacy)**  
-   - Vanilla: `Container.PrivacySetting` = `Private | Group | Public`.  
-   - Today `Group` always denies in `CheckAccess` (stub).  
-   - Target: creator + configurable friend/party list can open; still the private-chest fantasy (tough box, not ward-public).  
-   - Do **not** turn personal Private boxes into LockSmith-public.
+1. **Team / party private chest** — ZDO team mode + member list; `CheckAccess` allows creator + members.
+2. **UX** — creator + key: **E** Personal↔Team; **Alt+E** add/remove nearest player (~5m).
+3. **0.2 path intact** — ward public/private unchanged; private-family chests are a second surface.
 
-2. **Swappable lock sense on that surface**  
-   - Clear owner UX to add/remove people (or lock/unlock group membership) without teaching a second economy.  
-   - Prefer piece-stored access (player ids / list) over “hand Joe a key and lose it.”
+### Explicitly not 0.3 (still)
 
-3. **Keep 0.2.0 path intact**  
-   - Ward public/private on normal chests/doors stays as-is.  
-   - Phase 3 is a **second product surface** (privacy enum / private chest family), not a rewrite of `locksmith_public`.
-
-### Done when
-
-- Group chest open works for listed players in co-op / dedicated.  
-- Hover/feedback makes owner vs member vs stranger obvious.  
-- No log spam; private-only chests remain creator-only unless opted into Group flow.
-
-### Explicitly not 0.3
-
-- Hammer public clone tab (→ 0.4)  
-- Quest / swamp-style keys (→ later)  
+- Hammer public clone tab (→ 0.4)
+- Quest / swamp-style keys (→ later)
 - Unwarded generic locks (→ later)
 
 ---
@@ -122,10 +106,18 @@ Ordered loosely by interest; any can jump a version if a plan pulls it in.
 - Collectable Halvar chests that become **real placeable containers** after unlock (incl. servers/alts where Halvar isn’t around).  
 - Separate content spike; amazing if clean, not required for 0.3/0.4.
 
-### Physical possession keys (personal)
+### Access setup menu (UI)
 
-- Still lower priority than lists + quest keys.  
-- Only as an explicit mode if a plan proves the loss/dupe story is acceptable.
+- Current Join / Alt+E / key flows are a **good start**.  
+- **Later:** a proper Valheim-native panel to configure piece access (guests, public/private, Join) without memorizing keybinds.  
+- Keep the hotkey path for power users.
+
+### Clone access onto a reusable key (physical pass)
+
+- Opt-in / guest lists stay primary.  
+- **Later idea:** snapshot a piece’s access settings onto a craftable/cloneable key item (“Joe’s key”, “Bo’s key”) so you can hand out or re-apply access without rebuilding Join membership after a wipe/grief (“I broke the gate — get everyone again”).  
+- Would layer on top of opt-in, not replace it.  
+- Risk: loss/dupe/economy — keep **optional** and clearly separate from quest keys.
 
 ---
 

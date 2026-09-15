@@ -13,10 +13,17 @@ public static class ChestAccessService
     private static FieldInfo? _leftItemField;
     private static bool _fieldsResolved;
 
-    public static bool ShouldBypassWardCheck(Container container) =>
-        LockSmithConfig.EnableChests
-        && PieceAccessState.IsEligibleChest(container)
-        && PieceAccessState.IsPublic(PieceAccessState.GetNetView(container));
+    public static bool ShouldBypassWardCheck(Container container)
+    {
+        if (!LockSmithConfig.EnableChests || !PieceAccessState.IsEligibleChest(container))
+            return false;
+
+        var nview = PieceAccessState.GetNetView(container);
+        if (PieceAccessState.IsPublic(nview))
+            return true;
+
+        return PieceGuestService.ShouldBypassWardForGuest(container);
+    }
 
     public static bool IsHoldingLocksmithKey(Humanoid? user) =>
         GetEquippedLocksmithKey(user) != null;
@@ -98,18 +105,18 @@ public static class ChestAccessService
     /// Key in hand path kept for call sites that want a single bool. Prefer Interact prefix
     /// which always consumes when the key is equipped.
     /// </summary>
-    public static bool TryHandleChestInteractWithKey(Container container, Humanoid user, bool hold)
+    public static bool TryHandleChestInteractWithKey(Container container, Humanoid user, bool hold, bool alt)
     {
         if (!IsHoldingLocksmithKey(user))
             return false;
 
         if (!hold)
-            TryToggleChest(container, user);
+            TryKeyInteract(container, user, alt);
 
         return true;
     }
 
-    public static bool TryToggleChest(Container container, Humanoid user)
+    public static bool TryKeyInteract(Container container, Humanoid user, bool alt)
     {
         if (!LockSmithConfig.EnableChests || !LockSmithConfig.EnableKeyMode)
         {
@@ -123,6 +130,17 @@ public static class ChestAccessService
             return true;
         }
 
+        if (PieceClearService.TryHandleKeyClear(container, user))
+            return true;
+
+        if (LockSmithInput.IsSetupModifierHeld())
+            return PieceGuestService.TryHandleKeyAlt(container, user);
+
+        return TryToggleChest(container, user);
+    }
+
+    public static bool TryToggleChest(Container container, Humanoid user)
+    {
         var player = user as Player;
         if (player == null)
             return true;
@@ -130,7 +148,6 @@ public static class ChestAccessService
         var playerId = player.GetPlayerID();
         var pos = PieceAccessState.GetPosition(container);
 
-        // Local CheckAccess matches creator + permitted (public API).
         if (!WardAccess.HasLocalWardAccess(pos))
         {
             AccessFeedback.Show(user, LockSmithLocalization.MsgDeniedToken);
@@ -141,10 +158,17 @@ public static class ChestAccessService
         if (nview == null || !nview.IsValid())
             return true;
 
+        // First key use designates the piece; later uses toggle public/private.
+        if (PieceAccessState.NeedsDesignate(nview))
+        {
+            RequestSetPublic(nview, PieceAccessState.IsPublic(nview), playerId);
+            AccessFeedback.Show(user, LockSmithLocalization.MsgManagedToken);
+            return true;
+        }
+
         var nextPublic = !PieceAccessState.IsPublic(nview);
         RequestSetPublic(nview, nextPublic, playerId);
 
-        // Owner path: confirm ZDO actually flipped before claiming success.
         if (nview.IsOwner())
         {
             var applied = PieceAccessState.IsPublic(nview);
@@ -182,8 +206,11 @@ public static class ChestAccessService
             ApplySetPublic(nview, flag == 1, playerId);
         });
 
+        PieceClearService.RegisterRpc(nview);
+
         // Prefab default may have ward check on; mirror ZDO onto this instance.
         PieceAccessState.SyncGuardStoneFromZdo(container);
+        PieceGuestService.RegisterRpc(container);
     }
 
     public static void ApplySetPublic(ZNetView nview, bool isPublic, long playerId)
@@ -195,7 +222,7 @@ public static class ChestAccessService
         if (!PieceAccessState.IsEligibleChest(container))
             return;
 
-        if (!LockSmithConfig.EnableChests || !LockSmithConfig.EnableKeyMode)
+        if (!LockSmithConfig.EnableChests)
             return;
 
         var pos = PieceAccessState.GetPosition(container!);
@@ -205,14 +232,28 @@ public static class ChestAccessService
             ? WardAccess.HasLocalWardAccess(pos)
             : WardAccess.HasWardAccessForPlayer(pos, playerId);
 
+        // Guests (or other permitted without ward) may unlock/lock on designated pieces.
+        var guestToggle = !allowed
+            && LockSmithConfig.EnableGuestPublicToggle
+            && LockSmithConfig.EnablePieceGuests
+            && PieceAccessState.IsManaged(nview)
+            && PieceGuestAccess.IsGuest(nview, playerId);
+
+        if (guestToggle)
+            allowed = true;
+        else if (!LockSmithConfig.EnableKeyMode)
+            return;
+
         if (!allowed)
         {
-            LockSmith.Log?.LogWarning($"Rejected public toggle for player {playerId} (no ward access).");
+            LockSmith.Log?.LogWarning($"Rejected public toggle for player {playerId} (no ward/guest access).");
             return;
         }
 
-        // ZDO + Container.m_checkGuardStone on this placed instance.
         PieceAccessState.SetPublic(nview, isPublic);
+        if (isPublic)
+            PieceGuestAccess.SetOptInReady(nview, false);
+
         LockSmith.Log?.LogInfo(
             $"Set locksmith_public={(isPublic ? 1 : 0)}, m_checkGuardStone={container!.m_checkGuardStone} " +
             $"on {container.name} (readback={PieceAccessState.IsPublic(nview)}).");
@@ -233,29 +274,44 @@ public static class ChestAccessService
 
         if (!PieceAccessState.IsEligibleChest(container))
         {
-            hoverText = container.GetHoverName() + "\n" +
+            hoverText = AccessHoverDisplay.LocalizedPieceName(container) + "\n" +
                         LockSmithLocalization.T(LockSmithLocalization.MsgWrongTargetToken);
             return true;
         }
 
         var pos = PieceAccessState.GetPosition(container);
         var nview = PieceAccessState.GetNetView(container);
+        var managed = !PieceAccessState.NeedsDesignate(nview);
         var isPublic = PieceAccessState.IsPublic(nview);
         var status = LockSmithLocalization.T(
             isPublic ? LockSmithLocalization.PiecePublicToken : LockSmithLocalization.PiecePrivateToken);
         var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
 
         var sb = new StringBuilder();
-        sb.Append(container.GetHoverName());
-        sb.Append('\n').Append(status);
+        sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
+        if (managed)
+            sb.Append('\n').Append(status);
+        else
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
 
         if (WardAccess.HasLocalWardAccess(pos))
         {
-            var action = LockSmithLocalization.T(
-                isPublic
-                    ? LockSmithLocalization.HoverMakePrivateToken
-                    : LockSmithLocalization.HoverMakePublicToken);
-            sb.Append('\n').Append(useKey).Append(' ').Append(action);
+            if (!managed)
+            {
+                sb.Append('\n').Append(useKey).Append(' ')
+                    .Append(LockSmithLocalization.T(LockSmithLocalization.HoverDesignateToken));
+            }
+            else
+            {
+                var action = LockSmithLocalization.T(
+                    isPublic
+                        ? LockSmithLocalization.HoverMakePrivateToken
+                        : LockSmithLocalization.HoverMakePublicToken);
+                sb.Append('\n').Append(useKey).Append(' ').Append(action);
+                PieceGuestService.AppendKeyHoverExtras(sb, container);
+            }
+
+            PieceClearService.AppendClearHover(sb, nview);
         }
         else
         {
@@ -271,9 +327,11 @@ public static class ChestAccessService
         if (!LockSmithConfig.EnableChests || !PieceAccessState.IsEligibleChest(container))
             return string.Empty;
 
-        if (!PieceAccessState.IsPublic(PieceAccessState.GetNetView(container)))
-            return string.Empty;
+        var sb = new StringBuilder();
+        if (PieceAccessState.IsPublic(PieceAccessState.GetNetView(container)))
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
 
-        return "\n" + LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken);
+        sb.Append(PieceGuestService.GetOptInStatusSuffix(container));
+        return sb.ToString();
     }
 }

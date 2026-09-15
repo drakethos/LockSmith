@@ -68,9 +68,16 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Access\AccessHoverDisplay.cs" />
     <Compile Include="Access\ChestAccessService.cs" />
     <Compile Include="Access\DoorAccessService.cs" />
+    <Compile Include="Access\GroupAccessState.cs" />
+    <Compile Include="Access\GroupChestService.cs" />
+    <Compile Include="Access\LockSmithInput.cs" />
     <Compile Include="Access\PieceAccessState.cs" />
+    <Compile Include="Access\PieceClearService.cs" />
+    <Compile Include="Access\PieceGuestAccess.cs" />
+    <Compile Include="Access\PieceGuestService.cs" />
     <Compile Include="Access\WardAccess.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ContentRegistration.cs" />

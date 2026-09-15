@@ -1,62 +1,73 @@
 # LockSmith — behavior
 
-Status: **0.2.0** — Phase 1 (chests) + Phase 2 (doors/gates) shipped and play-tested.
+Status: **0.3.5** — designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
 
-Version targets / backlog: see [`drakeVision.md`](drakeVision.md) (pull into plans; not an active implementation plan by itself).
-
+Version targets / backlog: see [`drakeVision.md`](drakeVision.md).
 
 ## One line
 
-Ward-aware public/private access for player-built chests and doors/gates via a craftable key. Phase 3: hammer public clones plus per-person key logging/storage.
+Key designates a chest/door as LockSmith. After that, permitted players Alt+E public/private without holding the key; key still required for Team / Join setup.
 
 ## Intended
 
-### Phase 1 — Chests
+### Designate (0.3.5)
 
-**Chosen UX (only):** equip the Locksmith key as a tool. While equipped, chest interact changes from Open to Make public / Make private (ward members only). Press E to toggle. Unequip to open again. Not “use item on chest.”
+- Equip key → **E** on an eligible chest/door sets `locksmith_managed` (first use claims the piece) when `EnableDesignate` is on.
+- Designated ward pieces: **Alt+E** public↔private if you have ward or guest access — **no key required** (`EnableGuestPublicToggle`).
+- Random public players never toggle.
+- Key still required for Personal↔Team and Join open/close.
+- Legacy pieces that already have public/guests/team/opt-in state are treated as managed.
 
-- Synced config: `EnableChests`, key name / materials / crafting station, `EnableKeyMode`, `EnableDoors`, `EnablePieceMode` (reserved for Phase 3).
-- ZDO flag `locksmith_public` (0/1). Server/owner applies after a ward-permission check by player id.
-- Hover: with key equipped + ward access, vanilla Open is replaced by the toggle prompt and `[Public]`/`[Private]`. Without the key, anyone still sees `[Public]` when public.
-- Open: if the chest is public, client ward check is bypassed for that interact. Personal (`PrivacySetting.Private`) chests are never modified.
-- No named player lists. No guest-held pass for Phase 1.
+### Phase 1 — Ward chests
+
+After designate: key **E** or permitted **Alt+E** toggles `locksmith_public` + instance `m_checkGuardStone`. Personal (`PrivacySetting.Private`) chests are **not** on this path.
 
 ### Phase 2 — Doors / gates
 
-Same UX as chests — key equipped, ward members toggle, `[Public]`/`[Private]` indicator, open path bypasses ward when public.
+Same as chests for `Door` + `EnableDoors`.
 
-- Config: `EnableDoors` (default on).
-- Same `locksmith_public` ZDO flag + instance `Door.m_checkGuardStone`.
-- **Out of scope for Phase 2:** hammer clones, piece mode, per-person keys, guest passes, named player lists.
+### Phase 3 — Personal / Team private chests
 
-### Phase 3 — Hammer spike + per-person keys (not implemented yet)
+- Targets private-family containers only (`m_privacy` Private or Group).
+- ZDO `locksmith_group_mode` (0 personal / 1 team) + `locksmith_group_members` (`id|Name;…`).
+- Creator + key: **E** Personal↔Team; **Alt+E** opens Join (opt-in).
+- `Container.CheckAccess` prefix: team mode → creator or listed member; personal → vanilla creator-only.
+- Does **not** use `locksmith_public` or ward bypass.
 
-- **Hammer spike:** when `EnablePieceMode` is on, hammer gets public piece clones from a config list (`m_checkGuardStone = false`). Independent of key-mode toggle UX.
-- **Per-person key logging and storing:** record and persist which players hold / are granted keys (and related access), so access can be tracked per character rather than only ward + public flag.
-- Exact grant/revoke UX and storage shape are defined when Phase 3 starts.
+### Guests on ward pieces (0.3.1+)
+
+- Creator/ward + key **Alt+E**: open/close Join on a designated ward chest/door.
+- Other players **E** join when Join is open; **Alt+E** Leave while Join is open.
+- Guests open without ward permit (`EnablePieceGuests`).
+
+### Guest / permitted public toggle (0.3.4–0.3.5)
+
+- On designated ward chests/doors: **Alt+E** public↔private (`EnableGuestPublicToggle`) for ward members and guests.
+- While Join is open, Alt+E still means Leave.
+- Public = open only — no Join/setup until locked private again.
+- Future: access setup menu (drakeVision).
+
+### Phase 4+ — see drakeVision
+
+Hammer public prefabs, quest keys, access menu, etc.
 
 ## Assets
 
-Load `Assets/drake`. Register only `KeyMaker` and one key (`MasterKey`, fallback `PublicKey`). Do not register unrelated prefabs. Do not load `ploam` for content.
+Load `Assets/drake`. Register only `KeyMaker` and one key (`MasterKey`, fallback `PublicKey`).
 
 ## TEMP — REMOVE BEFORE RELEASE
 
-`DebugTemp/TempGiveKeyOnLoad.cs` gives the Locksmith key on local spawn if missing. Delete that file (and its csproj compile entry) before final release. Search tag: `REMOVE_BEFORE_RELEASE:TempGiveKeyOnLoad`.
+`DebugTemp/TempGiveKeyOnLoad.cs` — `REMOVE_BEFORE_RELEASE:TempGiveKeyOnLoad`.
 
-## Fragile patch sites (update resilience)
-
-All Harmony targets live under `Patches/`:
+## Fragile patch sites
 
 | Target | Why |
 | --- | --- |
-| `Container.Interact` | Equipped key → toggle; sync `m_checkGuardStone` from ZDO |
-| `Container.GetHoverText` | Equipped key replaces Open; sync guard stone |
-| `Container.TakeAll` | Bypass ward when public |
-| `Container.Awake` | Register RPC; apply ZDO → `m_checkGuardStone` |
-| `Door.Interact` | Equipped key → toggle; sync `m_checkGuardStone` from ZDO |
-| `Door.GetHoverText` | Equipped key replaces Open; sync guard stone |
-| `Door.Awake` | Register RPC; apply ZDO → `m_checkGuardStone` |
+| `Container.CheckAccess` | Team mode allow creator + member list |
+| `Container.Interact` | Key → ward toggle or team UX (`alt` for members) |
+| `Container.GetHoverText` | Key hover for both surfaces |
+| `Container.TakeAll` | Ward public bypass |
+| `Container.Awake` | RPCs + ZDO sync |
+| `Door.Interact` / `GetHoverText` / `Awake` | Phase 2 doors |
 
-Persistence: ZDO `locksmith_public`. Runtime gate: instance `m_checkGuardStone` (false when public) on `Container` / `Door`. Not WearNTear.`m_triggerPrivateArea` (damage/ward flash only).
-
-Business logic is in `Access/`, not in patch methods. Do not patch `Humanoid.UseItem` for this UX.
+Business logic in `Access/`. Do not patch `Humanoid.UseItem` for this UX.

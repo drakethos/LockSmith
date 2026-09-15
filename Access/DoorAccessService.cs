@@ -7,12 +7,19 @@ namespace LockSmith.Access;
 /// <summary>Phase 2 door/gate public/private logic. Patches call into here.</summary>
 public static class DoorAccessService
 {
-    public static bool ShouldBypassWardCheck(Door door) =>
-        LockSmithConfig.EnableDoors
-        && PieceAccessState.IsEligibleDoor(door)
-        && PieceAccessState.IsPublic(PieceAccessState.GetNetView(door));
+    public static bool ShouldBypassWardCheck(Door door)
+    {
+        if (!LockSmithConfig.EnableDoors || !PieceAccessState.IsEligibleDoor(door))
+            return false;
 
-    public static bool TryToggleDoor(Door door, Humanoid user)
+        var nview = PieceAccessState.GetNetView(door);
+        if (PieceAccessState.IsPublic(nview))
+            return true;
+
+        return PieceGuestService.ShouldBypassWardForGuest(door);
+    }
+
+    public static bool TryKeyInteract(Door door, Humanoid user, bool alt)
     {
         if (!LockSmithConfig.EnableDoors || !LockSmithConfig.EnableKeyMode)
         {
@@ -26,6 +33,17 @@ public static class DoorAccessService
             return true;
         }
 
+        if (PieceClearService.TryHandleKeyClear(door, user))
+            return true;
+
+        if (LockSmithInput.IsSetupModifierHeld())
+            return PieceGuestService.TryHandleKeyAlt(door, user);
+
+        return TryToggleDoor(door, user);
+    }
+
+    public static bool TryToggleDoor(Door door, Humanoid user)
+    {
         var player = user as Player;
         if (player == null)
             return true;
@@ -42,6 +60,13 @@ public static class DoorAccessService
         var nview = PieceAccessState.GetNetView(door);
         if (nview == null || !nview.IsValid())
             return true;
+
+        if (PieceAccessState.NeedsDesignate(nview))
+        {
+            RequestSetPublic(nview, PieceAccessState.IsPublic(nview), playerId);
+            AccessFeedback.Show(user, LockSmithLocalization.MsgManagedToken);
+            return true;
+        }
 
         var nextPublic = !PieceAccessState.IsPublic(nview);
         RequestSetPublic(nview, nextPublic, playerId);
@@ -83,6 +108,8 @@ public static class DoorAccessService
             ApplySetPublic(nview, flag == 1, playerId);
         });
 
+        PieceClearService.RegisterRpc(nview);
+        PieceGuestService.RegisterRpc(door);
         PieceAccessState.SyncGuardStoneFromZdo(door);
     }
 
@@ -95,7 +122,7 @@ public static class DoorAccessService
         if (!PieceAccessState.IsEligibleDoor(door))
             return;
 
-        if (!LockSmithConfig.EnableDoors || !LockSmithConfig.EnableKeyMode)
+        if (!LockSmithConfig.EnableDoors)
             return;
 
         var pos = PieceAccessState.GetPosition(door!);
@@ -105,13 +132,27 @@ public static class DoorAccessService
             ? WardAccess.HasLocalWardAccess(pos)
             : WardAccess.HasWardAccessForPlayer(pos, playerId);
 
+        var guestToggle = !allowed
+            && LockSmithConfig.EnableGuestPublicToggle
+            && LockSmithConfig.EnablePieceGuests
+            && PieceAccessState.IsManaged(nview)
+            && PieceGuestAccess.IsGuest(nview, playerId);
+
+        if (guestToggle)
+            allowed = true;
+        else if (!LockSmithConfig.EnableKeyMode)
+            return;
+
         if (!allowed)
         {
-            LockSmith.Log?.LogWarning($"Rejected door public toggle for player {playerId} (no ward access).");
+            LockSmith.Log?.LogWarning($"Rejected door public toggle for player {playerId} (no ward/guest access).");
             return;
         }
 
         PieceAccessState.SetPublic(nview, isPublic);
+        if (isPublic)
+            PieceGuestAccess.SetOptInReady(nview, false);
+
         LockSmith.Log?.LogInfo(
             $"Set locksmith_public={(isPublic ? 1 : 0)}, m_checkGuardStone={door!.m_checkGuardStone} " +
             $"on {door.name} (readback={PieceAccessState.IsPublic(nview)}).");
@@ -129,29 +170,44 @@ public static class DoorAccessService
 
         if (!PieceAccessState.IsEligibleDoor(door))
         {
-            hoverText = door.GetHoverName() + "\n" +
+            hoverText = AccessHoverDisplay.LocalizedPieceName(door) + "\n" +
                         LockSmithLocalization.T(LockSmithLocalization.MsgWrongTargetToken);
             return true;
         }
 
         var pos = PieceAccessState.GetPosition(door);
         var nview = PieceAccessState.GetNetView(door);
+        var managed = !PieceAccessState.NeedsDesignate(nview);
         var isPublic = PieceAccessState.IsPublic(nview);
         var status = LockSmithLocalization.T(
             isPublic ? LockSmithLocalization.PiecePublicToken : LockSmithLocalization.PiecePrivateToken);
         var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
 
         var sb = new StringBuilder();
-        sb.Append(door.GetHoverName());
-        sb.Append('\n').Append(status);
+        sb.Append(AccessHoverDisplay.LocalizedPieceName(door));
+        if (managed)
+            sb.Append('\n').Append(status);
+        else
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
 
         if (WardAccess.HasLocalWardAccess(pos))
         {
-            var action = LockSmithLocalization.T(
-                isPublic
-                    ? LockSmithLocalization.HoverMakePrivateToken
-                    : LockSmithLocalization.HoverMakePublicToken);
-            sb.Append('\n').Append(useKey).Append(' ').Append(action);
+            if (!managed)
+            {
+                sb.Append('\n').Append(useKey).Append(' ')
+                    .Append(LockSmithLocalization.T(LockSmithLocalization.HoverDesignateToken));
+            }
+            else
+            {
+                var action = LockSmithLocalization.T(
+                    isPublic
+                        ? LockSmithLocalization.HoverMakePrivateToken
+                        : LockSmithLocalization.HoverMakePublicToken);
+                sb.Append('\n').Append(useKey).Append(' ').Append(action);
+                PieceGuestService.AppendKeyHoverExtras(sb, door);
+            }
+
+            PieceClearService.AppendClearHover(sb, nview);
         }
         else
         {
@@ -167,9 +223,11 @@ public static class DoorAccessService
         if (!LockSmithConfig.EnableDoors || !PieceAccessState.IsEligibleDoor(door))
             return string.Empty;
 
-        if (!PieceAccessState.IsPublic(PieceAccessState.GetNetView(door)))
-            return string.Empty;
+        var sb = new StringBuilder();
+        if (PieceAccessState.IsPublic(PieceAccessState.GetNetView(door)))
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
 
-        return "\n" + LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken);
+        sb.Append(PieceGuestService.GetOptInStatusSuffix(door));
+        return sb.ToString();
     }
 }

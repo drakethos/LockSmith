@@ -51,13 +51,45 @@ public static class DoorAccessPatches
                 try
                 {
                     if (!hold)
-                        DoorAccessService.TryToggleDoor(__instance, character);
+                    {
+                        if (PieceGuestService.TryHandleGuestKeyLeave(__instance, character))
+                        {
+                            __result = true;
+                            return false;
+                        }
+
+                        if (PieceGuestService.ShouldGuestKeyFallThroughOpen(__instance, character))
+                        {
+                            if (DoorAccessService.ShouldBypassWardCheck(__instance)
+                                && __instance.m_checkGuardStone)
+                            {
+                                __instance.m_checkGuardStone = false;
+                                __state = true;
+                            }
+
+                            return true;
+                        }
+
+                        DoorAccessService.TryKeyInteract(__instance, character, alt);
+                    }
                 }
                 catch (System.Exception ex)
                 {
                     LockSmith.Log?.LogError($"LockSmith door toggle failed: {ex}");
                 }
 
+                __result = true;
+                return false;
+            }
+
+            if (PieceGuestService.TryHandleGuestPublicToggle(__instance, character, hold, alt))
+            {
+                __result = true;
+                return false;
+            }
+
+            if (PieceGuestService.TryHandleOptInInteract(__instance, character, hold, alt))
+            {
                 __result = true;
                 return false;
             }
@@ -104,15 +136,31 @@ public static class DoorAccessPatches
 
     [HarmonyPrefix]
     [HarmonyPatch(GameHookTargets.DoorGetHoverText)]
-    private static bool GetHoverTextPrefix(Door __instance, ref string __result)
+    private static bool GetHoverTextPrefix(Door __instance, ref string __result, ref bool __state)
     {
+        __state = false;
         try
         {
             PieceAccessState.SyncGuardStoneFromZdo(__instance);
 
+            if (PieceGuestService.TryBuildGuestKeyHover(__instance, out var guestKeyHover))
+            {
+                __result = guestKeyHover;
+                __state = true;
+                return false;
+            }
+
             if (DoorAccessService.TryBuildKeyModeHover(__instance, out var hover))
             {
                 __result = hover;
+                __state = true;
+                return false;
+            }
+
+            if (PieceGuestService.TryBuildGuestAccessHover(__instance, out var guestHover))
+            {
+                __result = guestHover;
+                __state = true;
                 return false;
             }
         }
@@ -131,8 +179,11 @@ public static class DoorAccessPatches
 
     [HarmonyPostfix]
     [HarmonyPatch(GameHookTargets.DoorGetHoverText)]
-    private static void GetHoverTextPostfix(Door __instance, ref string __result)
+    private static void GetHoverTextPostfix(Door __instance, ref string __result, bool __state)
     {
+        if (__state)
+            return;
+
         try
         {
             if (ChestAccessService.IsHoldingLocksmithKey(Player.m_localPlayer))
@@ -141,6 +192,21 @@ public static class DoorAccessPatches
             var suffix = DoorAccessService.GetPublicStatusSuffix(__instance);
             if (!string.IsNullOrEmpty(suffix))
                 __result += suffix;
+
+            if (!LockSmithConfig.EnableOptInAccess)
+                return;
+
+            var nview = PieceAccessState.GetNetView(__instance);
+            if (!PieceGuestAccess.IsOptInReady(nview))
+                return;
+
+            var local = Player.m_localPlayer;
+            if (local == null || PieceGuestAccess.IsGuest(nview, local.GetPlayerID()))
+                return;
+
+            var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
+            __result += "\n" + useKey + " "
+                        + LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken);
         }
         catch (System.Exception ex)
         {
