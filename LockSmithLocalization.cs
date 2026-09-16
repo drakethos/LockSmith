@@ -23,7 +23,6 @@ public static class LockSmithLocalization
     public const string MsgDeniedToken = "locksmith_msg_denied";
     public const string MsgDisabledToken = "locksmith_msg_disabled";
     public const string MsgWrongTargetToken = "locksmith_msg_wrong_target";
-    public const string MsgTempKeyGivenToken = "locksmith_msg_temp_key_given";
     public const string MsgGroupOwnerOnlyToken = "locksmith_msg_group_owner_only";
     public const string MsgGroupMemberToken = "locksmith_msg_group_member";
     public const string MsgGroupNeedTeamToken = "locksmith_msg_group_need_team";
@@ -80,7 +79,6 @@ public static class LockSmithLocalization
             { MsgDeniedToken, "Only ward members can change access" },
             { MsgDisabledToken, "Access is disabled on this server" },
             { MsgWrongTargetToken, "Hold the Locksmith key and look at a chest or door" },
-            { MsgTempKeyGivenToken, "TEMP: Locksmith key added (remove before release)" },
             { MsgGroupOwnerOnlyToken, "Only the chest creator can change team access" },
             { MsgGroupMemberToken, "[Team]" },
             { MsgGroupNeedTeamToken, "Switch the chest to Team first" },

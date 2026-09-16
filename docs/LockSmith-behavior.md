@@ -1,6 +1,6 @@
 # LockSmith — behavior
 
-Status: **0.3.5** — designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
+Status: **0.3.6** — official key art; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
 
 Version targets / backlog: see [`drakeVision.md`](drakeVision.md).
 
@@ -53,11 +53,7 @@ Hammer public prefabs, quest keys, access menu, etc.
 
 ## Assets
 
-Load `Assets/drake`. Register only `KeyMaker` and one key (`MasterKey`, fallback `PublicKey`).
-
-## TEMP — REMOVE BEFORE RELEASE
-
-`DebugTemp/TempGiveKeyOnLoad.cs` — `REMOVE_BEFORE_RELEASE:TempGiveKeyOnLoad`.
+`Assets/Items/keys/` ArtItem pack: `masterkey.json` + `keys.bundle` (`MasterKey` prefab) + `masterkey.png`. Optional `Assets/masterkey_icon.png`.
 
 ## Fragile patch sites
 

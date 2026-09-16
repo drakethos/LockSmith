@@ -133,10 +133,14 @@ jobs:
           PKG_DIR="DrakeMods-LockSmith-${VERSION}"
           ZIP_NAME="DrakeMods-LockSmith-${VERSION}.zip"
 
-          mkdir -p "$PKG_DIR/Assets"
+          # Mirror PackageMod: only runtime assets (no .bak / forge leftovers).
+          mkdir -p "$PKG_DIR/Assets/Items/keys"
           cp bin/Release/LockSmith.dll "$PKG_DIR/"
-          if compgen -G "Assets/*" > /dev/null; then
-            cp -R Assets/. "$PKG_DIR/Assets/"
+          cp Assets/Items/keys/keys.bundle "$PKG_DIR/Assets/Items/keys/"
+          cp Assets/Items/keys/masterkey.json "$PKG_DIR/Assets/Items/keys/"
+          cp Assets/Items/keys/masterkey.png "$PKG_DIR/Assets/Items/keys/"
+          if [ -f Assets/masterkey_icon.png ]; then
+            cp Assets/masterkey_icon.png "$PKG_DIR/Assets/"
           fi
           cp README.md                      "$PKG_DIR/"
           cp icon.png                       "$PKG_DIR/"
@@ -215,7 +219,11 @@ jobs:
           path: dist
           website: ${{ needs.build-and-release.outputs.website_url }}
           categories: |
-            misc
+            Building
+            Crafting
+            Utility
+            Server-side
+            Client-side
 
   publish-hexium:
     needs: [build-and-release, publish-thunderstore]
@@ -270,7 +278,7 @@ jobs:
           communities = ["valheim"]
 
           [publish.categories]
-          valheim = ["Quality of Life", "Valheim 1.0"]
+          valheim = ["Quality of Life", "Building", "Crafting", "Valheim 1.0"]
           EOF
 
           # Strip leading indentation from heredoc

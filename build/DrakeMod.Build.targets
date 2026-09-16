@@ -97,11 +97,15 @@
           DestinationFolder="$(R2ModDeployPath)\Assets\Icons"
           SkipUnchangedFiles="true"
           Condition="'@(PaperIcon)' != ''" />
-    <MakeDir Directories="$(R2ModDeployPath)\Assets" Condition="'@(AssetBundle)' != ''" />
+    <MakeDir Directories="$(R2ModDeployPath)\Assets" Condition="'@(AssetBundle)' != '' or Exists('$(TargetDir)Assets\masterkey_icon.png')" />
     <Copy SourceFiles="@(AssetBundle)"
           DestinationFolder="$(R2ModDeployPath)\Assets"
           SkipUnchangedFiles="true"
           Condition="'@(AssetBundle)' != ''" />
+    <Copy SourceFiles="$(TargetDir)Assets\masterkey_icon.png"
+          DestinationFiles="$(R2ModDeployPath)\Assets\masterkey_icon.png"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(TargetDir)Assets\masterkey_icon.png')" />
     <Copy SourceFiles="$(TargetDir)README.md" DestinationFiles="$(R2ModDeployPath)\README.md" Condition="Exists('$(TargetDir)README.md')" />
     <Copy SourceFiles="$(TargetDir)icon.png" DestinationFiles="$(R2ModDeployPath)\icon.png" Condition="Exists('$(TargetDir)icon.png')" />
     <Copy SourceFiles="$(TargetDir)CHANGELOG.md" DestinationFiles="$(R2ModDeployPath)\CHANGELOG.md" Condition="Exists('$(TargetDir)CHANGELOG.md')" />
@@ -127,11 +131,15 @@
           DestinationFolder="$(GaleModDeployPath)\Assets\Icons"
           SkipUnchangedFiles="true"
           Condition="'@(PaperIcon)' != ''" />
-    <MakeDir Directories="$(GaleModDeployPath)\Assets" Condition="'@(AssetBundle)' != ''" />
+    <MakeDir Directories="$(GaleModDeployPath)\Assets" Condition="'@(AssetBundle)' != '' or Exists('$(TargetDir)Assets\masterkey_icon.png')" />
     <Copy SourceFiles="@(AssetBundle)"
           DestinationFolder="$(GaleModDeployPath)\Assets"
           SkipUnchangedFiles="true"
           Condition="'@(AssetBundle)' != ''" />
+    <Copy SourceFiles="$(TargetDir)Assets\masterkey_icon.png"
+          DestinationFiles="$(GaleModDeployPath)\Assets\masterkey_icon.png"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(TargetDir)Assets\masterkey_icon.png')" />
     <Copy SourceFiles="$(TargetDir)README.md" DestinationFiles="$(GaleModDeployPath)\README.md" Condition="Exists('$(TargetDir)README.md')" />
     <Copy SourceFiles="$(TargetDir)icon.png" DestinationFiles="$(GaleModDeployPath)\icon.png" Condition="Exists('$(TargetDir)icon.png')" />
     <Copy SourceFiles="$(TargetDir)CHANGELOG.md" DestinationFiles="$(GaleModDeployPath)\CHANGELOG.md" Condition="Exists('$(TargetDir)CHANGELOG.md')" />

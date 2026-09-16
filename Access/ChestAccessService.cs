@@ -96,8 +96,7 @@ public static class ChestAccessService
             return true;
 
         var n = name!;
-        return n.IndexOf("MasterKey", System.StringComparison.OrdinalIgnoreCase) >= 0
-               || n.IndexOf("PublicKey", System.StringComparison.OrdinalIgnoreCase) >= 0
+        return n.IndexOf("masterkey", System.StringComparison.OrdinalIgnoreCase) >= 0
                || n.IndexOf("locksmith", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 

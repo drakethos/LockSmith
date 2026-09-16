@@ -81,13 +81,13 @@
     <Compile Include="Access\WardAccess.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ContentRegistration.cs" />
-    <Compile Include="DebugTemp\TempGiveKeyOnLoad.cs" />
     <Compile Include="LockSmith.cs" />
     <Compile Include="LockSmithConfig.cs" />
     <Compile Include="LockSmithLocalization.cs" />
     <Compile Include="Patches\ContainerAccessPatches.cs" />
     <Compile Include="Patches\DoorAccessPatches.cs" />
     <Compile Include="Patches\GameHookTargets.cs" />
+    <Compile Include="Patches\ZNetSceneCreateObjectPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\AccessFeedback.cs" />
   </ItemGroup>
@@ -96,9 +96,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <AssetBundle Include="Assets\ploam" />
-    <AssetBundle Include="Assets\drake" Condition="Exists('Assets\drake')" />
-    <AssetBundle Include="Assets\*.manifest" />
+    <!-- Official key: only the runtime pack files (no .bak / forge leftovers). -->
+    <ArtItemKeys Include="Assets\Items\keys\keys.bundle" Condition="Exists('Assets\Items\keys\keys.bundle')" />
+    <ArtItemKeys Include="Assets\Items\keys\masterkey.json" Condition="Exists('Assets\Items\keys\masterkey.json')" />
+    <ArtItemKeys Include="Assets\Items\keys\masterkey.png" Condition="Exists('Assets\Items\keys\masterkey.png')" />
+    <Content Include="Assets\masterkey_icon.png" Condition="Exists('Assets\masterkey_icon.png')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Assets\masterkey_icon.png</Link>
+    </Content>
     <Content Include="README.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -116,17 +121,62 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\JotunnLib.2.30.0\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JotunnLib.2.30.0\build\JotunnLib.props'))" />
   </Target>
-  <Target Name="CopyBundlesToOutput" AfterTargets="Build">
-    <MakeDir Directories="$(TargetDir)Assets" />
-    <Copy SourceFiles="@(AssetBundle)" DestinationFolder="$(TargetDir)Assets" SkipUnchangedFiles="true" />
+  <Target Name="CopyArtItemsToOutput" AfterTargets="Build">
+    <MakeDir Directories="$(TargetDir)Assets\Items\keys" />
+    <Copy SourceFiles="@(ArtItemKeys)"
+          DestinationFolder="$(TargetDir)Assets\Items\keys"
+          SkipUnchangedFiles="true"
+          Condition="'@(ArtItemKeys)' != ''" />
+    <Copy SourceFiles="Assets\masterkey_icon.png"
+          DestinationFiles="$(TargetDir)Assets\masterkey_icon.png"
+          SkipUnchangedFiles="true"
+          Condition="Exists('Assets\masterkey_icon.png')" />
   </Target>
-  <Target Name="PackageMod" AfterTargets="CopyBundlesToOutput" DependsOnTargets="ResolveThunderstorePaths;WriteThunderstoreManifest" Condition="'$(SkipPackageMod)' != 'true'">
-    <MakeDir Directories="$(ThunderstoreFolder)\Assets" />
+  <Target Name="PackageMod" AfterTargets="CopyArtItemsToOutput" DependsOnTargets="ResolveThunderstorePaths;WriteThunderstoreManifest" Condition="'$(SkipPackageMod)' != 'true'">
+    <MakeDir Directories="$(ThunderstoreFolder)\Assets\Items\keys" />
     <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="$(ThunderstoreFolder)" />
     <Copy SourceFiles="$(TargetDir)README.md" DestinationFiles="$(ThunderstoreFolder)\README.md" Condition="Exists('$(TargetDir)README.md')" />
     <Copy SourceFiles="$(TargetDir)CHANGELOG.md" DestinationFiles="$(ThunderstoreFolder)\CHANGELOG.md" Condition="Exists('$(TargetDir)CHANGELOG.md')" />
     <Copy SourceFiles="$(TargetDir)icon.png" DestinationFiles="$(ThunderstoreFolder)\icon.png" Condition="Exists('$(TargetDir)icon.png')" />
-    <Copy SourceFiles="@(AssetBundle)" DestinationFolder="$(ThunderstoreFolder)\Assets" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ArtItemKeys)"
+          DestinationFolder="$(ThunderstoreFolder)\Assets\Items\keys"
+          SkipUnchangedFiles="true"
+          Condition="'@(ArtItemKeys)' != ''" />
+    <Copy SourceFiles="$(TargetDir)Assets\masterkey_icon.png"
+          DestinationFiles="$(ThunderstoreFolder)\Assets\masterkey_icon.png"
+          Condition="Exists('$(TargetDir)Assets\masterkey_icon.png')" />
     <Exec Command="powershell -Command Compress-Archive -Path '$(ThunderstoreFolder)\*' -DestinationPath '$(ZipOutput)' -Force" Condition="'$(CI_SKIP_POST_BUILD)' == ''" />
+  </Target>
+  <Target Name="DeployArtItemsToProfiles" AfterTargets="CopyArtItemsToOutput">
+    <PropertyGroup>
+      <_R2Art Condition="'$(R2ModDeployPath)' != ''">$(R2ModDeployPath)</_R2Art>
+      <_GaleArt Condition="'$(GaleModDeployPath)' != ''">$(GaleModDeployPath)</_GaleArt>
+    </PropertyGroup>
+    <Delete Files="$(_R2Art)\Assets\drake" Condition="'$(_R2Art)' != '' and Exists('$(_R2Art)\Assets\drake')" />
+    <Delete Files="$(_R2Art)\Assets\drake.manifest" Condition="'$(_R2Art)' != '' and Exists('$(_R2Art)\Assets\drake.manifest')" />
+    <Delete Files="$(_GaleArt)\Assets\drake" Condition="'$(_GaleArt)' != '' and Exists('$(_GaleArt)\Assets\drake')" />
+    <Delete Files="$(_GaleArt)\Assets\drake.manifest" Condition="'$(_GaleArt)' != '' and Exists('$(_GaleArt)\Assets\drake.manifest')" />
+    <!-- Clean flat mis-deploys (Items/masterkey.json instead of Items/keys/…) -->
+    <Delete Files="$(_R2Art)\Assets\Items\keys.bundle;$(_R2Art)\Assets\Items\masterkey.json;$(_R2Art)\Assets\Items\masterkey.png"
+            Condition="'$(_R2Art)' != ''" />
+    <Delete Files="$(_GaleArt)\Assets\Items\keys.bundle;$(_GaleArt)\Assets\Items\masterkey.json;$(_GaleArt)\Assets\Items\masterkey.png"
+            Condition="'$(_GaleArt)' != ''" />
+    <MakeDir Directories="$(_R2Art)\Assets\Items\keys" Condition="'$(_R2Art)' != ''" />
+    <MakeDir Directories="$(_GaleArt)\Assets\Items\keys" Condition="'$(_GaleArt)' != ''" />
+    <Copy SourceFiles="@(ArtItemKeys)"
+          DestinationFolder="$(_R2Art)\Assets\Items\keys"
+          SkipUnchangedFiles="false"
+          Condition="'$(_R2Art)' != '' and '@(ArtItemKeys)' != ''" />
+    <Copy SourceFiles="@(ArtItemKeys)"
+          DestinationFolder="$(_GaleArt)\Assets\Items\keys"
+          SkipUnchangedFiles="false"
+          Condition="'$(_GaleArt)' != '' and '@(ArtItemKeys)' != ''" />
+    <Copy SourceFiles="Assets\masterkey_icon.png"
+          DestinationFiles="$(_R2Art)\Assets\masterkey_icon.png"
+          Condition="'$(_R2Art)' != '' and Exists('Assets\masterkey_icon.png')" />
+    <Copy SourceFiles="Assets\masterkey_icon.png"
+          DestinationFiles="$(_GaleArt)\Assets\masterkey_icon.png"
+          Condition="'$(_GaleArt)' != '' and Exists('Assets\masterkey_icon.png')" />
+    <Message Importance="high" Text="LockSmith deploy: Assets/Items/keys (masterkey only)." Condition="'@(ArtItemKeys)' != ''" />
   </Target>
 </Project>

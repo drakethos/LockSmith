@@ -3,12 +3,11 @@ using System.IO;
 using BepInEx;
 using BepInEx.Logging;
 using DrakeModsLibs;
+using DrakeModsLibs.Art;
 using HarmonyLib;
 using Jotunn;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using UnityEngine;
-using Paths = BepInEx.Paths;
 
 namespace LockSmith
 {
@@ -22,9 +21,6 @@ namespace LockSmith
 
         public static ManualLogSource? Log { get; private set; }
 
-        /// <summary>Loaded drake bundle (KeyMaker + keys).</summary>
-        public static AssetBundle? DrakeBundle { get; private set; }
-
         private readonly Harmony _harmony = new Harmony(GUID);
 
         private void Awake()
@@ -33,11 +29,14 @@ namespace LockSmith
             Log = Logger;
 
             LockSmithConfig.Bind(Config, Logger);
-            LoadDrakeBundle();
+
+            var pluginDir = Path.GetDirectoryName(Info.Location) ?? "";
+            // Official key only: Assets/Items/keys/masterkey.json + keys.bundle (MasterKey).
+            ArtItemLoader.Register(Logger, pluginDir, Config, ContentRegistration.CustomizeMasterKeyArtItem);
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabs;
             _harmony.PatchAll();
-            Logger.LogInfo($"{ModName} {Version} Awake (0.3: chests/doors public + group private chests).");
+            Logger.LogInfo($"{ModName} {Version} Awake (official key = keys.bundle MasterKey).");
         }
 
         private void OnVanillaPrefabs()
@@ -46,45 +45,13 @@ namespace LockSmith
             try
             {
                 LockSmithLocalization.Register();
-                ContentRegistration.RegisterFromDrakeBundle(DrakeBundle);
+                // ArtItemLoader also hooks this event and subscribed first — masterkey should exist now.
+                ContentRegistration.FinalizeOfficialKeyFromKeysPack();
             }
             catch (Exception ex)
             {
                 Logger.LogError($"LockSmith content registration failed: {ex}");
             }
-        }
-
-        private void LoadDrakeBundle()
-        {
-            var pluginDir = Path.GetDirectoryName(Info.Location);
-            if (string.IsNullOrEmpty(pluginDir))
-            {
-                Logger.LogError("Plugin directory is missing; cannot load the drake bundle.");
-                return;
-            }
-
-            var bundleFile = Path.Combine(pluginDir, "Assets", "drake");
-            var pluginsRoot = Paths.PluginPath;
-            if (string.IsNullOrEmpty(pluginsRoot))
-            {
-                Logger.LogError("BepInEx plugin path is missing; cannot load the drake bundle.");
-                return;
-            }
-
-            var root = pluginsRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                       + Path.DirectorySeparatorChar;
-            if (!bundleFile.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError($"Drake bundle is not under the BepInEx plugins folder: {bundleFile}");
-                return;
-            }
-
-            var relative = bundleFile.Substring(root.Length).Replace('\\', '/');
-            DrakeBundle = AssetUtils.LoadAssetBundle(relative);
-            if (DrakeBundle == null)
-                Logger.LogError($"Failed to load asset bundle from {relative}");
-            else
-                Logger.LogInfo($"Loaded drake bundle from {relative}");
         }
     }
 }
