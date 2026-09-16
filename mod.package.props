@@ -10,7 +10,7 @@
     <ModInfoClass>LockSmith</ModInfoClass>
     <Description>Public/private ward pieces plus Personal/Team private chests. Equip a Locksmith key. Requires DrakeModsLibs.</Description>
     <WebsiteUrl></WebsiteUrl>
-    <DeployAfterTargets>CopyBundlesToOutput</DeployAfterTargets>
+    <DeployAfterTargets>CopyArtItemsToOutput</DeployAfterTargets>
   </PropertyGroup>
   <ItemGroup>
     <ThunderstoreDependency Include="denikson-BepInExPack_Valheim-5.4.2350" />

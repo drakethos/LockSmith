@@ -180,15 +180,15 @@ public static class LockSmithConfig
             SectionKey,
             DisplayKey,
             "KeyCraftingStation",
-            "KeyMaker",
-            "Crafting station prefab name. Default KeyMaker from this mod.");
+            "",
+            "Crafting station prefab name. Empty = craft anywhere.");
 
         _keyMaterials = Sync.BindSynced(
             config,
             SectionKey,
             DisplayKey,
             "KeyMaterials",
-            "Bronze:2,Wood:4",
+            "Wood:1",
             "Recipe requirements as Prefab:Amount pairs, separated by commas.");
 
         // Local display / binds only — not DrakeConfigSync.
