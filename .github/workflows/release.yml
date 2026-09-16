@@ -104,15 +104,27 @@ jobs:
       - name: Download DrakeModsLibs for compile
         run: |
           set -euo pipefail
-          LIBS_VER="0.9.1"
-          mkdir -p ci_libs
-          curl -fsSL -o ci_libs/DrakeModsLibs.zip \
-            "https://thunderstore.io/package/download/DrakeMods/DrakeModsLibs/${LIBS_VER}/"
-          unzip -o ci_libs/DrakeModsLibs.zip -d ci_libs/DrakeModsLibs
-          DLL=$(find ci_libs/DrakeModsLibs -name 'DrakeModsLibs.dll' | head -1)
+          # Thunderstore 0.9.1 predates ArtItemLoader — build current libs from git for CI.
+          git clone --depth 1 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
+          nuget restore ci_libs/DrakeModsLibsSrc/DrakeModsLibs.csproj -PackagesDirectory ci_libs/DrakeModsLibsSrc/packages
+          CI_ROOT="$(pwd)/ci_valheim"
+          MANAGED="$CI_ROOT/valheim_Data/Managed"
+          # Stage same fake Valheim tree for the libs project (Jotunn Paths).
+          export VALHEIM_INSTALL="$CI_ROOT"
+          dotnet msbuild ci_libs/DrakeModsLibsSrc/DrakeModsLibs.csproj \
+            /p:Configuration=Release \
+            /p:TargetFrameworkVersion=v4.8 \
+            /p:BepInExPath="$CI_ROOT/BepInEx" \
+            /p:CorlibPath="$MANAGED" \
+            /p:PublicizedAssembliesPath="$MANAGED/publicized_assemblies" \
+            /p:CI_NET48_FWPATH="${{ github.workspace }}/packages/Microsoft.NETFramework.ReferenceAssemblies.net48.1.0.3/build" \
+            /p:CI_SKIP_POST_BUILD=true \
+            /t:Build \
+            /v:minimal
+          DLL=$(find ci_libs/DrakeModsLibsSrc -path '*/bin/Release/DrakeModsLibs.dll' | head -1)
           if [ -z "$DLL" ]; then
-            echo "ERROR: DrakeModsLibs.dll missing from Thunderstore package" >&2
-            find ci_libs -type f >&2
+            echo "ERROR: DrakeModsLibs.dll missing after build" >&2
+            find ci_libs/DrakeModsLibsSrc -name '*.dll' >&2
             exit 1
           fi
           echo "DrakeModsLibs DLL: $DLL"
