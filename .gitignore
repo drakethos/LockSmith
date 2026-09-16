@@ -422,7 +422,7 @@ environment.props
 
 # Local AssetForge / import scratch (not shipped)
 Imports/
-Items/
+/Items/
 project.json
 
 # Bundle rewrite backups
