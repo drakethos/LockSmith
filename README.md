@@ -21,7 +21,7 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
-**0.3.6** — first Thunderstore ship: official Locksmith Key art, designate + permitted Alt+E, Personal/Team, guests.
+**0.3.7** — requires DrakeModsLibs **0.9.2+** for Locksmith Key art (ArtItemLoader).
 
 ## Craft the key
 

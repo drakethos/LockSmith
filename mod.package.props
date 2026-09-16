@@ -4,7 +4,7 @@
     <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
     <RootNamespace>LockSmith</RootNamespace>
     <AssemblyName>LockSmith</AssemblyName>
-    <Version>0.3.6</Version>
+    <Version>0.3.7</Version>
     <BepInPluginName>LockSmith</BepInPluginName>
     <BepInGuid>com.drakesworkshop.locksmith</BepInGuid>
     <ModInfoClass>LockSmith</ModInfoClass>

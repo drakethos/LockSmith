@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.7
+
+- Require **DrakeModsLibs 0.9.2+** (ArtItemLoader folder packs) so the official Locksmith Key art loads for store installs.
+
 ## 0.3.6
 
 - First public release (GitHub). Thunderstore/Hexium upload when store tokens are set.

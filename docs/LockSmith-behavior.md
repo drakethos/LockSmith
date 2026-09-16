@@ -1,6 +1,6 @@
 # LockSmith — behavior
 
-Status: **0.3.6** — official key art; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
+Status: **0.3.7** — requires DrakeModsLibs 0.9.2+ (ArtItemLoader); official key art; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
 
 Version targets / backlog: see [`drakeVision.md`](drakeVision.md).
 
