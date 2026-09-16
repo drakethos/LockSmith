@@ -1,6 +1,12 @@
 <Project>
   <!-- environment.props is loaded by Jotunn Paths.props via SolutionDir (before Directory.Build continues). Do not Import it again here. -->
   <Import Project="$(MSBuildThisFileDirectory)mod.package.props" Condition="Exists('$(MSBuildThisFileDirectory)mod.package.props')" />
+  <!-- CI checks out this repo alone — use NuGet net48 reference assemblies. -->
+  <PropertyGroup Condition="'$(CI_NET48_FWPATH)' != ''">
+    <TargetFrameworkRootPath>$(CI_NET48_FWPATH)/</TargetFrameworkRootPath>
+  </PropertyGroup>
+  <Import Project="$(CI_NET48_FWPATH)/Microsoft.NETFramework.ReferenceAssemblies.net48.targets"
+          Condition="'$(CI_NET48_FWPATH)' != '' and Exists('$(CI_NET48_FWPATH)/Microsoft.NETFramework.ReferenceAssemblies.net48.targets')" />
   <PropertyGroup>
     <DrakeModBuildRoot Condition="Exists('$(MSBuildThisFileDirectory)..\build\DrakeMod.Build.props')">$(MSBuildThisFileDirectory)..\build\</DrakeModBuildRoot>
     <DrakeModBuildRoot Condition="'$(DrakeModBuildRoot)' == '' and Exists('$(MSBuildThisFileDirectory)build\DrakeMod.Build.props')">$(MSBuildThisFileDirectory)build\</DrakeModBuildRoot>
@@ -9,27 +15,28 @@
   <Import Project="$(MSBuildThisFileDirectory)mod.references.props" Condition="Exists('$(MSBuildThisFileDirectory)mod.references.props')" />
   <!-- Cut 1 uses DrakeConfigSync from DrakeModsLibs (ServerSync stays embedded only in Libs). -->
   <PropertyGroup>
-    <_WorkshopLibsProj Condition="Exists('$(MSBuildThisFileDirectory)..\DrakesWorkshop\DrakeModsLibs\DrakeModsLibs.csproj')">$(MSBuildThisFileDirectory)..\DrakesWorkshop\DrakeModsLibs\DrakeModsLibs.csproj</_WorkshopLibsProj>
+    <_WorkshopLibsProj Condition="'$(WorkshopLibsDll)' == '' and Exists('$(MSBuildThisFileDirectory)..\DrakesWorkshop\DrakeModsLibs\DrakeModsLibs.csproj')">$(MSBuildThisFileDirectory)..\DrakesWorkshop\DrakeModsLibs\DrakeModsLibs.csproj</_WorkshopLibsProj>
     <WorkshopLibsPluginFolder Condition="'$(WorkshopLibsPluginFolder)' == ''">DrakeMods-DrakeModsLibs</WorkshopLibsPluginFolder>
     <!-- Prefer Gale DLL when present (active launcher); fall back to r2modman. -->
     <WorkshopLibsDll Condition="'$(WorkshopLibsDll)' == '' and '$(GaleModPath)' != '' and '$(ProfileName)' != '' and Exists('$(GaleModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll')">$(GaleModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll</WorkshopLibsDll>
-    <WorkshopLibsDll Condition="'$(WorkshopLibsDll)' == '' and '$(R2ModPath)' != '' and '$(ProfileName)' != ''">$(R2ModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll</WorkshopLibsDll>
+    <WorkshopLibsDll Condition="'$(WorkshopLibsDll)' == '' and '$(R2ModPath)' != '' and '$(ProfileName)' != '' and Exists('$(R2ModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll')">$(R2ModPath)\$(ProfileName)\BepInEx\plugins\$(WorkshopLibsPluginFolder)\DrakeModsLibs.dll</WorkshopLibsDll>
   </PropertyGroup>
   <Choose>
-    <When Condition="'$(_WorkshopLibsProj)' != ''">
-      <ItemGroup>
-        <ProjectReference Include="$(_WorkshopLibsProj)">
-          <Name>DrakeModsLibs</Name>
-          <Private>False</Private>
-        </ProjectReference>
-      </ItemGroup>
-    </When>
+    <!-- Explicit WorkshopLibsDll (CI download) wins over sibling ProjectReference. -->
     <When Condition="'$(WorkshopLibsDll)' != '' and Exists('$(WorkshopLibsDll)')">
       <ItemGroup>
         <Reference Include="DrakeModsLibs">
           <HintPath>$(WorkshopLibsDll)</HintPath>
           <Private>False</Private>
         </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(_WorkshopLibsProj)' != ''">
+      <ItemGroup>
+        <ProjectReference Include="$(_WorkshopLibsProj)">
+          <Name>DrakeModsLibs</Name>
+          <Private>False</Private>
+        </ProjectReference>
       </ItemGroup>
     </When>
     <Otherwise>
