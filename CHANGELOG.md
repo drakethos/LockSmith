@@ -2,11 +2,11 @@
 
 ## 0.3.6
 
-- First Thunderstore package prep.
+- First public release (GitHub). Thunderstore/Hexium upload when store tokens are set.
 - Official **Locksmith Key** from `Assets/Items/keys` ArtItem pack (`MasterKey` mesh, bone skull, flipped grip).
-- Slim `keys.bundle` (MasterKey only — no KeyMaker / JVLmock leftovers).
+- Slim visual-only `keys.bundle` (no drop physics / particle VFX / packed Valheim scripts).
 - Removed temporary give-key-on-spawn debug helper.
-- Manifest: website URL, clearer store description; release categories for Thunderstore + Hexium.
+- README elevator pitch + store description; release categories ready for Thunderstore + Hexium.
 
 ## 0.3.5
 

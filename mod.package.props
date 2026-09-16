@@ -8,7 +8,7 @@
     <BepInPluginName>LockSmith</BepInPluginName>
     <BepInGuid>com.drakesworkshop.locksmith</BepInGuid>
     <ModInfoClass>LockSmith</ModInfoClass>
-    <Description>Designate chests and doors with a Locksmith key. Public/private in wards, Personal/Team private chests, guests. Requires DrakeModsLibs.</Description>
+    <Description>Share chests and doors behind your ward without putting people on the ward. Designate a piece with the Locksmith key, then open it publicly or grant guest access to individuals. Also covers Personal/Team private chests for shared stashes.</Description>
     <WebsiteUrl>https://github.com/drakethos/LockSmith</WebsiteUrl>
     <DeployAfterTargets>CopyArtItemsToOutput</DeployAfterTargets>
   </PropertyGroup>

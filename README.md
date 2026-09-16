@@ -1,10 +1,13 @@
 # LockSmith
 
+Share chests and doors behind your ward without putting people on the ward. Designate a piece with the Locksmith key, then open it publicly or grant guest access to individuals. Also covers Personal/Team private chests for shared stashes.
+
 Ward-friendly access for Valheim bases:
 
 - **Public / private** on normal chests and doors (inside wards)
 - **Personal / Team** on private-family chests (shared stash, no ward required)
-- **Guests** on ward pieces via a Join list
+- **Guests** on ward pieces via a Join list, works similar to ward opt-in
+- **Easy to clear** without rebuild
 
 Craft one **Locksmith Key**, designate a piece, then permitted players use **Alt+E** for public/private without holding the key. The key stays required for Team / Join setup.
 
@@ -19,14 +22,6 @@ BepInEx/plugins/DrakeMods-LockSmith/
 ## Version
 
 **0.3.6** — first Thunderstore ship: official Locksmith Key art, designate + permitted Alt+E, Personal/Team, guests.
-
-| Band | Meaning (this mod) |
-| --- | --- |
-| **0.2.x** | Chests + doors public/private |
-| **0.3.x** | + Personal/Team + guests + designate / no-key toggle |
-| **0.4** | Placeable public hammer pieces (no key) |
-| **0.5+** | Quest keys, RenameIt, Halvar, … |
-| **1.0** | Long-running server confidence |
 
 ## Craft the key
 
@@ -92,8 +87,8 @@ See **[`docs/drakeVision.md`](docs/drakeVision.md)**.
 | Version | Focus |
 | --- | --- |
 | **0.4** | Placeable public chests/doors in a hammer tab (no key, no ZDO toggle) |
-| **0.3–0.4** | Compat with admin open / WardIsLove / other ward mods |
-| **Later** | Quest/swamp keys, RenameIt, unwarded locks, Halvar chests, … |
+| **0.3–0.4** | Compatibility with devcommands mod / WardIsLove / other ward mods |
+| **Later** | Quest/swamp keys, RenameIt, unwarded locks, store players opted in onto keys, Halvar chests, … |
 
 ## Feedback
 

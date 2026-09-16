@@ -176,7 +176,7 @@ jobs:
           body: |
             ## LockSmith v${{ steps.ver.outputs.version }}
 
-            Thunderstore zip attached. CI also publishes to **Thunderstore** then **Hexium**.
+            Thunderstore zip attached. Store publish runs only when API tokens are configured.
 
             ### Install
             Drop the zip into **r2modman**, **Thunderstore Mod Manager**, or **Gale** via "Import local mod", or extract into:
@@ -196,7 +196,9 @@ jobs:
           if-no-files-found: error
 
   publish-thunderstore:
+    # Enable when tokens are ready: repo variable PUBLISH_STORES=true + THUNDERSTORE_TOKEN secret.
     needs: build-and-release
+    if: ${{ vars.PUBLISH_STORES == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Download Thunderstore zip
@@ -226,7 +228,9 @@ jobs:
             Client-side
 
   publish-hexium:
-    needs: [build-and-release, publish-thunderstore]
+    # Enable when tokens are ready: repo variable PUBLISH_STORES=true + HEXIUM_TOKEN secret.
+    needs: build-and-release
+    if: ${{ vars.PUBLISH_STORES == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Download Thunderstore zip
