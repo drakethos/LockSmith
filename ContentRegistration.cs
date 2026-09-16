@@ -122,11 +122,75 @@ public static class ContentRegistration
 
         var art = FindArtVisual(prefab);
         if (art)
+        {
+            // AssetForge packs world-drop physics on MasterKey. Held art must be visual-only
+            // or equip parents a live Rigidbody+gravity under the hand and the key hits the floor.
+            StripArtWorldPhysics(art);
             ReorientHeldKey(art, handleAtMax: true);
+        }
         else
             LockSmith.Log?.LogWarning("masterkey art visual not found; grip flip skipped.");
 
         ApplyBoneToSkullOnly(prefab);
+    }
+
+    /// <summary>
+    /// AssetForge MasterKey is a full world-drop prefab (physics + item_particle VFX).
+    /// Art under the hand / donor ItemDrop must be mesh-only or you get floor falls and
+    /// floating black particle quads.
+    /// </summary>
+    private static void StripArtWorldPhysics(GameObject visual)
+    {
+        if (!visual)
+            return;
+
+        var stripped = 0;
+        foreach (var rb in visual.GetComponentsInChildren<Rigidbody>(true))
+        {
+            if (!rb)
+                continue;
+            UnityEngine.Object.DestroyImmediate(rb);
+            stripped++;
+        }
+
+        foreach (var col in visual.GetComponentsInChildren<Collider>(true))
+        {
+            if (!col)
+                continue;
+            UnityEngine.Object.DestroyImmediate(col);
+            stripped++;
+        }
+
+        // ParticleSystem is Component, not MonoBehaviour — black billboard quads if left on.
+        foreach (var ps in visual.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            if (!ps)
+                continue;
+            UnityEngine.Object.DestroyImmediate(ps);
+            stripped++;
+        }
+
+        foreach (var psr in visual.GetComponentsInChildren<ParticleSystemRenderer>(true))
+        {
+            if (!psr)
+                continue;
+            UnityEngine.Object.DestroyImmediate(psr);
+            stripped++;
+        }
+
+        foreach (var behaviour in visual.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (!behaviour)
+                continue;
+            var n = behaviour.GetType().Name;
+            if (n is not ("Floating" or "ZSyncTransform" or "ItemDrop"))
+                continue;
+            UnityEngine.Object.DestroyImmediate(behaviour);
+            stripped++;
+        }
+
+        if (stripped > 0)
+            LockSmith.Log?.LogInfo($"masterkey art: stripped {stripped} drop/VFX component(s).");
     }
 
     private static GameObject? FindArtVisual(GameObject prefab)
