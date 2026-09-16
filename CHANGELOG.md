@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.8
+
+- Repair flattened Thunderstore installs (Gale puts `keys.bundle` next to the DLL) into `Assets/Items/keys` so the Locksmith Key registers.
+- Require **DrakeModsLibs 0.9.3** (Valheim 1.0 `Character.Message` signature — fixes pickup `MissingMethodException`).
+
 ## 0.3.7
 
 - Require **DrakeModsLibs 0.9.2+** (ArtItemLoader folder packs) so the official Locksmith Key art loads for store installs.

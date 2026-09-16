@@ -1,0 +1,22 @@
+﻿{
+  "locksmith": {
+    "description": "LockSmith Thunderstore icon",
+    "size": 256,
+    "hq": true,
+    "brand": "DrakeMods",
+    "title_lines": ["LOCKSMITH"],
+    "tagline_lines": [
+      "Keys for doors and chests",
+      "Public & team ward access"
+    ],
+    "brand_size": 17,
+    "title_size": 34,
+    "tagline_size": 14,
+    "brand_y": 10,
+    "title_y": 28,
+    "tagline_y": 204,
+    "tagline_reserve_right": 0,
+    "center_art": "assets/locksmith-center-art.png",
+    "center_scale": 0.94
+  }
+}

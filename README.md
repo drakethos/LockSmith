@@ -21,7 +21,7 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
-**0.3.7** — requires DrakeModsLibs **0.9.2+** for Locksmith Key art (ArtItemLoader).
+**0.3.8** — Gale flat-install repair + DrakeModsLibs **0.9.3** (fixes pickup `MissingMethodException`).
 
 ## Craft the key
 
