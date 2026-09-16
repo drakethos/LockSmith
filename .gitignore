@@ -419,3 +419,15 @@ FodyWeavers.xsd
 
 # different per computer
 environment.props
+
+# Local AssetForge / import scratch (not shipped)
+Imports/
+Items/
+project.json
+
+# Bundle rewrite backups
+Assets/Items/keys/*.bak*
+Assets/Items/keys/*.bak-*
+
+# Branding work-in-progress (shipped icon is repo-root icon.png)
+branding/assets/candidates/

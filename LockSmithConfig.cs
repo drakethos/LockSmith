@@ -172,7 +172,7 @@ public static class LockSmithConfig
             SectionKey,
             DisplayKey,
             "KeyDescription",
-            "Equip: E toggles access, Alt+E opens/closes Join (opt-in) on team or ward pieces.",
+            "Equip to designate a chest/door. After that, Alt+E toggles public/private if you have access. Key required for Team / Join setup.",
             "Tooltip description for the craftable key.");
 
         _keyCraftingStation = Sync.BindSynced(

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.6
+
+- First Thunderstore package prep.
+- Official **Locksmith Key** from `Assets/Items/keys` ArtItem pack (`MasterKey` mesh, bone skull, flipped grip).
+- Slim `keys.bundle` (MasterKey only — no KeyMaker / JVLmock leftovers).
+- Removed temporary give-key-on-spawn debug helper.
+- Manifest: website URL, clearer store description; release categories for Thunderstore + Hexium.
+
 ## 0.3.5
 
 - **Designate flag** (`locksmith_managed`): key claims a chest/door as a LockSmith piece (`EnableDesignate`).

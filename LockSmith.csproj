@@ -81,7 +81,6 @@
     <Compile Include="Access\WardAccess.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ContentRegistration.cs" />
-    <Compile Include="DebugTemp\TempGiveKeyOnLoad.cs" />
     <Compile Include="LockSmith.cs" />
     <Compile Include="LockSmithConfig.cs" />
     <Compile Include="LockSmithLocalization.cs" />

@@ -4,12 +4,12 @@
     <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
     <RootNamespace>LockSmith</RootNamespace>
     <AssemblyName>LockSmith</AssemblyName>
-    <Version>0.3.5</Version>
+    <Version>0.3.6</Version>
     <BepInPluginName>LockSmith</BepInPluginName>
     <BepInGuid>com.drakesworkshop.locksmith</BepInGuid>
     <ModInfoClass>LockSmith</ModInfoClass>
-    <Description>Public/private ward pieces plus Personal/Team private chests. Equip a Locksmith key. Requires DrakeModsLibs.</Description>
-    <WebsiteUrl></WebsiteUrl>
+    <Description>Designate chests and doors with a Locksmith key. Public/private in wards, Personal/Team private chests, guests. Requires DrakeModsLibs.</Description>
+    <WebsiteUrl>https://github.com/drakethos/LockSmith</WebsiteUrl>
     <DeployAfterTargets>CopyArtItemsToOutput</DeployAfterTargets>
   </PropertyGroup>
   <ItemGroup>
