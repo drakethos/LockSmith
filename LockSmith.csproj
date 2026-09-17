@@ -81,15 +81,20 @@
     <Compile Include="Access\WardAccess.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ContentRegistration.cs" />
+    <Compile Include="KeyPassClipboardInput.cs" />
+    <Compile Include="KeyPassService.cs" />
     <Compile Include="LockSmith.cs" />
     <Compile Include="LockSmithConfig.cs" />
     <Compile Include="LockSmithLocalization.cs" />
     <Compile Include="Patches\ContainerAccessPatches.cs" />
     <Compile Include="Patches\DoorAccessPatches.cs" />
     <Compile Include="Patches\GameHookTargets.cs" />
+    <Compile Include="Patches\InventoryKeyMenuPatch.cs" />
+    <Compile Include="Patches\KeyPassClipboardPatch.cs" />
     <Compile Include="Patches\ZNetSceneCreateObjectPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\AccessFeedback.cs" />
+    <Compile Include="UI\KeyPassMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

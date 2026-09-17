@@ -72,13 +72,26 @@ public static class GroupAccessState
             return;
 
         zdo.Set(TeamModeHash, team ? 1 : 0, false);
+        // Personal = pause sharing. Keep guest/team names so Make team restores access.
         if (!team)
-        {
-            PieceGuestAccess.ClearGuests(nview);
             PieceGuestAccess.SetOptInReady(nview, false);
-        }
 
         ApplyPrivacyToInstance(nview, team);
+    }
+
+    /// <summary>
+    /// When Personal pause is disabled, private-family chests stay in team mode so Join/add-people works.
+    /// </summary>
+    public static void EnsureTeamModeWhenPauseDisabled(ZNetView? nview)
+    {
+        if (LockSmithConfig.EnablePersonalPause)
+            return;
+        if (nview == null || !nview.IsValid() || !nview.IsOwner())
+            return;
+        if (IsTeamMode(nview))
+            return;
+
+        SetTeamMode(nview, true);
     }
 
     public static bool HasTeamAccess(Container container, long playerId)

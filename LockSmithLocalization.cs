@@ -48,6 +48,8 @@ public static class LockSmithLocalization
     public const string HoverJoinAccessToken = "locksmith_hover_join_access";
     public const string HoverLeaveAccessToken = "locksmith_hover_leave_access";
     public const string HoverGuestsHeaderToken = "locksmith_hover_guests_header";
+    public const string InventoryTabTitleToken = "locksmith_inventory_tab_title";
+    public const string InventoryHintPhraseToken = "locksmith_inventory_hint_phrase";
 
     public static void Register()
     {
@@ -57,24 +59,26 @@ public static class LockSmithLocalization
             ? "Locksmith Key"
             : LockSmithConfig.KeyName.Trim();
         var desc = string.IsNullOrWhiteSpace(LockSmithConfig.KeyDescription)
-            ? "Equip to designate a chest/door. After that, Alt+E toggles public/private if you have access. Key required for Team / Join setup."
+            ? "Equip to designate a chest/door. After that, <color=#ffff00><b>Alt+E</b></color> toggles public/private if you have access. Key required for Team / Join setup. <color=#ffff00><b>Shift+Right-click</b></color> the key: Relabel, grab/pull names, clear, or clone."
             : LockSmithConfig.KeyDescription.Trim();
 
         localization.AddTranslation("English", new Dictionary<string, string>
         {
             { KeyNameToken, name },
             { KeyDescToken, desc },
+            { InventoryTabTitleToken, "Lock" },
+            { InventoryHintPhraseToken, "configure lock tool" },
             { PiecePublicToken, "[Public]" },
             { PiecePrivateToken, "[Private]" },
             { PieceUnmanagedToken, "[Not LockSmith]" },
             { PiecePersonalToken, "[Personal]" },
-            { PieceTeamToken, "[Team]" },
-            { PieceGuestsTagToken, "[Guests]" },
+            { PieceTeamToken, "Team" },
+            { PieceGuestsTagToken, "Guests" },
             { PieceOptInReadyToken, "[Join open]" },
             { MsgNowPublicToken, "Now public" },
             { MsgNowPrivateToken, "Now private" },
             { MsgManagedToken, "LockSmith enabled on this piece" },
-            { MsgNowPersonalToken, "Chest is personal (creator only)" },
+            { MsgNowPersonalToken, "Chest is personal (team paused — names kept)" },
             { MsgNowTeamToken, "Chest is team (shared)" },
             { MsgDeniedToken, "Only ward members can change access" },
             { MsgDisabledToken, "Access is disabled on this server" },

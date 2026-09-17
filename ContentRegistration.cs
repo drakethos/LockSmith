@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using BepInEx;
+using DrakeModsLibs.API;
+using DrakeModsLibs.Data;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using LockSmith.Access;
 using UnityEngine;
 using Paths = BepInEx.Paths;
 
@@ -99,6 +102,7 @@ public static class ContentRegistration
             SanitizeOfficialKey(prefab, icon);
             FixMasterKeyHoldAndLook(prefab);
             EnsureRootZNetView(prefab);
+            StampRenameHandOffOnPrefab(prefab);
 
             _registeredKeyPrefab = OfficialKeyId;
             LockSmith.Log?.LogInfo(
@@ -109,6 +113,19 @@ public static class ContentRegistration
         {
             LockSmith.Log?.LogError($"Failed to finalize official key from keys pack: {ex}");
         }
+    }
+
+    /// <summary>Flag the whole key type once on the prefab ItemData (inherited by new keys).</summary>
+    static void StampRenameHandOffOnPrefab(GameObject prefab)
+    {
+        if (!prefab)
+            return;
+
+        var drop = prefab.GetComponent<ItemDrop>();
+        if (!drop || drop.m_itemData == null)
+            return;
+
+        ChestAccessService.EnsureRenameHandOff(drop.m_itemData);
     }
 
     /// <summary>

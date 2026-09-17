@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Text;
+using DrakeModsLibs.API;
+using DrakeModsLibs.Data;
 using HarmonyLib;
 using LockSmith.UI;
 using UnityEngine;
@@ -85,6 +87,40 @@ public static class ChestAccessService
             return true;
 
         return IsKeyPrefabName(shared);
+    }
+
+    /// <summary>
+    /// Prefab / migrate stamp for the Locksmith key type (not per-player).
+    /// Soft <c>NoRename</c> + <c>NoCraftedByEdit</c> (admin/VIP TagBypass may still see Rename’s
+    /// inventory tab via Libs <c>IsRenameInventorySuppressed</c>); hard <c>HardNoDescription</c>
+    /// (nobody edits description — does not hide the Rename tab). Relabel still uses
+    /// <see cref="CustomizeLibsAPI.SetCustomName"/> directly.
+    /// No-ops when tags are already correct.
+    /// </summary>
+    public static void EnsureRenameHandOff(ItemDrop.ItemData? item)
+    {
+        if (!IsLocksmithKey(item) || item == null)
+            return;
+
+        try
+        {
+            var hasSoftRename = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.NoRename);
+            var hasSoftCrafted = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.NoCraftedByEdit);
+            var hasHardDesc = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.HardNoDescription);
+            var hasSoftDesc = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.NoDescription);
+            if (hasSoftRename && hasSoftCrafted && hasHardDesc && !hasSoftDesc)
+                return;
+
+            CustomizeLibsAPI.SetTag(item, DrakeCustomDataKeys.NoRename);
+            CustomizeLibsAPI.SetTag(item, DrakeCustomDataKeys.NoCraftedByEdit);
+            CustomizeLibsAPI.HardBlockDescription(item);
+            if (hasSoftDesc)
+                CustomizeLibsAPI.ClearTag(item, DrakeCustomDataKeys.NoDescription);
+        }
+        catch (System.Exception ex)
+        {
+            LockSmith.Log?.LogDebug($"EnsureRenameHandOff failed: {ex.Message}");
+        }
     }
 
     private static bool IsKeyPrefabName(string? name)
@@ -289,9 +325,9 @@ public static class ChestAccessService
         var sb = new StringBuilder();
         sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
         if (managed)
-            sb.Append('\n').Append(status);
+            sb.Append(' ').Append(status);
         else
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
+            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
 
         if (WardAccess.HasLocalWardAccess(pos))
         {

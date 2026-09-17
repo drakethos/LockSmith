@@ -6,8 +6,8 @@ namespace LockSmith.Access;
 public static class AccessHoverDisplay
 {
     /// <summary>
-    /// Names with Locksmith key out for creator, ward members, or guests on that piece.
-    /// Everyone else sees Guests [N] only.
+    /// Key mode: creator, ward members, or guests on that piece may see names after the count.
+    /// Everyone else always gets <c>Guests - [N]</c> / <c>Team - [N]</c> only.
     /// </summary>
     public static bool CanRevealGuestNames(Vector3 piecePosition, bool isPieceCreator, ZNetView? nview = null)
     {
@@ -43,17 +43,35 @@ public static class AccessHoverDisplay
     public static string TeamLabel() =>
         Colorize(LockSmithLocalization.T(LockSmithLocalization.PieceTeamToken));
 
-    /// <summary>Compact access line: <c>[Team] — [2]</c> or <c>[Guests] — [2]</c>.</summary>
+    /// <summary>Count line: <c>Team - [2]</c> or <c>Guests - [2]</c>.</summary>
     public static string AccessCountLabel(bool team, int count)
     {
         if (count < 0)
             count = 0;
 
-        var tag = team
+        return Colorize(AccessTag(team) + " - [" + count + "]");
+    }
+
+    /// <summary>
+    /// Key-mode line keeps the count and appends names:
+    /// <c>Guests - [2] Alice, Bob</c>.
+    /// </summary>
+    public static string AccessNamesLabel(bool team, int count, string names)
+    {
+        if (count < 0)
+            count = 0;
+
+        var line = AccessTag(team) + " - [" + count + "]";
+        if (!string.IsNullOrEmpty(names))
+            line += " " + names;
+
+        return Colorize(line);
+    }
+
+    static string AccessTag(bool team) =>
+        team
             ? LockSmithLocalization.T(LockSmithLocalization.PieceTeamToken)
             : LockSmithLocalization.T(LockSmithLocalization.PieceGuestsTagToken);
-        return Colorize(tag + " — [" + count + "]");
-    }
 
     public static string GuestsCountLabel(int count) =>
         AccessCountLabel(team: false, count);

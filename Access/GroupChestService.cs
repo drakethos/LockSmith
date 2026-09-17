@@ -30,11 +30,13 @@ public static class GroupChestService
 
         PieceClearService.RegisterRpc(nview);
         PieceGuestAccess.RegisterRpcs(nview);
+        GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
         GroupAccessState.SyncPrivacyFromZdo(container);
     }
 
     /// <summary>
-    /// Key: E toggles Personal↔Team; Alt+E toggles opt-in ready (when Team).
+    /// Key: SetupModifier+E toggles Join; plain E toggles Personal↔Team only when
+    /// <see cref="LockSmithConfig.EnablePersonalPause"/> is on.
     /// </summary>
     public static bool TryHandleKeyInteract(Container container, Humanoid user, bool hold, bool alt)
     {
@@ -62,9 +64,11 @@ public static class GroupChestService
         if (nview == null || !nview.IsValid())
             return true;
 
+        GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
+
         if (LockSmithInput.IsSetupModifierHeld())
             TryToggleOptIn(user, nview, playerId);
-        else
+        else if (LockSmithConfig.EnablePersonalPause)
             TryToggleTeamMode(user, nview, playerId);
 
         return true;
@@ -234,6 +238,13 @@ public static class GroupChestService
             return;
         }
 
+        if (!team && !LockSmithConfig.EnablePersonalPause)
+        {
+            LockSmith.Log?.LogDebug("Rejected Personal mode — EnablePersonalPause is off.");
+            GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
+            return;
+        }
+
         GroupAccessState.SetTeamMode(nview, team);
         PieceAccessState.MarkManaged(nview);
         LockSmith.Log?.LogInfo(
@@ -273,6 +284,12 @@ public static class GroupChestService
 
         var nview = GroupAccessState.GetNetView(container);
         var team = GroupAccessState.IsTeamMode(nview);
+        if (!LockSmithConfig.EnablePersonalPause)
+        {
+            GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
+            team = true;
+        }
+
         var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
 
         var sb = new StringBuilder();
@@ -292,15 +309,24 @@ public static class GroupChestService
         else
         {
             sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePersonalToken));
+            // Roster stays on the ZDO while personal — show it so owners know who comes back on Make team.
+            if (isOwner && PieceGuestAccess.GetGuests(nview).Count > 0)
+            {
+                PieceGuestAccess.TryRefreshGuestNames(nview);
+                sb.Append('\n').Append(PieceGuestAccess.FormatGuestSummary(nview, revealNames: true, team: true));
+            }
         }
 
         if (isOwner)
         {
-            var toggle = LockSmithLocalization.T(
-                team
-                    ? LockSmithLocalization.HoverMakePersonalToken
-                    : LockSmithLocalization.HoverMakeTeamToken);
-            sb.Append('\n').Append(useKey).Append(' ').Append(toggle);
+            if (LockSmithConfig.EnablePersonalPause)
+            {
+                var toggle = LockSmithLocalization.T(
+                    team
+                        ? LockSmithLocalization.HoverMakePersonalToken
+                        : LockSmithLocalization.HoverMakeTeamToken);
+                sb.Append('\n').Append(useKey).Append(' ').Append(toggle);
+            }
 
             if (team)
             {

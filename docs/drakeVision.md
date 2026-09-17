@@ -4,7 +4,8 @@ Living target list for version goals. Pull sections into a Cursor plan when star
 
 **North star:** useful access options without overwhelming players or forcing RP servers into a thick rulebook.
 
-**Shipped:** `0.3.0` — ward chests/doors public/private + Personal/Team private chests.
+**Shipped:** `0.3.0` — ward chests/doors public/private + Personal/Team private chests.  
+**Also shipped:** `0.3.9` — key passes (inventory menu + clipboard) + Libs inventory chord / tab host.
 
 ---
 
@@ -13,9 +14,10 @@ Living target list for version goals. Pull sections into a Cursor plan when star
 | Version | Name | Intent |
 | --- | --- | --- |
 | **0.3** | Phase 3 — team / private chest access | **Shipped in 0.3.0** |
+| **0.3.9** | Key passes + inventory tab host | **Shipped** |
 | **0.4** | Phase 4 — placeable public pieces (no key) | Next |
 | **0.3–0.4** | Compatibility hardening | Parallel concern while building 0.4 |
-| **0.5+** | Future options | Quest keys, RenameIt, unwarded locks, Halvar, etc. |
+| **0.5+** | Future options | Quest keys, deeper RenameIt, unwarded locks, Halvar, etc. |
 
 Bump patch (`0.3.1`) for fixes; bump minor when a version goal’s *core* lands and is play-tested.
 
@@ -94,6 +96,7 @@ Ordered loosely by interest; any can jump a version if a plan pulls it in.
 
 - Soft: labels, tags, hover cues on public / group pieces.  
 - Hard binding of access to rename text only if optional and clear.
+- **Inventory chord (0.3.9):** Libs owns `InventoryOpenModifier` + usable-tab count. LockSmith supplies localized “configure lock tool”; RenameIt supplies its phrase; 2+ usable (e.g. admin bypass on a key) → Libs “customize”. Feature menus stay mod-owned; tab strip when usable ≥ 2.
 
 ### Unwarded locks
 
@@ -112,12 +115,12 @@ Ordered loosely by interest; any can jump a version if a plan pulls it in.
 - **Later:** a proper Valheim-native panel to configure piece access (guests, public/private, Join) without memorizing keybinds.  
 - Keep the hotkey path for power users.
 
-### Clone access onto a reusable key (physical pass)
+### Clone access onto a reusable key (physical pass) — **shipped in 0.3.9**
 
-- Opt-in / guest lists stay primary.  
-- **Later idea:** snapshot a piece’s access settings onto a craftable/cloneable key item (“Joe’s key”, “Bo’s key”) so you can hand out or re-apply access without rebuilding Join membership after a wipe/grief (“I broke the gate — get everyone again”).  
-- Would layer on top of opt-in, not replace it.  
-- Risk: loss/dupe/economy — keep **optional** and clearly separate from quest keys.
+- Inventory menu (RenameIt-looking, via DrakeModsLibs wood UI / tab host).
+- Ctrl+C / Ctrl+V copy/paste names onto key / piece.
+- Relabel, grab nearby, clear (confirm), clone at craft cost.
+- Teach via key description + yellow interact hints (Libs chord).
 
 ---
 

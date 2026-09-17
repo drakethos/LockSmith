@@ -4,7 +4,7 @@
     <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
     <RootNamespace>LockSmith</RootNamespace>
     <AssemblyName>LockSmith</AssemblyName>
-    <Version>0.3.8</Version>
+    <Version>0.3.9</Version>
     <BepInPluginName>LockSmith</BepInPluginName>
     <BepInGuid>com.drakesworkshop.locksmith</BepInGuid>
     <ModInfoClass>LockSmith</ModInfoClass>
@@ -15,6 +15,6 @@
   <ItemGroup>
     <ThunderstoreDependency Include="denikson-BepInExPack_Valheim-5.4.2350" />
     <ThunderstoreDependency Include="ValheimModding-Jotunn-2.30.0" />
-    <ThunderstoreDependency Include="DrakeMods-DrakeModsLibs-0.9.3" />
+    <ThunderstoreDependency Include="DrakeMods-DrakeModsLibs-0.9.4" />
   </ItemGroup>
 </Project>

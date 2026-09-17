@@ -430,7 +430,7 @@ public static class PieceGuestService
 
         if (isPublic)
         {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
+            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
             sb.Append('\n').Append(useKey).Append(' ')
                 .Append(Localization.instance.Localize("$piece_container_open"));
             if (LockSmithConfig.EnableGuestPublicToggle)
@@ -443,20 +443,16 @@ public static class PieceGuestService
             return true;
         }
 
-        if (isGuest)
-        {
-            var reveal = AccessHoverDisplay.CanRevealGuestNames(pos, isPieceCreator: false, nview);
-            if (reveal)
-                PieceGuestAccess.TryRefreshGuestNames(nview);
+        if (!isGuest)
+            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePrivateToken));
 
-            var summary = PieceGuestAccess.FormatGuestSummary(nview, reveal, team: false);
-            if (!string.IsNullOrEmpty(summary))
-                sb.Append('\n').Append(summary);
-        }
-        else
-        {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePrivateToken));
-        }
+        // Always show Guests - [N]; names only when holding the key.
+        var reveal = AccessHoverDisplay.CanRevealGuestNames(pos, isPieceCreator: false, nview);
+        if (reveal)
+            PieceGuestAccess.TryRefreshGuestNames(nview);
+        var summary = PieceGuestAccess.FormatGuestSummary(nview, reveal, team: false);
+        if (!string.IsNullOrEmpty(summary))
+            sb.Append('\n').Append(summary);
 
         sb.Append('\n').Append(useKey).Append(' ')
             .Append(Localization.instance.Localize("$piece_container_open"));
@@ -503,7 +499,7 @@ public static class PieceGuestService
 
         if (isPublic)
         {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
+            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
             sb.Append('\n').Append(useKey).Append(' ').Append(DoorUseAction(door));
             if (LockSmithConfig.EnableGuestPublicToggle)
             {
@@ -515,20 +511,16 @@ public static class PieceGuestService
             return true;
         }
 
-        if (isGuest)
-        {
-            var reveal = AccessHoverDisplay.CanRevealGuestNames(pos, isPieceCreator: false, nview);
-            if (reveal)
-                PieceGuestAccess.TryRefreshGuestNames(nview);
+        if (!isGuest)
+            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePrivateToken));
 
-            var summary = PieceGuestAccess.FormatGuestSummary(nview, reveal, team: false);
-            if (!string.IsNullOrEmpty(summary))
-                sb.Append('\n').Append(summary);
-        }
-        else
-        {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePrivateToken));
-        }
+        // Always show Guests - [N]; names only when holding the key.
+        var reveal = AccessHoverDisplay.CanRevealGuestNames(pos, isPieceCreator: false, nview);
+        if (reveal)
+            PieceGuestAccess.TryRefreshGuestNames(nview);
+        var summary = PieceGuestAccess.FormatGuestSummary(nview, reveal, team: false);
+        if (!string.IsNullOrEmpty(summary))
+            sb.Append('\n').Append(summary);
 
         sb.Append('\n').Append(useKey).Append(' ').Append(DoorUseAction(door));
 

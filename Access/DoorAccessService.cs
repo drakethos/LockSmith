@@ -186,9 +186,9 @@ public static class DoorAccessService
         var sb = new StringBuilder();
         sb.Append(AccessHoverDisplay.LocalizedPieceName(door));
         if (managed)
-            sb.Append('\n').Append(status);
+            sb.Append(' ').Append(status);
         else
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
+            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
 
         if (WardAccess.HasLocalWardAccess(pos))
         {

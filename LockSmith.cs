@@ -30,6 +30,8 @@ namespace LockSmith
 
             LockSmithConfig.Bind(Config, Logger);
 
+            UI.KeyPassMenu.RegisterTab();
+
             var pluginDir = Path.GetDirectoryName(Info.Location) ?? "";
             // Gale/some managers flatten Thunderstore zips (keys.bundle at plugin root).
             // ArtItemLoader expects Assets/Items/keys/ — repair before register.

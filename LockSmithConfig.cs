@@ -18,7 +18,7 @@ public enum LockSmithModifier
 public static class LockSmithConfig
 {
     /// <summary>Admin lock + feature/key entries. Bump when adding synced binds.</summary>
-    public const int ExpectedSyncedEntryCount = 14;
+    public const int ExpectedSyncedEntryCount = 16;
 
     private const string SectionAdmin = "01 Admin";
     private const string SectionFeatures = "02 Features";
@@ -39,12 +39,14 @@ public static class LockSmithConfig
     private static ConfigEntry<bool> _enableChests = null!;
     private static ConfigEntry<bool> _enableDoors = null!;
     private static ConfigEntry<bool> _enableGroupChests = null!;
+    private static ConfigEntry<bool> _enablePersonalPause = null!;
     private static ConfigEntry<bool> _enablePieceGuests = null!;
     private static ConfigEntry<bool> _enableOptInAccess = null!;
     private static ConfigEntry<bool> _enableGuestPublicToggle = null!;
     private static ConfigEntry<bool> _enableDesignate = null!;
     private static ConfigEntry<bool> _enableKeyMode = null!;
     private static ConfigEntry<bool> _enablePieceMode = null!;
+    private static ConfigEntry<bool> _enableKeyPasses = null!;
     private static ConfigEntry<string> _keyName = null!;
     private static ConfigEntry<string> _keyDescription = null!;
     private static ConfigEntry<string> _keyCraftingStation = null!;
@@ -57,12 +59,15 @@ public static class LockSmithConfig
     public static bool EnableChests => _enableChests.Value;
     public static bool EnableDoors => _enableDoors.Value;
     public static bool EnableGroupChests => _enableGroupChests.Value;
+    /// <summary>When true, creator can pause team sharing (Personal) without clearing names. Off = team-only add people.</summary>
+    public static bool EnablePersonalPause => _enablePersonalPause.Value;
     public static bool EnablePieceGuests => _enablePieceGuests.Value;
     public static bool EnableOptInAccess => _enableOptInAccess.Value;
     public static bool EnableGuestPublicToggle => _enableGuestPublicToggle.Value;
     public static bool EnableDesignate => _enableDesignate.Value;
     public static bool EnableKeyMode => _enableKeyMode.Value;
     public static bool EnablePieceMode => _enablePieceMode.Value;
+    public static bool EnableKeyPasses => _enableKeyPasses.Value;
     public static string KeyName => _keyName.Value;
     public static string KeyDescription => _keyDescription.Value;
     public static string KeyCraftingStation => _keyCraftingStation.Value;
@@ -109,7 +114,15 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableGroupChests",
             true,
-            "Personal/Team sharing on private-family chests.");
+            "Team sharing on private-family chests (Join list / guests).");
+
+        _enablePersonalPause = Sync.BindSynced(
+            config,
+            SectionFeatures,
+            DisplayFeatures,
+            "EnablePersonalPause",
+            false,
+            "When true, key E toggles Personal↔Team as a pause switch (keeps names; friends locked out while Personal). When false (default), that toggle is hidden — chests stay team-shared and you only add people via Join.");
 
         _enablePieceGuests = Sync.BindSynced(
             config,
@@ -159,6 +172,14 @@ public static class LockSmithConfig
             false,
             "Reserved for Phase 4. Public hammer clones are not implemented yet.");
 
+        _enableKeyPasses = Sync.BindSynced(
+            config,
+            SectionFeatures,
+            DisplayFeatures,
+            "EnableKeyPasses",
+            true,
+            "Key pass clipboard: inventory menu on the Locksmith key (Relabel / grab / pull / clear / clone). Ctrl+C/V world copy-paste follows.");
+
         _keyName = Sync.BindSynced(
             config,
             SectionKey,
@@ -172,8 +193,8 @@ public static class LockSmithConfig
             SectionKey,
             DisplayKey,
             "KeyDescription",
-            "Equip to designate a chest/door. After that, Alt+E toggles public/private if you have access. Key required for Team / Join setup.",
-            "Tooltip description for the craftable key.");
+            "Equip to designate a chest/door. After that, <color=#ffff00><b>Alt+E</b></color> toggles public/private if you have access. Key required for Team / Join setup. <color=#ffff00><b>Shift+Right-click</b></color> the key: Relabel, grab/pull names, clear, or clone.",
+            "Tooltip description for the craftable key. Yellow-tag Alt+E / Shift+Right-click here. Ctrl+C/V stay in interact hints only — do not repeat them here.");
 
         _keyCraftingStation = Sync.BindSynced(
             config,

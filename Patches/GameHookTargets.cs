@@ -40,6 +40,9 @@ public static class GameHookTargets
     /// <summary>ZNetView RPC: player removes themselves from the guest list.</summary>
     public const string RpcOptOutSelf = "RPC_LockSmithOptOutSelf";
 
+    /// <summary>ZNetView RPC: merge guest wire string onto piece (key Ctrl+V paste).</summary>
+    public const string RpcMergeGuests = "RPC_LockSmithMergeGuests";
+
     /// <summary>ZNetView RPC: strip all LockSmith state from a piece.</summary>
     public const string RpcClearLockSmith = "RPC_LockSmithClear";
 

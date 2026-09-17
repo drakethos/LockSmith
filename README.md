@@ -21,7 +21,7 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
-**0.3.8** — Gale flat-install repair + DrakeModsLibs **0.9.3** (fixes pickup `MissingMethodException`).
+**0.3.9** — Key passes (inventory menu + Ctrl+C/V) and shared DrakeModsLibs inventory chord / tab host. Requires DrakeModsLibs **0.9.4+**.
 
 ## Craft the key
 
@@ -65,7 +65,8 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 | --- | --- | --- |
 | `EnableChests` | on | Ward public/private chests |
 | `EnableDoors` | on | Ward public/private doors/gates |
-| `EnableGroupChests` | on | Personal/Team private chests |
+| `EnableGroupChests` | on | Team sharing on private-family chests |
+| `EnablePersonalPause` | off | Personal↔Team pause switch (keeps names); off = team-only |
 | `EnablePieceGuests` | on | Guest ACL on ward chests/doors |
 | `EnableOptInAccess` | on | Ward-style Join open / E to opt in |
 | `EnableKeyMode` | on | Craft / use the Locksmith key |
@@ -75,6 +76,8 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 | `ClearModifier` | Alt | Local — key + modifier+E clears LockSmith |
 | `SetupModifier` | Shift | Local — key + modifier+E opens/closes Join |
 | `TeamLabelColor` | `#FF00FF` | Local only — color for Team/Guests labels |
+
+Inventory key menu uses **DrakeModsLibs** `Integration.InventoryOpenModifier` (default Shift) + right-click — shared with RenameIt when both claim an item.
 
 ## Multiplayer
 
@@ -88,7 +91,7 @@ See **[`docs/drakeVision.md`](docs/drakeVision.md)**.
 | --- | --- |
 | **0.4** | Placeable public chests/doors in a hammer tab (no key, no ZDO toggle) |
 | **0.3–0.4** | Compatibility with devcommands mod / WardIsLove / other ward mods |
-| **Later** | Quest/swamp keys, RenameIt, unwarded locks, store players opted in onto keys, Halvar chests, … |
+| **Later** | Quest/swamp keys, deeper RenameIt, unwarded locks, Halvar chests, … |
 
 ## Feedback
 

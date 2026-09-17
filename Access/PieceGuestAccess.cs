@@ -248,9 +248,6 @@ public static class PieceGuestAccess
         if (guests.Count == 0)
             return string.Empty;
 
-        var sb = new StringBuilder();
-        sb.Append(AccessHoverDisplay.AccessCountLabel(team, guests.Count));
-
         var names = new StringBuilder();
         foreach (var g in guests)
         {
@@ -267,12 +264,13 @@ public static class PieceGuestAccess
             names.Append(label);
         }
 
-        if (names.Length > 0)
-            sb.Append('\n').Append(names);
-
-        return sb.ToString();
+        return AccessHoverDisplay.AccessNamesLabel(team, guests.Count, names.ToString());
     }
 
+    /// <summary>
+    /// Always <c>Guests/Team - [N]</c>. With <paramref name="revealNames"/> (key mode),
+    /// appends names on the same pink line.
+    /// </summary>
     public static string FormatGuestSummary(ZNetView? nview, bool revealNames, bool team = false)
     {
         var guests = GetGuests(nview);
@@ -311,6 +309,115 @@ public static class PieceGuestAccess
         {
             ApplyOptOutSelf(nview, playerId);
         });
+
+        nview.Register<string, long>(GameHookTargets.RpcMergeGuests, (long sender, string raw, long playerId) =>
+        {
+            ApplyMergeGuests(nview, raw, playerId);
+        });
+    }
+
+    /// <summary>Ward/creator may edit guest lists (same gate as Join admin).</summary>
+    public static bool CanManageGuests(ZNetView? nview, long playerId) =>
+        nview != null && nview.IsValid() && CanManageOptIn(nview, playerId);
+
+    public static void RequestMergeGuests(ZNetView nview, IReadOnlyList<PieceGuest> add, long playerId)
+    {
+        if (nview == null || !nview.IsValid() || add == null || add.Count == 0)
+            return;
+
+        var sb = new StringBuilder();
+        foreach (var g in add)
+        {
+            if (g.PlayerId == 0L)
+                continue;
+            if (sb.Length > 0)
+                sb.Append(';');
+            sb.Append(g.PlayerId.ToString(CultureInfo.InvariantCulture));
+            sb.Append('|');
+            sb.Append(SanitizeName(g.DisplayName));
+        }
+
+        if (sb.Length == 0)
+            return;
+
+        var raw = sb.ToString();
+        if (nview.IsOwner())
+            ApplyMergeGuests(nview, raw, playerId);
+        else
+            nview.InvokeRPC(GameHookTargets.RpcMergeGuests, raw, playerId);
+    }
+
+    public static void ApplyMergeGuests(ZNetView nview, string raw, long playerId)
+    {
+        if (nview == null || !nview.IsValid() || !nview.IsOwner())
+            return;
+
+        if (playerId == 0L || !CanManageOptIn(nview, playerId))
+        {
+            LockSmith.Log?.LogWarning($"Rejected guest merge for player {playerId} on {nview.name}.");
+            return;
+        }
+
+        var incoming = ParseGuestWire(raw);
+        if (incoming.Count == 0)
+            return;
+
+        var guests = GetGuests(nview);
+        var seen = new HashSet<long>();
+        foreach (var g in guests)
+            seen.Add(g.PlayerId);
+
+        var added = 0;
+        foreach (var g in incoming)
+        {
+            if (g.PlayerId == 0L || !seen.Add(g.PlayerId))
+                continue;
+            guests.Add(g);
+            added++;
+        }
+
+        if (added == 0)
+            return;
+
+        SetGuests(nview, guests);
+        PieceAccessState.MarkManaged(nview);
+        LockSmith.Log?.LogInfo(
+            $"Merged {added} guest(s) onto {nview.name} by {playerId} (total={guests.Count}).");
+    }
+
+    static List<PieceGuest> ParseGuestWire(string? raw)
+    {
+        var result = new List<PieceGuest>();
+        if (string.IsNullOrWhiteSpace(raw))
+            return result;
+
+        foreach (var part in raw!.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = part.Trim();
+            if (string.IsNullOrEmpty(trimmed))
+                continue;
+
+            long id;
+            var name = string.Empty;
+            var pipe = trimmed.IndexOf('|');
+            if (pipe >= 0)
+            {
+                if (!long.TryParse(trimmed.Substring(0, pipe).Trim(), NumberStyles.Integer,
+                        CultureInfo.InvariantCulture, out id))
+                    continue;
+                name = trimmed.Substring(pipe + 1).Trim();
+            }
+            else if (!long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out id))
+            {
+                continue;
+            }
+
+            if (id == 0L)
+                continue;
+            result.Add(new PieceGuest(id, SanitizeName(name)));
+        }
+
+        return result;
     }
 
     public static void RequestSetOptIn(ZNetView nview, bool ready, long playerId)
@@ -486,15 +593,22 @@ public static class PieceGuestAccess
 
     public static void AppendOptInHover(StringBuilder sb, ZNetView? nview, bool isCreator, Vector3 piecePos)
     {
-        if (!LockSmithConfig.EnableOptInAccess || nview == null)
+        if (nview == null)
             return;
 
-        var ready = IsOptInReady(nview);
+        // Count (and key-mode names) even if Join UI is disabled.
         var reveal = AccessHoverDisplay.CanRevealGuestNames(piecePos, isCreator, nview);
+        if (reveal)
+            TryRefreshGuestNames(nview);
+
         var summary = FormatGuestSummary(nview, reveal, team: false);
         if (!string.IsNullOrEmpty(summary))
             sb.Append('\n').Append(summary);
 
+        if (!LockSmithConfig.EnableOptInAccess)
+            return;
+
+        var ready = IsOptInReady(nview);
         if (ready)
             sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceOptInReadyToken));
 

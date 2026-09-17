@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.9
+
+- **Key passes:** inventory menu on the Locksmith key (Relabel, grab nearby, clear, clone at craft cost) via DrakeModsLibs wood UI / `DrakeTabHost`.
+- **Clipboard:** Ctrl+C / Ctrl+V copy guest names onto the key and paste onto a looked-at piece.
+- Inventory open chord uses **DrakeModsLibs** `Integration.InventoryOpenModifier` (removed LockSmith `KeyMenuOpenModifier`).
+- Localized single-mode hint **configure lock tool**; Libs shows **customize** when 2+ tabs are usable (e.g. admin TagBypass + RenameIt). Soft `NoRename` + hard description lock on keys (description only is hard-locked).
+- Requires **DrakeModsLibs 0.9.4+**.
+
 ## 0.3.8
 
 - Repair flattened Thunderstore installs (Gale puts `keys.bundle` next to the DLL) into `Assets/Items/keys` so the Locksmith Key registers.
