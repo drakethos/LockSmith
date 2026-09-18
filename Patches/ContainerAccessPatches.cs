@@ -109,14 +109,16 @@ public static class ContainerAccessPatches
                         else
                             ChestAccessService.TryKeyInteract(__instance, character, alt);
                     }
+
+                    __result = true;
+                    return false;
                 }
                 catch (System.Exception ex)
                 {
+                    // Never swallow Use while broken — let vanilla run so place/open aren't soft-locked.
                     LockSmith.Log?.LogError($"LockSmith chest key interact failed: {ex}");
+                    return true;
                 }
-
-                __result = true;
-                return false;
             }
 
             // Guest unlock/lock for everyone (ward chests/doors only).

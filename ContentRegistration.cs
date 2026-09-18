@@ -54,7 +54,10 @@ public static class ContentRegistration
                || name.StartsWith("MasterKey(", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>ArtItem customize — recipe/name from LockSmith config.</summary>
+    /// <summary>
+    /// ArtItem customize — recipe from LockSmith <c>03 Key</c> config.
+    /// Name/description tokens are stamped in <see cref="FinalizeOfficialKeyFromKeysPack"/>.
+    /// </summary>
     public static void CustomizeMasterKeyArtItem(DrakeModsLibs.Art.ArtItemContext item)
     {
         if (item == null)
@@ -66,7 +69,10 @@ public static class ContentRegistration
             return;
         }
 
-        item.DisplayName = "Locksmith Key";
+        // Prefer LockSmith KeyName for the interim ArtForge token; Sanitize overwrites to KeyNameToken.
+        item.DisplayName = string.IsNullOrWhiteSpace(LockSmithConfig.KeyName)
+            ? "Locksmith Key"
+            : LockSmithConfig.KeyName.Trim();
         item.Description = "$" + LockSmithLocalization.KeyDescToken;
         item.CraftingStation = string.IsNullOrWhiteSpace(LockSmithConfig.KeyCraftingStation)
             ? null

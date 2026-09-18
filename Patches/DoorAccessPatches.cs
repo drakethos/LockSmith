@@ -72,14 +72,16 @@ public static class DoorAccessPatches
 
                         DoorAccessService.TryKeyInteract(__instance, character, alt);
                     }
+
+                    __result = true;
+                    return false;
                 }
                 catch (System.Exception ex)
                 {
+                    // Never swallow Use while broken — let vanilla run so place/open aren't soft-locked.
                     LockSmith.Log?.LogError($"LockSmith door toggle failed: {ex}");
+                    return true;
                 }
-
-                __result = true;
-                return false;
             }
 
             if (PieceGuestService.TryHandleGuestPublicToggle(__instance, character, hold, alt))

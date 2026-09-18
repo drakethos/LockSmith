@@ -215,6 +215,15 @@ public static class KeyPassService
             return;
         }
 
+        var lookPos = nview.transform.position;
+        var lookContainer = nview.GetComponentInChildren<Container>();
+        var privateFamily = lookContainer != null && GroupAccessState.IsPrivateFamilyChest(lookContainer);
+        if (!WardAccess.AllowsToolOnPiece(lookPos, privateFamily))
+        {
+            AccessFeedback.Show(local, LockSmithLocalization.MsgNeedActiveWardToken);
+            return;
+        }
+
         var playerId = local.GetPlayerID();
         if (!PieceGuestAccess.CanManageGuests(nview, playerId))
         {

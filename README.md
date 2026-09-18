@@ -21,6 +21,8 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
+**0.4.0** — Hammer **Public** tab (`EnablePieceMode`), **RequireActiveWard**, and Valheim 1.0 center-message fix. Requires DrakeModsLibs **0.9.4+**.
+
 **0.3.9** — Key passes (inventory menu + Ctrl+C/V) and shared DrakeModsLibs inventory chord / tab host. Requires DrakeModsLibs **0.9.4+**.
 
 ## Craft the key
@@ -52,6 +54,13 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 4. Other character: **E** → Join access. Guests see names on hover; **Alt+E** → Leave access while Join is open.
 5. Hover shows Open (not vanilla No access) when you have team/guest rights.
 
+### Public hammer pieces (piece mode)
+
+1. Host sets **`EnablePieceMode=true`** and restarts (clients need the same mod).
+2. Hammer → **Public** category: always-open clones of ward-locked chests/doors (vanilla and discovered mod pieces).
+3. Names append **`(public)`** when `PublicPieceNameSuffix` is on. Already-public vanilla pieces (e.g. Christmas boxes) are not duplicated.
+4. Use `PublicPieceDenyList` / `PublicPieceAllowList` to trim or force donors. Key mode does not designate these clones.
+
 ### Ward chests / doors — partial guest access
 
 1. Designate with key, then **SetupModifier+E** (with key) → open/close **Join**.
@@ -70,9 +79,13 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 | `EnablePieceGuests` | on | Guest ACL on ward chests/doors |
 | `EnableOptInAccess` | on | Ward-style Join open / E to opt in |
 | `EnableKeyMode` | on | Craft / use the Locksmith key |
-| `EnablePieceMode` | off | Reserved — Phase 4 hammer publics |
+| `EnablePieceMode` | off | Hammer **Public** tab: always-open chest/door clones (vanilla + mods); no key/ZDO. Restart after change |
+| `PublicPieceAllowList` | empty | Extra donor prefab names to clone (comma-separated). Restart |
+| `PublicPieceDenyList` | empty | Donor prefab names never cloned. Restart |
+| `PublicPieceNameSuffix` | on | Append localized `(public)` to clone display names. Restart |
 | `EnableGuestPublicToggle` | on | Permitted Alt+E public/private (no key) |
 | `EnableDesignate` | on | Key must Enable LockSmith before no-key Alt+E |
+| `RequireActiveWard` | on | No manage/toggle on normal chests/doors unless inside an enabled ward (private chests exempt) |
 | `ClearModifier` | Alt | Local — key + modifier+E clears LockSmith |
 | `SetupModifier` | Shift | Local — key + modifier+E opens/closes Join |
 | `TeamLabelColor` | `#FF00FF` | Local only — color for Team/Guests labels |
@@ -89,7 +102,7 @@ See **[`docs/drakeVision.md`](docs/drakeVision.md)**.
 
 | Version | Focus |
 | --- | --- |
-| **0.4** | Placeable public chests/doors in a hammer tab (no key, no ZDO toggle) |
+| **0.4** | Placeable public chests/doors — **shipped in 0.4.0** |
 | **0.3–0.4** | Compatibility with devcommands mod / WardIsLove / other ward mods |
 | **Later** | Quest/swamp keys, deeper RenameIt, unwarded locks, Halvar chests, … |
 

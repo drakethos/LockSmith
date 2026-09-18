@@ -22,6 +22,12 @@ public static class PieceClearService
         if (!LockSmithInput.IsClearModifierHeld() || container == null)
             return false;
 
+        if (PublicPieceRegistration.IsPublicPiece(container))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgPublicPrefabToken);
+            return true;
+        }
+
         if (!LockSmithConfig.EnableKeyMode)
         {
             AccessFeedback.Show(user, LockSmithLocalization.MsgDisabledToken);
@@ -35,6 +41,13 @@ public static class PieceClearService
         if (!HasLockSmithData(nview))
         {
             AccessFeedback.Show(user, LockSmithLocalization.MsgNothingToClearToken);
+            return true;
+        }
+
+        var pos = PieceAccessState.GetPosition(container);
+        if (!WardAccess.AllowsToolOnPiece(pos, GroupAccessState.IsPrivateFamilyChest(container)))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
             return true;
         }
 
@@ -57,6 +70,12 @@ public static class PieceClearService
         if (!LockSmithInput.IsClearModifierHeld() || door == null)
             return false;
 
+        if (PublicPieceRegistration.IsPublicPiece(door))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgPublicPrefabToken);
+            return true;
+        }
+
         if (!LockSmithConfig.EnableKeyMode)
         {
             AccessFeedback.Show(user, LockSmithLocalization.MsgDisabledToken);
@@ -70,6 +89,13 @@ public static class PieceClearService
         if (!HasLockSmithData(nview))
         {
             AccessFeedback.Show(user, LockSmithLocalization.MsgNothingToClearToken);
+            return true;
+        }
+
+        var pos = PieceAccessState.GetPosition(door);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
             return true;
         }
 
@@ -217,7 +243,11 @@ public static class PieceClearService
         if (!PieceAccessState.IsEligibleChest(container))
             return false;
 
-        return WardAccess.HasWardAccessForPlayer(PieceAccessState.GetPosition(container), playerId);
+        var pos = PieceAccessState.GetPosition(container);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+            return false;
+
+        return WardAccess.HasWardAccessForPlayer(pos, playerId);
     }
 
     private static bool CanClear(Door door, long playerId)
@@ -225,6 +255,10 @@ public static class PieceClearService
         if (!PieceAccessState.IsEligibleDoor(door))
             return false;
 
-        return WardAccess.HasWardAccessForPlayer(PieceAccessState.GetPosition(door), playerId);
+        var pos = PieceAccessState.GetPosition(door);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+            return false;
+
+        return WardAccess.HasWardAccessForPlayer(pos, playerId);
     }
 }

@@ -16,11 +16,13 @@ public static class PieceGuestService
     public static bool IsEligibleWardChest(Container? container) =>
         GuestsEnabled
         && container != null
+        && !PublicPieceRegistration.IsPublicPiece(container)
         && PieceAccessState.IsEligibleChest(container);
 
     public static bool IsEligibleWardDoor(Door? door) =>
         GuestsEnabled
         && door != null
+        && !PublicPieceRegistration.IsPublicPiece(door)
         && PieceAccessState.IsEligibleDoor(door);
 
     public static bool ShouldBypassWardForGuest(Container container)
@@ -251,6 +253,9 @@ public static class PieceGuestService
 
         var playerId = player.GetPlayerID();
         var pos = PieceAccessState.GetPosition(container);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+            return false;
+
         if (!IsPermittedForPublicToggle(nview, pos, playerId))
             return false;
 
@@ -282,6 +287,9 @@ public static class PieceGuestService
 
         var playerId = player.GetPlayerID();
         var pos = PieceAccessState.GetPosition(door);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+            return false;
+
         if (!IsPermittedForPublicToggle(nview, pos, playerId))
             return false;
 
@@ -334,11 +342,18 @@ public static class PieceGuestService
         PieceGuestAccess.RegisterRpcs(nview!);
     }
 
-    /// <summary>Creator + key + Alt: toggle opt-in ready on ward chest.</summary>
+    /// <summary>Creator + key + SetupModifier: toggle opt-in ready on ward chest.</summary>
     public static bool TryHandleKeyAlt(Container container, Humanoid user)
     {
         if (!IsEligibleWardChest(container))
             return false;
+
+        var pos = PieceAccessState.GetPosition(container);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
+            return true;
+        }
 
         var nview = PieceAccessState.GetNetView(container);
         if (PieceAccessState.IsPublic(nview))
@@ -349,7 +364,7 @@ public static class PieceGuestService
 
         return TryCreatorToggleOptIn(
             nview,
-            PieceAccessState.GetPosition(container),
+            pos,
             user);
     }
 
@@ -357,6 +372,13 @@ public static class PieceGuestService
     {
         if (!IsEligibleWardDoor(door))
             return false;
+
+        var pos = PieceAccessState.GetPosition(door);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
+            return true;
+        }
 
         var nview = PieceAccessState.GetNetView(door);
         if (PieceAccessState.IsPublic(nview))
@@ -367,7 +389,7 @@ public static class PieceGuestService
 
         return TryCreatorToggleOptIn(
             nview,
-            PieceAccessState.GetPosition(door),
+            pos,
             user);
     }
 
@@ -433,10 +455,17 @@ public static class PieceGuestService
             sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
             sb.Append('\n').Append(useKey).Append(' ')
                 .Append(Localization.instance.Localize("$piece_container_open"));
-            if (LockSmithConfig.EnableGuestPublicToggle)
+            if (LockSmithConfig.EnableGuestPublicToggle
+                && WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
             {
                 sb.Append('\n').Append(altUse).Append(' ')
                     .Append(LockSmithLocalization.T(LockSmithLocalization.HoverMakePrivateToken));
+            }
+            else if (LockSmithConfig.EnableGuestPublicToggle
+                     && LockSmithConfig.RequireActiveWard
+                     && !WardAccess.IsInsideEnabledWard(pos))
+            {
+                sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgNeedActiveWardToken));
             }
 
             hoverText = sb.ToString();
@@ -457,7 +486,9 @@ public static class PieceGuestService
         sb.Append('\n').Append(useKey).Append(' ')
             .Append(Localization.instance.Localize("$piece_container_open"));
 
-        if (LockSmithConfig.EnableGuestPublicToggle && !PieceGuestAccess.IsOptInReady(nview))
+        if (LockSmithConfig.EnableGuestPublicToggle
+            && !PieceGuestAccess.IsOptInReady(nview)
+            && WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
         {
             sb.Append('\n').Append(altUse).Append(' ')
                 .Append(LockSmithLocalization.T(LockSmithLocalization.HoverMakePublicToken));
@@ -466,6 +497,13 @@ public static class PieceGuestService
         {
             sb.Append('\n').Append(altUse).Append(' ')
                 .Append(LockSmithLocalization.T(LockSmithLocalization.HoverLeaveAccessToken));
+        }
+        else if (LockSmithConfig.EnableGuestPublicToggle
+                 && !PieceGuestAccess.IsOptInReady(nview)
+                 && LockSmithConfig.RequireActiveWard
+                 && !WardAccess.IsInsideEnabledWard(pos))
+        {
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgNeedActiveWardToken));
         }
 
         hoverText = sb.ToString();
@@ -501,10 +539,17 @@ public static class PieceGuestService
         {
             sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePublicToken));
             sb.Append('\n').Append(useKey).Append(' ').Append(DoorUseAction(door));
-            if (LockSmithConfig.EnableGuestPublicToggle)
+            if (LockSmithConfig.EnableGuestPublicToggle
+                && WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
             {
                 sb.Append('\n').Append(altUse).Append(' ')
                     .Append(LockSmithLocalization.T(LockSmithLocalization.HoverMakePrivateToken));
+            }
+            else if (LockSmithConfig.EnableGuestPublicToggle
+                     && LockSmithConfig.RequireActiveWard
+                     && !WardAccess.IsInsideEnabledWard(pos))
+            {
+                sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgNeedActiveWardToken));
             }
 
             hoverText = sb.ToString();
@@ -524,7 +569,9 @@ public static class PieceGuestService
 
         sb.Append('\n').Append(useKey).Append(' ').Append(DoorUseAction(door));
 
-        if (LockSmithConfig.EnableGuestPublicToggle && !PieceGuestAccess.IsOptInReady(nview))
+        if (LockSmithConfig.EnableGuestPublicToggle
+            && !PieceGuestAccess.IsOptInReady(nview)
+            && WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
         {
             sb.Append('\n').Append(altUse).Append(' ')
                 .Append(LockSmithLocalization.T(LockSmithLocalization.HoverMakePublicToken));
@@ -533,6 +580,13 @@ public static class PieceGuestService
         {
             sb.Append('\n').Append(altUse).Append(' ')
                 .Append(LockSmithLocalization.T(LockSmithLocalization.HoverLeaveAccessToken));
+        }
+        else if (LockSmithConfig.EnableGuestPublicToggle
+                 && !PieceGuestAccess.IsOptInReady(nview)
+                 && LockSmithConfig.RequireActiveWard
+                 && !WardAccess.IsInsideEnabledWard(pos))
+        {
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgNeedActiveWardToken));
         }
 
         hoverText = sb.ToString();

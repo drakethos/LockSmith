@@ -1,6 +1,6 @@
 # LockSmith — behavior
 
-Status: **0.3.7** — requires DrakeModsLibs 0.9.2+ (ArtItemLoader); official key art; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
+Status: **0.4.0** — requires DrakeModsLibs 0.9.4+; Hammer Public piece mode; RequireActiveWard; AccessFeedback Valheim 1.0 fix; key passes; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
 
 Version targets / backlog: see [`drakeVision.md`](drakeVision.md).
 
@@ -47,9 +47,17 @@ Same as chests for `Door` + `EnableDoors`.
 - Public = open only — no Join/setup until locked private again.
 - Future: access setup menu (drakeVision).
 
-### Phase 4+ — see drakeVision
+### Phase 4 — Public hammer pieces (`EnablePieceMode`)
 
-Hammer public prefabs, quest keys, access menu, etc.
+- Auto-discovers ward-locked `Piece` + `Container`/`Door` prefabs (vanilla + mods); clones to Hammer **Public**.
+- Clone prefabs set `m_checkGuardStone = false` at registration — no `locksmith_public` ZDO for this path.
+- Skips already-public donors (`m_checkGuardStone` already false) and private-family chests.
+- Optional `(public)` name suffix (`PublicPieceNameSuffix`); AllowList / DenyList.
+- Key / guest / clear paths ignore public clones.
+
+### Later — see drakeVision
+
+Quest keys, access menu, etc.
 
 ## Assets
 

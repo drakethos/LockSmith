@@ -27,9 +27,22 @@ public static class DoorAccessService
             return true;
         }
 
+        if (PublicPieceRegistration.IsPublicPiece(door))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgPublicPrefabToken);
+            return true;
+        }
+
         if (!PieceAccessState.IsEligibleDoor(door))
         {
             AccessFeedback.Show(user, LockSmithLocalization.MsgWrongTargetToken);
+            return true;
+        }
+
+        var pos = PieceAccessState.GetPosition(door);
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+        {
+            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
             return true;
         }
 
@@ -127,6 +140,12 @@ public static class DoorAccessService
 
         var pos = PieceAccessState.GetPosition(door!);
 
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+        {
+            LockSmith.Log?.LogWarning($"Rejected door public toggle for player {playerId} (no active ward).");
+            return;
+        }
+
         var local = Player.m_localPlayer;
         var allowed = local != null && local.GetPlayerID() == playerId
             ? WardAccess.HasLocalWardAccess(pos)
@@ -168,6 +187,13 @@ public static class DoorAccessService
         if (!ChestAccessService.IsHoldingLocksmithKey(Player.m_localPlayer))
             return false;
 
+        if (PublicPieceRegistration.IsPublicPiece(door))
+        {
+            hoverText = AccessHoverDisplay.LocalizedPieceName(door) + "\n" +
+                        LockSmithLocalization.T(LockSmithLocalization.MsgPublicPrefabToken);
+            return true;
+        }
+
         if (!PieceAccessState.IsEligibleDoor(door))
         {
             hoverText = AccessHoverDisplay.LocalizedPieceName(door) + "\n" +
@@ -189,6 +215,13 @@ public static class DoorAccessService
             sb.Append(' ').Append(status);
         else
             sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
+
+        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+        {
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgNeedActiveWardToken));
+            hoverText = sb.ToString();
+            return true;
+        }
 
         if (WardAccess.HasLocalWardAccess(pos))
         {

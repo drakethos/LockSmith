@@ -512,12 +512,22 @@ public static class PieceGuestAccess
                 return GroupAccessState.IsCreator(container, playerId);
 
             if (PieceAccessState.IsEligibleChest(container))
-                return WardAccess.HasWardAccessForPlayer(PieceAccessState.GetPosition(container), playerId);
+            {
+                var pos = PieceAccessState.GetPosition(container);
+                if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+                    return false;
+                return WardAccess.HasWardAccessForPlayer(pos, playerId);
+            }
         }
 
         var door = nview.GetComponentInChildren<Door>();
         if (door != null && PieceAccessState.IsEligibleDoor(door))
-            return WardAccess.HasWardAccessForPlayer(PieceAccessState.GetPosition(door), playerId);
+        {
+            var pos = PieceAccessState.GetPosition(door);
+            if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
+                return false;
+            return WardAccess.HasWardAccessForPlayer(pos, playerId);
+        }
 
         return false;
     }

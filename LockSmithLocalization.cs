@@ -37,6 +37,7 @@ public static class LockSmithLocalization
     public const string MsgClearConfirmToken = "locksmith_msg_clear_confirm";
     public const string MsgClearedToken = "locksmith_msg_cleared";
     public const string MsgNothingToClearToken = "locksmith_msg_nothing_to_clear";
+    public const string MsgNeedActiveWardToken = "locksmith_msg_need_active_ward";
     public const string HoverMakePublicToken = "locksmith_hover_make_public";
     public const string HoverMakePrivateToken = "locksmith_hover_make_private";
     public const string HoverDesignateToken = "locksmith_hover_designate";
@@ -50,6 +51,9 @@ public static class LockSmithLocalization
     public const string HoverGuestsHeaderToken = "locksmith_hover_guests_header";
     public const string InventoryTabTitleToken = "locksmith_inventory_tab_title";
     public const string InventoryHintPhraseToken = "locksmith_inventory_hint_phrase";
+    public const string PublicNameSuffixToken = "locksmith_public_name_suffix";
+    public const string MsgPublicPrefabToken = "locksmith_msg_public_prefab";
+    public const string PieceCategoryPublicToken = "locksmith_category_public";
 
     public static void Register()
     {
@@ -97,6 +101,7 @@ public static class LockSmithLocalization
             { MsgClearConfirmToken, "YOU SURE??? This clears guest names. {0}+E again to confirm. (Got a backup key? — someday ;))" },
             { MsgClearedToken, "LockSmith removed — piece is vanilla again" },
             { MsgNothingToClearToken, "Nothing LockSmith to clear on this piece" },
+            { MsgNeedActiveWardToken, "Needs an active ward" },
             { HoverMakePublicToken, "Make public" },
             { HoverMakePrivateToken, "Make private" },
             { HoverDesignateToken, "Enable LockSmith" },
@@ -108,6 +113,9 @@ public static class LockSmithLocalization
             { HoverJoinAccessToken, "Join access" },
             { HoverLeaveAccessToken, "Leave access" },
             { HoverGuestsHeaderToken, "Guests:" },
+            { PublicNameSuffixToken, " (public)" },
+            { MsgPublicPrefabToken, "This piece is always public" },
+            { PieceCategoryPublicToken, "Public" },
         });
     }
 

@@ -78,6 +78,7 @@
     <Compile Include="Access\PieceClearService.cs" />
     <Compile Include="Access\PieceGuestAccess.cs" />
     <Compile Include="Access\PieceGuestService.cs" />
+    <Compile Include="Access\PublicPieceRegistration.cs" />
     <Compile Include="Access\WardAccess.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ContentRegistration.cs" />

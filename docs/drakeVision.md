@@ -5,7 +5,8 @@ Living target list for version goals. Pull sections into a Cursor plan when star
 **North star:** useful access options without overwhelming players or forcing RP servers into a thick rulebook.
 
 **Shipped:** `0.3.0` — ward chests/doors public/private + Personal/Team private chests.  
-**Also shipped:** `0.3.9` — key passes (inventory menu + clipboard) + Libs inventory chord / tab host.
+**Also shipped:** `0.3.9` — key passes (inventory menu + clipboard) + Libs inventory chord / tab host.  
+**Also shipped:** `0.4.0` — Hammer Public piece mode + RequireActiveWard + AccessFeedback Valheim 1.0 fix.
 
 ---
 
@@ -15,8 +16,8 @@ Living target list for version goals. Pull sections into a Cursor plan when star
 | --- | --- | --- |
 | **0.3** | Phase 3 — team / private chest access | **Shipped in 0.3.0** |
 | **0.3.9** | Key passes + inventory tab host | **Shipped** |
-| **0.4** | Phase 4 — placeable public pieces (no key) | Next |
-| **0.3–0.4** | Compatibility hardening | Parallel concern while building 0.4 |
+| **0.4** | Phase 4 — placeable public pieces (no key) | **Shipped in 0.4.0** |
+| **0.3–0.4** | Compatibility hardening | Parallel / ongoing |
 | **0.5+** | Future options | Quest keys, deeper RenameIt, unwarded locks, Halvar, etc. |
 
 Bump patch (`0.3.1`) for fixes; bump minor when a version goal’s *core* lands and is play-tested.
@@ -45,25 +46,13 @@ Bump patch (`0.3.1`) for fixes; bump minor when a version goal’s *core* lands 
 
 **Theme:** Servers that don’t want the key tool still get public chests/doors — as **prefabs**, not ZDO toggles.
 
-### Goals
+### Shipped in 0.4.0
 
-1. **No-key offering**  
-   - Loop vanilla **and modded** chest/door prefabs (config allow/deny lists as needed).  
-   - Build **public** variants: `m_checkGuardStone = false` (and whatever else makes them honestly public).
+1. **No-key offering** — auto-discover ward-locked vanilla/modded chest/door prefabs; public clones with `m_checkGuardStone = false`. Skip already-public donors and private-family chests. AllowList / DenyList.
+2. **Hammer UX** — category **Public**; optional localized `(public)` name suffix (`PublicPieceNameSuffix`).
+3. **No ZDO drama** — public-by-prefab; key-mode coexistence via `EnableKeyMode` / `EnablePieceMode`.
 
-2. **Hammer UX**  
-   - New hammer **tab / category** (whatever the current Valheim 1.x build menu calls it).  
-   - Category holds **Public chests** and **Public doors/gates** — same pieces players know, placeable.
-
-3. **No ZDO drama**  
-   - Public-by-prefab → no desync of `locksmith_public`, no RPC toggle for this path.  
-   - Key-mode (0.2) and piece-mode (0.4) can coexist via config.
-
-### Done when
-
-- Host can disable key mode, enable piece mode, and place public chests/doors from the hammer tab.  
-- Modded pieces appear only when discovery/config says so (no surprise broken prefabs).
-
+Also in 0.4.0: `RequireActiveWard` (default on) and Valheim 1.0 `AccessFeedback` / `Character.Message` fix.
 ---
 
 ## 0.3–0.4 — Compatibility hardening (parallel)

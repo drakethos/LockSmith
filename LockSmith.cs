@@ -8,6 +8,7 @@ using HarmonyLib;
 using Jotunn;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using LockSmith.Access;
 
 namespace LockSmith
 {
@@ -37,7 +38,13 @@ namespace LockSmith
             // ArtItemLoader expects Assets/Items/keys/ — repair before register.
             RepairFlattenedArtLayout(pluginDir);
             // Official key only: Assets/Items/keys/masterkey.json + keys.bundle (MasterKey).
-            ArtItemLoader.Register(Logger, pluginDir, Config, ContentRegistration.CustomizeMasterKeyArtItem);
+            // Pass config: null so ArtItemLoader does not create a duplicate "masterkey" section
+            // (Display name / Description / Materials). Recipe + name live under LockSmith → 03 Key.
+            ArtItemLoader.Register(
+                Logger,
+                pluginDir,
+                config: null,
+                ContentRegistration.CustomizeMasterKeyArtItem);
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabs;
             _harmony.PatchAll();
@@ -52,6 +59,7 @@ namespace LockSmith
                 LockSmithLocalization.Register();
                 // ArtItemLoader also hooks this event and subscribed first — masterkey should exist now.
                 ContentRegistration.FinalizeOfficialKeyFromKeysPack();
+                PublicPieceRegistration.TryRegisterAll("OnVanillaPrefabsAvailable");
             }
             catch (Exception ex)
             {

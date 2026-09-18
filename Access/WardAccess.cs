@@ -21,6 +21,48 @@ public static class WardAccess
     public static bool HasLocalWardAccess(Vector3 position) =>
         PrivateArea.CheckAccess(position, 0f, flash: false, wardCheck: false);
 
+    /// <summary>
+    /// True when <paramref name="position"/> is inside at least one enabled (powered-on) ward.
+    /// Fail closed when PrivateArea reflection is unavailable.
+    /// </summary>
+    public static bool IsInsideEnabledWard(Vector3 position)
+    {
+        EnsureResolved();
+
+        var areas = GetAllAreas();
+        if (areas == null || areas.Count == 0)
+            return false;
+
+        foreach (var area in areas)
+        {
+            if (area == null)
+                continue;
+
+            if (!InvokeBool(_isEnabled, area))
+                continue;
+
+            if (InvokeBool(_isInside, area, position, 0f))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Whether LockSmith may manage/toggle this piece under <see cref="LockSmithConfig.RequireActiveWard"/>.
+    /// Private-family chests are always allowed; doors pass <paramref name="isPrivateFamilyChest"/> as false.
+    /// </summary>
+    public static bool AllowsToolOnPiece(Vector3 position, bool isPrivateFamilyChest)
+    {
+        if (!LockSmithConfig.RequireActiveWard)
+            return true;
+
+        if (isPrivateFamilyChest)
+            return true;
+
+        return IsInsideEnabledWard(position);
+    }
+
     public static bool HasWardAccessForPlayer(Vector3 position, long playerId)
     {
         EnsureResolved();
