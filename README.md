@@ -21,6 +21,8 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
+**0.4.1** — Multiplayer Join fix (RPC re-bind + Join toggle sync). Requires DrakeModsLibs **0.9.4+**.
+
 **0.4.0** — Hammer **Public** tab (`EnablePieceMode`), **RequireActiveWard**, and Valheim 1.0 center-message fix. Requires DrakeModsLibs **0.9.4+**.
 
 **0.3.9** — Key passes (inventory menu + Ctrl+C/V) and shared DrakeModsLibs inventory chord / tab host. Requires DrakeModsLibs **0.9.4+**.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Fix multiplayer Join: re-bind piece RPCs after chunk reload (opt-in/out and Join open/close stopped applying).
+- Fix Join toggle spam when ZDO sync lags - owner tool no longer flips open/open on stale state.
+
 ## 0.4.0
 
 - **Piece mode (Phase 4):** `EnablePieceMode` discovers ward-locked chests/doors/gates (vanilla + mods) and registers always-public Hammer **Public** tab clones (`m_checkGuardStone = false`, no ZDO toggle).

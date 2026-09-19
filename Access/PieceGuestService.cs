@@ -685,8 +685,12 @@ public static class PieceGuestService
             return true;
         }
 
-        var next = !PieceGuestAccess.IsOptInReady(nview);
-        PieceGuestAccess.RequestSetOptIn(nview, next, player.GetPlayerID());
+        if (!PieceGuestAccess.TryRequestJoinToggle(nview, player.GetPlayerID(), out var next))
+        {
+            AccessFeedback.ShowRaw(user, "Join is still syncing — try again.");
+            return true;
+        }
+
         AccessFeedback.Show(
             user,
             next ? LockSmithLocalization.MsgOptInOpenedToken : LockSmithLocalization.MsgOptInClosedToken);

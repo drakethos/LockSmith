@@ -23,6 +23,15 @@ public static class GroupChestService
         if (nview == null || !nview.IsValid())
             return;
 
+        try
+        {
+            nview.Unregister(GameHookTargets.RpcSetGroupMode);
+        }
+        catch (System.Exception)
+        {
+            /* not registered yet */
+        }
+
         nview.Register<int, long>(GameHookTargets.RpcSetGroupMode, (long sender, int flag, long playerId) =>
         {
             ApplySetTeamMode(nview, flag == 1, playerId);
@@ -205,8 +214,12 @@ public static class GroupChestService
             return;
         }
 
-        var next = !PieceGuestAccess.IsOptInReady(nview);
-        PieceGuestAccess.RequestSetOptIn(nview, next, playerId);
+        if (!PieceGuestAccess.TryRequestJoinToggle(nview, playerId, out var next))
+        {
+            AccessFeedback.ShowRaw(user, "Join is still syncing — try again.");
+            return;
+        }
+
         AccessFeedback.Show(
             user,
             next ? LockSmithLocalization.MsgOptInOpenedToken : LockSmithLocalization.MsgOptInClosedToken);

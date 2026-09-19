@@ -28,7 +28,18 @@ public static class PieceGuestAccess
 {
     private static readonly int GuestsHash = GameHookTargets.ZdoGroupMembers.GetStableHashCode();
     private static readonly int OptInHash = GameHookTargets.ZdoOptInReady.GetStableHashCode();
-    private static readonly HashSet<ZDOID> RegisteredViews = new HashSet<ZDOID>();
+
+    /// <summary>Join open/close requests awaiting ZDO sync (avoids stale double-toggles in MP).</summary>
+    private static readonly Dictionary<ZDOID, PendingJoinToggle> PendingJoinByZdo =
+        new Dictionary<ZDOID, PendingJoinToggle>();
+
+    private const float JoinToggleSyncSeconds = 2.5f;
+
+    private struct PendingJoinToggle
+    {
+        public bool DesiredReady;
+        public float Until;
+    }
 
     public static bool IsOptInReady(ZNetView? nview)
     {
@@ -292,8 +303,19 @@ public static class PieceGuestAccess
         if (zdo == null)
             return;
 
-        if (!RegisteredViews.Add(zdo.m_uid))
-            return;
+        // Always re-bind: ZNetView is recreated when chunks reload. A permanent ZDOID HashSet
+        // skipped Register and left Join/Leave RPCs dead in multiplayer.
+        try
+        {
+            nview.Unregister(GameHookTargets.RpcSetOptInReady);
+            nview.Unregister(GameHookTargets.RpcOptInSelf);
+            nview.Unregister(GameHookTargets.RpcOptOutSelf);
+            nview.Unregister(GameHookTargets.RpcMergeGuests);
+        }
+        catch (Exception)
+        {
+            /* Unregister throws if never registered — fine. */
+        }
 
         nview.Register<int, long>(GameHookTargets.RpcSetOptInReady, (long sender, int flag, long playerId) =>
         {
@@ -428,6 +450,65 @@ public static class PieceGuestAccess
             nview.InvokeRPC(GameHookTargets.RpcSetOptInReady, ready ? 1 : 0, playerId);
     }
 
+    /// <summary>
+    /// Owner/creator Join open/close with multiplayer debounce.
+    /// Returns false when a previous toggle is still syncing (do not spam RPC / flip feedback).
+    /// </summary>
+    public static bool TryRequestJoinToggle(ZNetView nview, long playerId, out bool nextReady)
+    {
+        nextReady = false;
+        if (nview == null || !nview.IsValid() || playerId == 0L)
+            return false;
+
+        var zdo = nview.GetZDO();
+        if (zdo == null)
+            return false;
+
+        var id = zdo.m_uid;
+        var localReady = IsOptInReady(nview);
+
+        if (PendingJoinByZdo.TryGetValue(id, out var pending))
+        {
+            if (localReady == pending.DesiredReady || Time.time > pending.Until)
+                PendingJoinByZdo.Remove(id);
+            else
+            {
+                // Still waiting for ZDO to catch up — ignore extra taps.
+                return false;
+            }
+        }
+
+        nextReady = !localReady;
+        PendingJoinByZdo[id] = new PendingJoinToggle
+        {
+            DesiredReady = nextReady,
+            Until = Time.time + JoinToggleSyncSeconds
+        };
+
+        RequestSetOptIn(nview, nextReady, playerId);
+
+        // Owner applied immediately — clear pending if it stuck.
+        if (nview.IsOwner() && IsOptInReady(nview) == nextReady)
+            PendingJoinByZdo.Remove(id);
+
+        return true;
+    }
+
+    static void ClearJoinPendingIfMatched(ZNetView nview)
+    {
+        if (nview == null || !nview.IsValid())
+            return;
+        var zdo = nview.GetZDO();
+        if (zdo == null)
+            return;
+
+        if (!PendingJoinByZdo.TryGetValue(zdo.m_uid, out var pending))
+            return;
+
+        if (IsOptInReady(nview) == pending.DesiredReady)
+            PendingJoinByZdo.Remove(zdo.m_uid);
+    }
+
     public static void RequestOptInSelf(ZNetView nview, long playerId, string playerName)
     {
         if (nview.IsOwner())
@@ -460,6 +541,7 @@ public static class PieceGuestAccess
 
         SetOptInReady(nview, ready);
         PieceAccessState.MarkManaged(nview);
+        ClearJoinPendingIfMatched(nview);
         LockSmith.Log?.LogInfo(
             $"Set locksmith_optin={(ready ? 1 : 0)} on {nview.name} by {playerId} " +
             $"(readback={IsOptInReady(nview)}).");
@@ -474,17 +556,29 @@ public static class PieceGuestAccess
             return;
 
         if (!IsOptInReady(nview))
+        {
+            LockSmith.Log?.LogDebug(
+                $"Opt-in ignored for {playerId} on {nview.name} — Join is closed.");
             return;
+        }
 
         var container = nview.GetComponentInChildren<Container>();
         if (container != null && GroupAccessState.IsPrivateFamilyChest(container)
             && !GroupAccessState.IsTeamMode(nview))
+        {
+            LockSmith.Log?.LogDebug(
+                $"Opt-in ignored for {playerId} on {nview.name} — chest is Personal.");
             return;
+        }
 
         if (AddGuest(nview, playerId, NormalizePlayerName(playerName)))
         {
             LockSmith.Log?.LogInfo(
                 $"Opt-in: added guest {playerId} as '{NormalizePlayerName(playerName)}' on {nview.name} (guests={GetGuests(nview).Count}).");
+        }
+        else if (IsGuest(nview, playerId))
+        {
+            LockSmith.Log?.LogDebug($"Opt-in: {playerId} already a guest on {nview.name}.");
         }
     }
 

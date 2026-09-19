@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text;
 using LockSmith.UI;
 using UnityEngine;
@@ -11,7 +10,6 @@ namespace LockSmith.Access;
 /// </summary>
 public static class PieceClearService
 {
-    private static readonly HashSet<ZDOID> RegisteredViews = new HashSet<ZDOID>();
     private static ZDOID _pendingClearId = ZDOID.None;
     private static float _pendingClearUntil;
 
@@ -130,8 +128,17 @@ public static class PieceClearService
             return;
 
         var zdo = nview.GetZDO();
-        if (zdo == null || !RegisteredViews.Add(zdo.m_uid))
+        if (zdo == null)
             return;
+
+        try
+        {
+            nview.Unregister(GameHookTargets.RpcClearLockSmith);
+        }
+        catch (System.Exception)
+        {
+            /* not registered yet */
+        }
 
         nview.Register<long>(GameHookTargets.RpcClearLockSmith, (long sender, long playerId) =>
         {
