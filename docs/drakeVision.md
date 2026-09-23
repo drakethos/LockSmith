@@ -49,7 +49,7 @@ Bump patch (`0.3.1`) for fixes; bump minor when a version goal’s *core* lands 
 ### Shipped in 0.4.0
 
 1. **No-key offering** — auto-discover ward-locked vanilla/modded chest/door prefabs; public clones with `m_checkGuardStone = false`. Skip already-public donors and private-family chests. AllowList / DenyList.
-2. **Hammer UX** — category **Public**; optional localized `(public)` name suffix (`PublicPieceNameSuffix`).
+2. **Hammer UX** — category **Public**; optional localized `(public)` name suffix (`PublicPieceNameSuffix`). Placed clones show a plain hover line, default **[Public]** (`PublicPieceHoverText`).
 3. **No ZDO drama** — public-by-prefab; key-mode coexistence via `EnableKeyMode` / `EnablePieceMode`.
 
 Also in 0.4.0: `RequireActiveWard` (default on) and Valheim 1.0 `AccessFeedback` / `Character.Message` fix.
@@ -61,9 +61,11 @@ Known past pain when touching wards / open paths:
 
 | Area | Risk | Stance |
 | --- | --- | --- |
-| **Devcommands / infinite hammer / admin open** | Admins (or tools) open through wards anyway; patches fight each other | Detect or fail soft; don’t assume we’re the only Interact prefix |
-| **WardIsLove** | Changes what “warded / permitted” means | Prefer vanilla `PrivateArea` public APIs; optional compat hooks later |
-| **Azu / other ward mods** | Same — alternate ward stacks | Document “works with vanilla wards first”; test matrix before calling 0.4 done |
+| **Devcommands / infinite hammer / admin open** | Admins (or tools) open through wards anyway; patches fight each other | Soft `Compat/DevCommands` via `CompatibilityManager` (detect + hook point; no hard dep) |
+| **WardIsLove** | Uses `WardMonoscript` — empty `PrivateArea.m_allAreas`; own Interact/hover blocks | Soft `Compat/WardIsLove`; third parties use `LockSmithCompatApi.Register` |
+| **ProtectiveWards** | Hijacks `PrivateArea.CheckAccess`; Priority.First Door/Container Interact ignores `m_checkGuardStone` | Soft `Compat/ProtectiveWards` (Door/Container only; coverage via PW helpers) |
+| **Arcane Ward (KG)** | Custom `ArcaneWardComponent` sphere wards; Door/Container Interact via `CheckFlag`; no CheckAccess patch | Soft `Compat/ArcaneWard` (Door/Container + instance coverage) |
+| **Azu / other ward mods** | Same — alternate ward stacks | New `Compat/<Mod>/` module or external `LockSmithCompatApi` register; mutual exclusivity is not our problem |
 
 **Rule:** every new open/bypass path gets a short compat note in this file or the behavior doc when we learn a conflict.
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.2
+
+- Requires **DrakeModsLibs 0.9.7+** (`CompatHost`).
+- **WardIsLove soft-compat:** detect WIL `WardMonoscript` wards for `RequireActiveWard` / permission checks (vanilla `PrivateArea.m_allAreas` stays empty under WIL-only). WIL's door/chest interact and No-access hover patches are removed and only called when the piece is not LockSmith-public, a public hammer clone, a team chest that player can open, a guest bypass, or **Join open** for a player WIL would deny (they can press E to opt in; the piece does not open).
+- **ProtectiveWards soft-compat:** Door/Container Interact gated like WIL (public / guest / team / Join-open bypass PW's Priority.First block). Coverage uses PW `InsideEnabledPlayersArea` / `HasAccessToWardOrConnectedWard`. `LockSmithCompatApi.HasLocalWardAccess` / `IsInsideEnabledWard` for RenameIt and third parties. Does not gate ItemStand or other PW Interact surfaces.
+- **Arcane Ward soft-compat:** Door/Container Interact gated around KG `ArcaneWardComponent.CheckFlag` (custom ward stack, not PrivateArea). Coverage via enabled fueled Arcane instances for `RequireActiveWard` / RenameIt hover when LockSmith is present.
+- Fix hammer **Public** clones: hover/interact no longer re-enables ward checks from a missing `locksmith_public` ZDO, and ward bypass (including WIL) treats `*_public` prefabs as always open.
+- **CompatibilityManager:** LockSmith ward facade over DrakeModsLibs **`CompatHost`** (per-plugin). Domain modules under `Compat/<Mod>/`. Public `LockSmith.API.LockSmithCompatApi`. SoftDependency only. See `docs/wiki/Compatibility-API.md`.
+- Public hammer doors and chests show a plain hover line (default **[Public]**, synced `PublicPieceHoverText`). Hammer build description stays gold: always open, cannot be locked. `(public)` is appended after the donor name is localized (`PublicPieceNameSuffix`).
+- Soft ward bridges are a **courtesy** (not actively monitored); please open an issue if something breaks — PRs and SoftDependency bridges via the Compatibility API are welcome.
+
 ## 0.4.1
 
 - Fix multiplayer Join: re-bind piece RPCs after chunk reload (opt-in/out and Join open/close stopped applying).

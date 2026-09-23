@@ -21,6 +21,8 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
+**0.4.2** — Soft ward-stack bridges (WardIsLove / ProtectiveWards / Arcane Ward) + Compatibility API. Requires DrakeModsLibs **0.9.7+**.
+
 **0.4.1** — Multiplayer Join fix (RPC re-bind + Join toggle sync). Requires DrakeModsLibs **0.9.4+**.
 
 **0.4.0** — Hammer **Public** tab (`EnablePieceMode`), **RequireActiveWard**, and Valheim 1.0 center-message fix. Requires DrakeModsLibs **0.9.4+**.
@@ -60,7 +62,7 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 
 1. Host sets **`EnablePieceMode=true`** and restarts (clients need the same mod).
 2. Hammer → **Public** category: always-open clones of ward-locked chests/doors (vanilla and discovered mod pieces).
-3. Names append **`(public)`** when `PublicPieceNameSuffix` is on. Already-public vanilla pieces (e.g. Christmas boxes) are not duplicated.
+3. Names append **`(public)`** when `PublicPieceNameSuffix` is on. A placed clone shows **[Public]** (`PublicPieceHoverText`). The hammer description is gold: always open, cannot be locked. Already-public vanilla pieces (e.g. Christmas boxes) are not duplicated.
 4. Use `PublicPieceDenyList` / `PublicPieceAllowList` to trim or force donors. Key mode does not designate these clones.
 
 ### Ward chests / doors — partial guest access
@@ -85,6 +87,7 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 | `PublicPieceAllowList` | empty | Extra donor prefab names to clone (comma-separated). Restart |
 | `PublicPieceDenyList` | empty | Donor prefab names never cloned. Restart |
 | `PublicPieceNameSuffix` | on | Append localized `(public)` to clone display names. Restart |
+| `PublicPieceHoverText` | `[Public]` | Plain hover line on placed Public doors and chests. Empty uses `[Public]` |
 | `EnableGuestPublicToggle` | on | Permitted Alt+E public/private (no key) |
 | `EnableDesignate` | on | Key must Enable LockSmith before no-key Alt+E |
 | `RequireActiveWard` | on | No manage/toggle on normal chests/doors unless inside an enabled ward (private chests exempt) |
@@ -93,6 +96,20 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 | `TeamLabelColor` | `#FF00FF` | Local only — color for Team/Guests labels |
 
 Inventory key menu uses **DrakeModsLibs** `Integration.InventoryOpenModifier` (default Shift) + right-click — shared with RenameIt when both claim an item.
+
+## Compatibility API
+
+Optional ward / cheat mods (**WardIsLove**, **ProtectiveWards**, **Arcane Ward**, DevCommands, …) are soft-loaded via a **CompatibilityManager**. Missing mods never block LockSmith. Prefer **one** third-party ward stack at a time.
+
+These built-ins are a **courtesy** so common packs work out of the box. They are **not** actively monitored against every upstream ward update. If something breaks, please [open an issue](https://github.com/drakethos/LockSmith/issues) with logs — I may look into it when I can. You’re also welcome to contribute a fix (pull request or your own SoftDependency bridge via the API below).
+
+Third-party authors can register their own module **without** waiting on a LockSmith release:
+
+- SoftDependency GUID: `com.drakesworkshop.locksmith`
+- API: `LockSmith.API.LockSmithCompatApi.Register(ICompatModule)` (also `HasLocalWardAccess` / `IsInsideEnabledWard`)
+- Full guide: **[`docs/wiki/Compatibility-API.md`](docs/wiki/Compatibility-API.md)** (also intended for the [GitHub wiki](https://github.com/drakethos/LockSmith/wiki))
+
+Pull requests that add or harden a `Compat/<YourMod>/` module are welcome. You’re also free to keep the bridge in your own mod with SoftDependency + `Register`.
 
 ## Multiplayer
 

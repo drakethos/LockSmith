@@ -52,6 +52,111 @@ public static class PieceGuestService
     }
 
     /// <summary>
+    /// Join is open and the local player is not on the ward and not already a guest.
+    /// WardIsLove would otherwise block hover and E before they can opt in.
+    /// </summary>
+    public static bool IsJoinOpenForStranger(Door? door)
+    {
+        if (!LockSmithConfig.EnableOptInAccess || !door || !IsEligibleWardDoor(door))
+            return false;
+
+        var nview = PieceAccessState.GetNetView(door);
+        if (PieceAccessState.IsPublic(nview) || !PieceGuestAccess.IsOptInReady(nview))
+            return false;
+
+        return IsLocalStranger(nview, PieceAccessState.GetPosition(door));
+    }
+
+    /// <summary>
+    /// Same as <see cref="IsJoinOpenForStranger(Door)"/> for ward chests and team chests.
+    /// </summary>
+    public static bool IsJoinOpenForStranger(Container? container)
+    {
+        if (!LockSmithConfig.EnableOptInAccess || !container)
+            return false;
+
+        ZNetView? nview;
+        Vector3 pos;
+        if (GroupAccessState.IsPrivateFamilyChest(container))
+        {
+            if (!LockSmithConfig.EnableGroupChests)
+                return false;
+
+            nview = GroupAccessState.GetNetView(container);
+            if (!GroupAccessState.IsTeamMode(nview) || !PieceGuestAccess.IsOptInReady(nview))
+                return false;
+
+            var local = Player.m_localPlayer;
+            if (local != null && GroupAccessState.HasTeamAccess(container, local.GetPlayerID()))
+                return false;
+
+            pos = GroupAccessState.GetPosition(container);
+        }
+        else
+        {
+            if (!IsEligibleWardChest(container))
+                return false;
+
+            nview = PieceAccessState.GetNetView(container);
+            if (PieceAccessState.IsPublic(nview) || !PieceGuestAccess.IsOptInReady(nview))
+                return false;
+
+            pos = PieceAccessState.GetPosition(container);
+        }
+
+        return IsLocalStranger(nview, pos);
+    }
+
+    /// <summary>Hover for a stranger while Join is open: no ward “No access” line.</summary>
+    public static bool TryBuildStrangerJoinHover(Door? door, out string hoverText)
+    {
+        hoverText = string.Empty;
+        if (!IsJoinOpenForStranger(door) || !door)
+            return false;
+
+        hoverText = BuildStrangerJoinHover(AccessHoverDisplay.LocalizedPieceName(door));
+        return true;
+    }
+
+    /// <summary>Hover for a stranger while Join is open: no ward “No access” line.</summary>
+    public static bool TryBuildStrangerJoinHover(Container? container, out string hoverText)
+    {
+        hoverText = string.Empty;
+        if (!IsJoinOpenForStranger(container) || !container)
+            return false;
+
+        hoverText = BuildStrangerJoinHover(AccessHoverDisplay.LocalizedPieceName(container));
+        return true;
+    }
+
+    static bool IsLocalStranger(ZNetView? nview, Vector3 pos)
+    {
+        if (nview == null || !nview.IsValid())
+            return false;
+
+        var local = Player.m_localPlayer;
+        if (local == null)
+            return false;
+
+        if (PieceGuestAccess.IsGuest(nview, local.GetPlayerID()))
+            return false;
+
+        // Permitted ward players already pass WIL. Only the denied player needs the bypass.
+        return !WardAccess.HasLocalWardAccess(pos);
+    }
+
+    static string BuildStrangerJoinHover(string pieceName)
+    {
+        var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
+        var sb = new StringBuilder();
+        sb.Append(pieceName);
+        sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceOptInReadyToken));
+        sb.Append('\n').Append(useKey).Append(' ')
+            .Append(LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken));
+        return sb.ToString();
+    }
+
+    /// <summary>
     /// Guest holding key: SetupModifier+E leaves (double-confirm). Returns true if handled.
     /// </summary>
     public static bool TryHandleGuestKeyLeave(Container container, Humanoid user)

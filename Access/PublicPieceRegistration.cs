@@ -78,7 +78,12 @@ public static class PublicPieceRegistration
         if (IsPublicPrefab(nview))
             return true;
 
-        return IsPublicPrefab(container.gameObject);
+        if (IsPublicPrefab(container.gameObject))
+            return true;
+
+        // Container may sit on a child; Piece / root often carries the *_public name.
+        var piece = container.GetComponentInParent<Piece>();
+        return piece && IsPublicPrefab(piece.gameObject);
     }
 
     public static bool IsPublicPiece(Door? door)
@@ -90,7 +95,11 @@ public static class PublicPieceRegistration
         if (IsPublicPrefab(nview))
             return true;
 
-        return IsPublicPrefab(door.gameObject);
+        if (IsPublicPrefab(door.gameObject))
+            return true;
+
+        var piece = door.GetComponentInParent<Piece>();
+        return piece && IsPublicPrefab(piece.gameObject);
     }
 
     /// <summary>Call once from vanilla-prefabs hook. Safe to call again; dedupes donors.</summary>
@@ -232,6 +241,7 @@ public static class PublicPieceRegistration
                 Category = HammerCategory,
                 Enabled = true,
                 Name = displayName,
+                Description = BuildPublicDescription(piece),
                 AllowedInDungeons = piece.m_allowedInDungeons
             };
 
@@ -248,6 +258,7 @@ public static class PublicPieceRegistration
             }
 
             ApplyAlwaysPublic(custom.PiecePrefab);
+            StampPublicIdentity(custom.PiecePrefab, custom.Piece);
             custom.Piece.m_name = displayName;
 
             if (!PieceManager.Instance.AddPiece(custom))
@@ -269,31 +280,125 @@ public static class PublicPieceRegistration
     private static string BuildDisplayName(Piece piece)
     {
         var raw = string.IsNullOrWhiteSpace(piece.m_name) ? piece.name : piece.m_name;
-        var localized = raw;
-        try
-        {
-            if (Localization.instance != null)
-                localized = Localization.instance.Localize(raw);
-        }
-        catch
-        {
-            localized = raw;
-        }
-
+        var localized = WithLocalizedPublicSuffix(raw);
         if (string.IsNullOrWhiteSpace(localized))
             localized = piece.name;
 
+        return localized;
+    }
+
+    /// <summary>
+    /// Resolve the donor token first, then append the translated suffix as plain text.
+    /// Valheim treats a leading <c>$</c> string as a single key, so two tokens cannot be glued.
+    /// </summary>
+    private static string WithLocalizedPublicSuffix(string? raw)
+    {
+        var localized = LocalizeToken(raw);
         if (!LockSmithConfig.PublicPieceNameSuffix)
             return localized;
 
-        var suffix = LockSmithLocalization.T(LockSmithLocalization.PublicNameSuffixToken);
-        if (string.IsNullOrEmpty(suffix))
-            suffix = " (public)";
-
+        var suffix = LocalizedPhrase(LockSmithLocalization.PublicNameSuffixToken, " (public)");
         if (localized.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
             return localized;
 
+        // Still a single key — leave it so hover can localize the donor name.
+        if (localized.Length > 0 && localized[0] == '$')
+            return localized;
+
         return localized + suffix;
+    }
+
+    /// <summary>Hammer description: localized donor text, then the gold always-open warning.</summary>
+    private static string BuildPublicDescription(Piece? piece)
+    {
+        var warning = LocalizedPhrase(
+            LockSmithLocalization.PublicPieceDescToken,
+            "<color=#FFCC33>Always open to anyone. This cannot be locked.</color>");
+        var current = piece ? piece.m_description : null;
+        var text = LocalizeToken(current);
+        if (text.Length > 0 && text[0] == '$')
+            text = string.Empty;
+
+        if (text.Length == 0)
+            return warning;
+
+        if (text.IndexOf(LockSmithLocalization.PublicPieceDescToken, StringComparison.Ordinal) >= 0
+            || text.IndexOf(warning, StringComparison.Ordinal) >= 0)
+            return text;
+
+        return text + "\n" + warning;
+    }
+
+    private static string LocalizeToken(string? raw)
+    {
+        var text = raw ?? string.Empty;
+        var glued = "$" + LockSmithLocalization.PublicNameSuffixToken;
+        var idx = text.IndexOf(glued, StringComparison.OrdinalIgnoreCase);
+        if (idx >= 0)
+            text = text.Remove(idx, glued.Length);
+
+        if (text.Length == 0)
+            return string.Empty;
+
+        try
+        {
+            if (Localization.instance != null)
+                return Localization.instance.Localize(text);
+        }
+        catch
+        {
+            return text;
+        }
+
+        return text;
+    }
+
+    private static string LocalizedPhrase(string token, string fallback)
+    {
+        string phrase;
+        try
+        {
+            phrase = LockSmithLocalization.T(token);
+        }
+        catch
+        {
+            return fallback;
+        }
+
+        if (string.IsNullOrEmpty(phrase) || phrase[0] == '$')
+            return fallback;
+
+        // Missing key comes back as [token].
+        if (phrase.Length > 2 && phrase[0] == '[' && phrase[phrase.Length - 1] == ']'
+            && phrase.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+            return fallback;
+
+        return phrase;
+    }
+
+    /// <summary>
+    /// Door/chest hover uses their own <c>m_name</c>, not <see cref="Piece.m_name"/>.
+    /// Stamp the public suffix there so a placed clone does not look like the donor.
+    /// </summary>
+    private static void StampPublicIdentity(GameObject prefab, Piece? piece)
+    {
+        if (piece)
+            piece.m_description = BuildPublicDescription(piece);
+
+        if (!LockSmithConfig.PublicPieceNameSuffix || !prefab)
+            return;
+
+        foreach (var container in prefab.GetComponentsInChildren<Container>(true))
+        {
+            if (container != null)
+                container.m_name = WithLocalizedPublicSuffix(container.m_name);
+        }
+
+        foreach (var door in prefab.GetComponentsInChildren<Door>(true))
+        {
+            if (door != null)
+                door.m_name = WithLocalizedPublicSuffix(door.m_name);
+        }
     }
 
     private static void CopyRequirements(Piece piece, PieceConfig config)

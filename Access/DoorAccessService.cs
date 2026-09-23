@@ -9,7 +9,14 @@ public static class DoorAccessService
 {
     public static bool ShouldBypassWardCheck(Door door)
     {
-        if (!LockSmithConfig.EnableDoors || !PieceAccessState.IsEligibleDoor(door))
+        if (!LockSmithConfig.EnableDoors)
+            return false;
+
+        // Hammer public clones are always open — no locksmith_public ZDO.
+        if (PublicPieceRegistration.IsPublicPiece(door))
+            return true;
+
+        if (!PieceAccessState.IsEligibleDoor(door))
             return false;
 
         var nview = PieceAccessState.GetNetView(door);
@@ -190,7 +197,7 @@ public static class DoorAccessService
         if (PublicPieceRegistration.IsPublicPiece(door))
         {
             hoverText = AccessHoverDisplay.LocalizedPieceName(door) + "\n" +
-                        LockSmithLocalization.T(LockSmithLocalization.MsgPublicPrefabToken);
+                        AccessHoverDisplay.PublicPieceHoverLabel();
             return true;
         }
 
@@ -253,6 +260,9 @@ public static class DoorAccessService
 
     public static string GetPublicStatusSuffix(Door door)
     {
+        if (PublicPieceRegistration.IsPublicPiece(door))
+            return "\n" + AccessHoverDisplay.PublicPieceHoverLabel();
+
         if (!LockSmithConfig.EnableDoors || !PieceAccessState.IsEligibleDoor(door))
             return string.Empty;
 

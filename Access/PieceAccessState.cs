@@ -112,12 +112,19 @@ public static class PieceAccessState
 
     /// <summary>
     /// Re-apply ZDO → component. Call on Awake and before interact so peers stay in sync
-    /// after the ZDO replicates.
+    /// after the ZDO replicates. Hammer public clones have no <c>locksmith_public</c> flag —
+    /// never force their ward check back on from a missing ZDO.
     /// </summary>
     public static void SyncGuardStoneFromZdo(Container container)
     {
         if (container == null)
             return;
+
+        if (PublicPieceRegistration.IsPublicPiece(container))
+        {
+            ApplyGuardStone(container, isPublic: true);
+            return;
+        }
 
         var nview = GetNetView(container);
         if (nview == null || !nview.IsValid())
@@ -131,6 +138,12 @@ public static class PieceAccessState
         if (door == null)
             return;
 
+        if (PublicPieceRegistration.IsPublicPiece(door))
+        {
+            ApplyGuardStone(door, isPublic: true);
+            return;
+        }
+
         var nview = GetNetView(door);
         if (nview == null || !nview.IsValid())
             return;
@@ -143,16 +156,32 @@ public static class PieceAccessState
         if (nview == null || !nview.IsValid())
             return;
 
+        if (PublicPieceRegistration.IsPublicPrefab(nview))
+        {
+            ApplyGuardStoneToNetView(nview, isPublic: true);
+            return;
+        }
+
         ApplyGuardStoneToNetView(nview, IsPublic(nview));
     }
 
     private static void ApplyGuardStoneToNetView(ZNetView nview, bool isPublic)
     {
         foreach (var container in nview.GetComponentsInChildren<Container>(true))
-            ApplyGuardStone(container, isPublic);
+        {
+            if (PublicPieceRegistration.IsPublicPiece(container))
+                ApplyGuardStone(container, isPublic: true);
+            else
+                ApplyGuardStone(container, isPublic);
+        }
 
         foreach (var door in nview.GetComponentsInChildren<Door>(true))
-            ApplyGuardStone(door, isPublic);
+        {
+            if (PublicPieceRegistration.IsPublicPiece(door))
+                ApplyGuardStone(door, isPublic: true);
+            else
+                ApplyGuardStone(door, isPublic);
+        }
     }
 
     /// <summary>

@@ -52,6 +52,7 @@ public static class LockSmithLocalization
     public const string InventoryTabTitleToken = "locksmith_inventory_tab_title";
     public const string InventoryHintPhraseToken = "locksmith_inventory_hint_phrase";
     public const string PublicNameSuffixToken = "locksmith_public_name_suffix";
+    public const string PublicPieceDescToken = "locksmith_public_piece_desc";
     public const string MsgPublicPrefabToken = "locksmith_msg_public_prefab";
     public const string PieceCategoryPublicToken = "locksmith_category_public";
 
@@ -114,6 +115,7 @@ public static class LockSmithLocalization
             { HoverLeaveAccessToken, "Leave access" },
             { HoverGuestsHeaderToken, "Guests:" },
             { PublicNameSuffixToken, " (public)" },
+            { PublicPieceDescToken, "<color=#FFCC33>Always open to anyone. This cannot be locked.</color>" },
             { MsgPublicPrefabToken, "This piece is always public" },
             { PieceCategoryPublicToken, "Public" },
         });

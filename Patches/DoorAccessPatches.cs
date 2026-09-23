@@ -96,6 +96,14 @@ public static class DoorAccessPatches
                 return false;
             }
 
+            // Join is open for someone WIL would deny. E already joined above.
+            // Do not fall through to vanilla open — WIL-only wards are not PrivateArea.
+            if (PieceGuestService.IsJoinOpenForStranger(__instance))
+            {
+                __result = false;
+                return false;
+            }
+
             if (!DoorAccessService.ShouldBypassWardCheck(__instance))
                 return true;
 
@@ -159,12 +167,19 @@ public static class DoorAccessPatches
                 return false;
             }
 
-            if (PieceGuestService.TryBuildGuestAccessHover(__instance, out var guestHover))
-            {
-                __result = guestHover;
-                __state = true;
-                return false;
-            }
+        if (PieceGuestService.TryBuildGuestAccessHover(__instance, out var guestHover))
+        {
+            __result = guestHover;
+            __state = true;
+            return false;
+        }
+
+        if (PieceGuestService.TryBuildStrangerJoinHover(__instance, out var joinHover))
+        {
+            __result = joinHover;
+            __state = true;
+            return false;
+        }
         }
         catch (System.Exception ex)
         {

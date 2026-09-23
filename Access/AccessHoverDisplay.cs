@@ -43,6 +43,11 @@ public static class AccessHoverDisplay
     public static string TeamLabel() =>
         Colorize(LockSmithLocalization.T(LockSmithLocalization.PieceTeamToken));
 
+    /// <summary>
+    /// Plain hover line for hammer public clones (<c>PublicPieceHoverText</c>, default [Public]).
+    /// </summary>
+    public static string PublicPieceHoverLabel() => LockSmithConfig.PublicPieceHoverText;
+
     /// <summary>Count line: <c>Team - [2]</c> or <c>Guests - [2]</c>.</summary>
     public static string AccessCountLabel(bool team, int count)
     {

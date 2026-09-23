@@ -18,7 +18,7 @@ public enum LockSmithModifier
 public static class LockSmithConfig
 {
     /// <summary>Admin lock + feature/key entries. Bump when adding synced binds.</summary>
-    public const int ExpectedSyncedEntryCount = 20;
+    public const int ExpectedSyncedEntryCount = 21;
 
     private const string SectionAdmin = "01 Admin";
     private const string SectionFeatures = "02 Features";
@@ -52,6 +52,7 @@ public static class LockSmithConfig
     private static ConfigEntry<string> _publicPieceAllowList = null!;
     private static ConfigEntry<string> _publicPieceDenyList = null!;
     private static ConfigEntry<bool> _publicPieceNameSuffix = null!;
+    private static ConfigEntry<string> _publicPieceHoverText = null!;
     private static ConfigEntry<string> _keyName = null!;
     private static ConfigEntry<string> _keyDescription = null!;
     private static ConfigEntry<string> _keyCraftingStation = null!;
@@ -79,6 +80,15 @@ public static class LockSmithConfig
     public static string PublicPieceDenyList => _publicPieceDenyList.Value;
     /// <summary>When true, public clones append a localized (public) suffix to the display name.</summary>
     public static bool PublicPieceNameSuffix => _publicPieceNameSuffix.Value;
+    /// <summary>Plain hover line on placed public hammer doors and chests. Default [Public].</summary>
+    public static string PublicPieceHoverText
+    {
+        get
+        {
+            var text = (_publicPieceHoverText.Value ?? string.Empty).Trim();
+            return text.Length == 0 ? "[Public]" : text;
+        }
+    }
     /// <summary>
     /// When true, LockSmith cannot manage or toggle normal chests/doors unless inside an enabled ward
     /// (including already-managed pieces). Personal/Team private-family chests are exempt.
@@ -227,6 +237,14 @@ public static class LockSmithConfig
             "PublicPieceNameSuffix",
             true,
             "When true (default), public clones show a localized (public) suffix on hammer and hover names. When false, keep the donor display name (still listed under the Public tab). Restart required.");
+
+        _publicPieceHoverText = Sync.BindSynced(
+            config,
+            SectionPieceMode,
+            "PieceMode",
+            "PublicPieceHoverText",
+            "[Public]",
+            "Hover line on placed Public hammer doors and chests. Plain text, no color. Default [Public]. Empty uses [Public].");
 
         _keyName = Sync.BindSynced(
             config,

@@ -136,6 +136,12 @@ public static class ContainerAccessPatches
                 return false;
             }
 
+            if (PieceGuestService.IsJoinOpenForStranger(__instance))
+            {
+                __result = false;
+                return false;
+            }
+
             if (!ChestAccessService.ShouldBypassWardCheck(__instance)
                 && !GroupChestService.ShouldBypassWard(__instance))
                 return true;
@@ -260,6 +266,13 @@ public static class ContainerAccessPatches
             if (PieceGuestService.TryBuildGuestAccessHover(__instance, out var guestHover))
             {
                 __result = guestHover;
+                __state = true;
+                return false;
+            }
+
+            if (PieceGuestService.TryBuildStrangerJoinHover(__instance, out var joinHover))
+            {
+                __result = joinHover;
                 __state = true;
                 return false;
             }

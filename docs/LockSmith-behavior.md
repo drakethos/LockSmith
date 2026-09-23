@@ -39,6 +39,7 @@ Same as chests for `Door` + `EnableDoors`.
 - Creator/ward + key **Alt+E**: open/close Join on a designated ward chest/door.
 - Other players **E** join when Join is open; **Alt+E** Leave while Join is open.
 - Guests open without ward permit (`EnablePieceGuests`).
+- While Join is open, a player WardIsLove would deny still gets the join hover and can press **E** to opt in. The door or chest does not open for them.
 
 ### Guest / permitted public toggle (0.3.4–0.3.5)
 
@@ -52,7 +53,8 @@ Same as chests for `Door` + `EnableDoors`.
 - Auto-discovers ward-locked `Piece` + `Container`/`Door` prefabs (vanilla + mods); clones to Hammer **Public**.
 - Clone prefabs set `m_checkGuardStone = false` at registration — no `locksmith_public` ZDO for this path.
 - Skips already-public donors (`m_checkGuardStone` already false) and private-family chests.
-- Optional `(public)` name suffix (`PublicPieceNameSuffix`); AllowList / DenyList.
+- Optional `(public)` name suffix (`PublicPieceNameSuffix`) on the hammer piece and on door/chest hover names; AllowList / DenyList.
+- Placed clones show a plain hover line, default **[Public]** (`PublicPieceHoverText`). Hammer description is gold: always open, cannot be locked.
 - Key / guest / clear paths ignore public clones.
 
 ### Later — see drakeVision

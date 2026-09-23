@@ -9,12 +9,18 @@ using Jotunn;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using LockSmith.Access;
+using LockSmith.Compat;
 
 namespace LockSmith
 {
     [BepInPlugin(GUID, ModName, Version)]
     [BepInDependency(Main.ModGuid)]
     [BepInDependency(CustomizeLibsPlugin.GUID)]
+    // SoftDependency = optional load-order only. Missing plugins do not block LockSmith.
+    [BepInDependency(CompatibilityManager.SoftGuids.WardIsLove, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(CompatibilityManager.SoftGuids.ProtectiveWards, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(CompatibilityManager.SoftGuids.ArcaneWard, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(CompatibilityManager.SoftGuids.DevCommands, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     public partial class LockSmith : BaseUnityPlugin
     {
@@ -48,6 +54,8 @@ namespace LockSmith
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabs;
             _harmony.PatchAll();
+            // One-liner: scan optional ward/cheat mods and apply their soft patches.
+            CompatibilityManager.Initialize(_harmony);
             Logger.LogInfo($"{ModName} {Version} Awake (official key = keys.bundle MasterKey).");
         }
 

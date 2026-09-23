@@ -17,7 +17,14 @@ public static class ChestAccessService
 
     public static bool ShouldBypassWardCheck(Container container)
     {
-        if (!LockSmithConfig.EnableChests || !PieceAccessState.IsEligibleChest(container))
+        if (!LockSmithConfig.EnableChests)
+            return false;
+
+        // Hammer public clones are always open — no locksmith_public ZDO.
+        if (PublicPieceRegistration.IsPublicPiece(container))
+            return true;
+
+        if (!PieceAccessState.IsEligibleChest(container))
             return false;
 
         var nview = PieceAccessState.GetNetView(container);
@@ -329,7 +336,7 @@ public static class ChestAccessService
         if (PublicPieceRegistration.IsPublicPiece(container))
         {
             hoverText = AccessHoverDisplay.LocalizedPieceName(container) + "\n" +
-                        LockSmithLocalization.T(LockSmithLocalization.MsgPublicPrefabToken);
+                        AccessHoverDisplay.PublicPieceHoverLabel();
             return true;
         }
 
@@ -392,6 +399,9 @@ public static class ChestAccessService
 
     public static string GetPublicStatusSuffix(Container container)
     {
+        if (PublicPieceRegistration.IsPublicPiece(container))
+            return "\n" + AccessHoverDisplay.PublicPieceHoverLabel();
+
         if (!LockSmithConfig.EnableChests || !PieceAccessState.IsEligibleChest(container))
             return string.Empty;
 

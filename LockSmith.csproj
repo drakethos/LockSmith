@@ -80,6 +80,15 @@
     <Compile Include="Access\PieceGuestService.cs" />
     <Compile Include="Access\PublicPieceRegistration.cs" />
     <Compile Include="Access\WardAccess.cs" />
+    <Compile Include="API\LockSmithCompatApi.cs" />
+    <Compile Include="Compat\CompatibilityManager.cs" />
+    <Compile Include="Compat\IWardCompatModule.cs" />
+    <Compile Include="Compat\WardCoverageKind.cs" />
+    <Compile Include="Compat\DevCommands\DevCommandsModule.cs" />
+    <Compile Include="Compat\Vanilla\VanillaPrivateAreaModule.cs" />
+    <Compile Include="Compat\WardIsLove\WardIsLoveModule.cs" />
+    <Compile Include="Compat\ProtectiveWards\ProtectiveWardsModule.cs" />
+    <Compile Include="Compat\ArcaneWard\ArcaneWardModule.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ContentRegistration.cs" />
     <Compile Include="KeyPassClipboardInput.cs" />
