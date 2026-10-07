@@ -113,11 +113,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Official key: only the runtime pack files (no .bak / forge leftovers). -->
-    <ArtItemKeys Include="Assets\Items\keys\keys.bundle" Condition="Exists('Assets\Items\keys\keys.bundle')" />
-    <ArtItemKeys Include="Assets\Items\keys\masterkey.json" Condition="Exists('Assets\Items\keys\masterkey.json')" />
-    <ArtItemKeys Include="Assets\Items\keys\masterkey.png" Condition="Exists('Assets\Items\keys\masterkey.png')" />
-    <Content Include="Assets\masterkey_icon.png" Condition="Exists('Assets\masterkey_icon.png')">
+    <!-- Official key art. Not shipped while the key is temporarily removed: build with -p:ShipKeyArt=true to include it. -->
+    <ArtItemKeys Include="Assets\Items\keys\keys.bundle" Condition="'$(ShipKeyArt)' == 'true' and Exists('Assets\Items\keys\keys.bundle')" />
+    <ArtItemKeys Include="Assets\Items\keys\masterkey.json" Condition="'$(ShipKeyArt)' == 'true' and Exists('Assets\Items\keys\masterkey.json')" />
+    <ArtItemKeys Include="Assets\Items\keys\masterkey.png" Condition="'$(ShipKeyArt)' == 'true' and Exists('Assets\Items\keys\masterkey.png')" />
+    <Content Include="Assets\masterkey_icon.png" Condition="'$(ShipKeyArt)' == 'true' and Exists('Assets\masterkey_icon.png')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>Assets\masterkey_icon.png</Link>
     </Content>
@@ -147,7 +147,7 @@
     <Copy SourceFiles="Assets\masterkey_icon.png"
           DestinationFiles="$(TargetDir)Assets\masterkey_icon.png"
           SkipUnchangedFiles="true"
-          Condition="Exists('Assets\masterkey_icon.png')" />
+          Condition="'$(ShipKeyArt)' == 'true' and Exists('Assets\masterkey_icon.png')" />
   </Target>
   <Target Name="PackageMod" AfterTargets="CopyArtItemsToOutput" DependsOnTargets="ResolveThunderstorePaths;WriteThunderstoreManifest" Condition="'$(SkipPackageMod)' != 'true'">
     <MakeDir Directories="$(ThunderstoreFolder)\Assets\Items\keys" />
@@ -161,7 +161,7 @@
           Condition="'@(ArtItemKeys)' != ''" />
     <Copy SourceFiles="$(TargetDir)Assets\masterkey_icon.png"
           DestinationFiles="$(ThunderstoreFolder)\Assets\masterkey_icon.png"
-          Condition="Exists('$(TargetDir)Assets\masterkey_icon.png')" />
+          Condition="'$(ShipKeyArt)' == 'true' and Exists('$(TargetDir)Assets\masterkey_icon.png')" />
     <Exec Command="powershell -Command Compress-Archive -Path '$(ThunderstoreFolder)\*' -DestinationPath '$(ZipOutput)' -Force" Condition="'$(CI_SKIP_POST_BUILD)' == ''" />
   </Target>
   <Target Name="DeployArtItemsToProfiles" AfterTargets="CopyArtItemsToOutput">

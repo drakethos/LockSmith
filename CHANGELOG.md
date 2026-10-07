@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (version not set yet)
+
+- **The Locksmith key is temporarily removed** while it's rebuilt with Drakes Asset Forge. LockSmith always runs in simple mode (AltPlace+E); the `UseKey` setting is kept so synced configs line up, but has no effect for now. Keys already in inventories disappear until it returns.
+- No longer uses DrakeModsLibs' old `ArtItemLoader` (removed in Libs 0.10.0), and the key art (`keys.bundle`, `masterkey*`) is no longer packaged.
+
 ## 0.5.0-beta.1
 
 Hexium-only beta (Thunderstore skipped). Requires **DrakeModsLibs 0.9.12+**.

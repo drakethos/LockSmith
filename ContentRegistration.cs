@@ -83,38 +83,6 @@ public static class ContentRegistration
     }
 
     /// <summary>
-    /// ArtItem customize — recipe from LockSmith <c>03 Key</c> config.
-    /// Name/description tokens are stamped in <see cref="FinalizeOfficialKeyFromKeysPack"/>.
-    /// </summary>
-    public static void CustomizeMasterKeyArtItem(DrakeModsLibs.Art.ArtItemContext item)
-    {
-        if (item == null)
-            return;
-
-        if (!item.Id.Equals(OfficialKeyId, StringComparison.OrdinalIgnoreCase))
-        {
-            LockSmith.Log?.LogWarning($"[ArtForge] Ignoring unexpected art item '{item.Id}'.");
-            return;
-        }
-
-        // Prefer LockSmith KeyName for the interim ArtForge token; Sanitize overwrites to KeyNameToken.
-        item.DisplayName = string.IsNullOrWhiteSpace(LockSmithConfig.KeyName)
-            ? "Locksmith Key"
-            : LockSmithConfig.KeyName.Trim();
-        item.Description = "$" + LockSmithLocalization.KeyDescToken;
-        item.CraftingStation = string.IsNullOrWhiteSpace(LockSmithConfig.KeyCraftingStation)
-            ? null
-            : LockSmithConfig.KeyCraftingStation.Trim();
-
-        var mats = ParseMaterials(LockSmithConfig.KeyMaterials);
-        if (mats.Count > 0)
-        {
-            item.RequirementItem = mats[0].PrefabName;
-            item.RequirementAmount = mats[0].Amount;
-        }
-    }
-
-    /// <summary>
     /// Confirm ArtItemLoader registered <c>masterkey</c>, then flip grip + bone skull / iron shaft.
     /// </summary>
     public static void FinalizeOfficialKeyFromKeysPack()

@@ -73,7 +73,11 @@ public static class LockSmithConfig
     public static bool EnableKeyExtras => _enableKeyExtras.Value;
     /// <summary>On only when the key is in play; off means the menu is the whole tool.</summary>
     public static bool RequireKeyForSetup => UseKey && _requireKeyForSetup.Value;
-    public static bool UseKey => _useKey.Value;
+    /// <summary>
+    /// Always false for now: the key is temporarily removed while it's rebuilt with Drakes Asset Forge.
+    /// The UseKey setting stays bound (so synced configs line up) but is not read.
+    /// </summary>
+    public static bool UseKey => false;
     public static bool EnableAddNearby => _enableAddNearby.Value;
     /// <summary>Comma-separated donor prefab names force-included in public clones (restart required).</summary>
     public static string PublicPieceAllowList => _publicPieceAllowList.Value;
@@ -216,7 +220,7 @@ public static class LockSmithConfig
             DisplayKey,
             "UseKey",
             true,
-            "Advanced mode. The key is a physical item that gives finer control: holding it and pressing E opens the Lock menu, its hover shows guest names, copied guests are saved on the key (Ctrl+C / Ctrl+V), and RequireKeyForSetup / EnableKeyExtras apply. Off = simple mode: the key is never added to the game, hovers stay minimal, and everything goes through AltPlace+E. Restart required; keys already in inventories disappear while it is off.");
+            "(No effect for now: the key is temporarily removed and LockSmith runs in simple mode.) Advanced mode. The key is a physical item that gives finer control: holding it and pressing E opens the Lock menu, its hover shows guest names, copied guests are saved on the key (Ctrl+C / Ctrl+V), and RequireKeyForSetup / EnableKeyExtras apply. Off = simple mode: the key is never added to the game, hovers stay minimal, and everything goes through AltPlace+E. Restart required; keys already in inventories disappear while it is off.");
 
         _enableAddNearby = Sync.BindSynced(
             config,
