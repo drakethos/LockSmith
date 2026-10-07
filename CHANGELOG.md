@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.3
+
+- **Multiplayer RPC hardening:** all piece changes (Join open/close, opt-in/out, public/private, team mode, clear, Ctrl+V paste) go through one owner-routed path (`PieceRpc`).
+  - Fix Ctrl+V paste writing `locksmith_managed` from a non-owner — that forked the piece ZDO between players (names added but no pink Guests line for some players, flags flipping back when several people edited the same door/chest).
+  - Requests to an unowned piece claim it first instead of broadcasting into nobody (opt-in "worked" but never landed on the list).
+  - Requester re-sends until its own copy shows the change (covers ownership moving mid-RPC and a new owner writing over a change it never received). Requests are idempotent, so re-sends are safe.
+  - "You joined" / "You left" / "Pasted" now show when the change is confirmed; a failure message shows if the owner never applies it.
+  - Owner verifies the routed sender is the player id it claims.
+  - Piece RPC re-registration no longer relies on try/catch around `Unregister`; chest/door public RPCs unregister before re-binding.
+
 ## 0.4.2
 
 - Requires **DrakeModsLibs 0.9.7+** (`CompatHost`).

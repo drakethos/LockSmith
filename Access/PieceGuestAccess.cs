@@ -29,18 +29,6 @@ public static class PieceGuestAccess
     private static readonly int GuestsHash = GameHookTargets.ZdoGroupMembers.GetStableHashCode();
     private static readonly int OptInHash = GameHookTargets.ZdoOptInReady.GetStableHashCode();
 
-    /// <summary>Join open/close requests awaiting ZDO sync (avoids stale double-toggles in MP).</summary>
-    private static readonly Dictionary<ZDOID, PendingJoinToggle> PendingJoinByZdo =
-        new Dictionary<ZDOID, PendingJoinToggle>();
-
-    private const float JoinToggleSyncSeconds = 2.5f;
-
-    private struct PendingJoinToggle
-    {
-        public bool DesiredReady;
-        public float Until;
-    }
-
     public static bool IsOptInReady(ZNetView? nview)
     {
         if (nview == null || !nview.IsValid())
@@ -305,36 +293,34 @@ public static class PieceGuestAccess
 
         // Always re-bind: ZNetView is recreated when chunks reload. A permanent ZDOID HashSet
         // skipped Register and left Join/Leave RPCs dead in multiplayer.
-        try
-        {
-            nview.Unregister(GameHookTargets.RpcSetOptInReady);
-            nview.Unregister(GameHookTargets.RpcOptInSelf);
-            nview.Unregister(GameHookTargets.RpcOptOutSelf);
-            nview.Unregister(GameHookTargets.RpcMergeGuests);
-        }
-        catch (Exception)
-        {
-            /* Unregister throws if never registered — fine. */
-        }
+        // Unregister is a Dictionary.Remove (no throw); Register is Add (throws on duplicate).
+        nview.Unregister(GameHookTargets.RpcSetOptInReady);
+        nview.Unregister(GameHookTargets.RpcOptInSelf);
+        nview.Unregister(GameHookTargets.RpcOptOutSelf);
+        nview.Unregister(GameHookTargets.RpcMergeGuests);
 
         nview.Register<int, long>(GameHookTargets.RpcSetOptInReady, (long sender, int flag, long playerId) =>
         {
-            ApplySetOptIn(nview, flag == 1, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetOptInReady, sender, playerId))
+                ApplySetOptIn(nview, flag == 1, playerId);
         });
 
         nview.Register<long, string>(GameHookTargets.RpcOptInSelf, (long sender, long playerId, string playerName) =>
         {
-            ApplyOptInSelf(nview, playerId, playerName);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcOptInSelf, sender, playerId))
+                ApplyOptInSelf(nview, playerId, playerName);
         });
 
         nview.Register<long>(GameHookTargets.RpcOptOutSelf, (long sender, long playerId) =>
         {
-            ApplyOptOutSelf(nview, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcOptOutSelf, sender, playerId))
+                ApplyOptOutSelf(nview, playerId);
         });
 
         nview.Register<string, long>(GameHookTargets.RpcMergeGuests, (long sender, string raw, long playerId) =>
         {
-            ApplyMergeGuests(nview, raw, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcMergeGuests, sender, playerId))
+                ApplyMergeGuests(nview, raw, playerId);
         });
     }
 
@@ -342,16 +328,23 @@ public static class PieceGuestAccess
     public static bool CanManageGuests(ZNetView? nview, long playerId) =>
         nview != null && nview.IsValid() && CanManageOptIn(nview, playerId);
 
-    public static void RequestMergeGuests(ZNetView nview, IReadOnlyList<PieceGuest> add, long playerId)
+    /// <summary>Merge guests onto the piece; <paramref name="onConfirmed"/> once every id shows locally.</summary>
+    public static void RequestMergeGuests(
+        ZNetView nview,
+        IReadOnlyList<PieceGuest> add,
+        long playerId,
+        Action? onConfirmed = null)
     {
         if (nview == null || !nview.IsValid() || add == null || add.Count == 0)
             return;
 
+        var ids = new List<long>();
         var sb = new StringBuilder();
         foreach (var g in add)
         {
             if (g.PlayerId == 0L)
                 continue;
+            ids.Add(g.PlayerId);
             if (sb.Length > 0)
                 sb.Append(';');
             sb.Append(g.PlayerId.ToString(CultureInfo.InvariantCulture));
@@ -363,10 +356,14 @@ public static class PieceGuestAccess
             return;
 
         var raw = sb.ToString();
-        if (nview.IsOwner())
-            ApplyMergeGuests(nview, raw, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcMergeGuests, raw, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcMergeGuests,
+            new object[] { raw, playerId },
+            view => ApplyMergeGuests(view, raw, playerId),
+            view => PieceAccessState.IsManaged(view) && ids.TrueForAll(id => IsGuest(view, id)),
+            onConfirmed,
+            ShowSyncFailed);
     }
 
     public static void ApplyMergeGuests(ZNetView nview, string raw, long playerId)
@@ -383,6 +380,9 @@ public static class PieceGuestAccess
         var incoming = ParseGuestWire(raw);
         if (incoming.Count == 0)
             return;
+
+        // Designate even when every name was already there (paste must always show the pink line).
+        PieceAccessState.MarkManaged(nview);
 
         var guests = GetGuests(nview);
         var seen = new HashSet<long>();
@@ -402,7 +402,6 @@ public static class PieceGuestAccess
             return;
 
         SetGuests(nview, guests);
-        PieceAccessState.MarkManaged(nview);
         LockSmith.Log?.LogInfo(
             $"Merged {added} guest(s) onto {nview.name} by {playerId} (total={guests.Count}).");
     }
@@ -444,10 +443,13 @@ public static class PieceGuestAccess
 
     public static void RequestSetOptIn(ZNetView nview, bool ready, long playerId)
     {
-        if (nview.IsOwner())
-            ApplySetOptIn(nview, ready, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcSetOptInReady, ready ? 1 : 0, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcSetOptInReady,
+            new object[] { ready ? 1 : 0, playerId },
+            view => ApplySetOptIn(view, ready, playerId),
+            view => IsOptInReady(view) == ready,
+            onFailed: ShowSyncFailed);
     }
 
     /// <summary>
@@ -460,70 +462,41 @@ public static class PieceGuestAccess
         if (nview == null || !nview.IsValid() || playerId == 0L)
             return false;
 
-        var zdo = nview.GetZDO();
-        if (zdo == null)
+        // Still waiting for the ZDO to catch up — ignore extra taps.
+        if (PieceRpc.HasPending(nview, GameHookTargets.RpcSetOptInReady))
             return false;
 
-        var id = zdo.m_uid;
-        var localReady = IsOptInReady(nview);
-
-        if (PendingJoinByZdo.TryGetValue(id, out var pending))
-        {
-            if (localReady == pending.DesiredReady || Time.time > pending.Until)
-                PendingJoinByZdo.Remove(id);
-            else
-            {
-                // Still waiting for ZDO to catch up — ignore extra taps.
-                return false;
-            }
-        }
-
-        nextReady = !localReady;
-        PendingJoinByZdo[id] = new PendingJoinToggle
-        {
-            DesiredReady = nextReady,
-            Until = Time.time + JoinToggleSyncSeconds
-        };
-
+        nextReady = !IsOptInReady(nview);
         RequestSetOptIn(nview, nextReady, playerId);
-
-        // Owner applied immediately — clear pending if it stuck.
-        if (nview.IsOwner() && IsOptInReady(nview) == nextReady)
-            PendingJoinByZdo.Remove(id);
-
         return true;
-    }
-
-    static void ClearJoinPendingIfMatched(ZNetView nview)
-    {
-        if (nview == null || !nview.IsValid())
-            return;
-        var zdo = nview.GetZDO();
-        if (zdo == null)
-            return;
-
-        if (!PendingJoinByZdo.TryGetValue(zdo.m_uid, out var pending))
-            return;
-
-        if (IsOptInReady(nview) == pending.DesiredReady)
-            PendingJoinByZdo.Remove(zdo.m_uid);
     }
 
     public static void RequestOptInSelf(ZNetView nview, long playerId, string playerName)
     {
-        if (nview.IsOwner())
-            ApplyOptInSelf(nview, playerId, playerName);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcOptInSelf, playerId, playerName ?? string.Empty);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcOptInSelf,
+            new object[] { playerId, playerName ?? string.Empty },
+            view => ApplyOptInSelf(view, playerId, playerName ?? string.Empty),
+            view => IsGuest(view, playerId),
+            () => AccessFeedback.Show(Player.m_localPlayer, LockSmithLocalization.MsgOptedInToken),
+            () => AccessFeedback.Show(Player.m_localPlayer, LockSmithLocalization.MsgJoinFailedToken));
     }
 
     public static void RequestOptOutSelf(ZNetView nview, long playerId)
     {
-        if (nview.IsOwner())
-            ApplyOptOutSelf(nview, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcOptOutSelf, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcOptOutSelf,
+            new object[] { playerId },
+            view => ApplyOptOutSelf(view, playerId),
+            view => !IsGuest(view, playerId),
+            () => AccessFeedback.Show(Player.m_localPlayer, LockSmithLocalization.MsgOptedOutToken),
+            ShowSyncFailed);
     }
+
+    internal static void ShowSyncFailed() =>
+        AccessFeedback.Show(Player.m_localPlayer, LockSmithLocalization.MsgSyncFailedToken);
 
     public static void ApplySetOptIn(ZNetView nview, bool ready, long playerId)
     {
@@ -541,7 +514,6 @@ public static class PieceGuestAccess
 
         SetOptInReady(nview, ready);
         PieceAccessState.MarkManaged(nview);
-        ClearJoinPendingIfMatched(nview);
         LockSmith.Log?.LogInfo(
             $"Set locksmith_optin={(ready ? 1 : 0)} on {nview.name} by {playerId} " +
             $"(readback={IsOptInReady(nview)}).");
@@ -659,9 +631,9 @@ public static class PieceGuestAccess
         if (!LockSmithConfig.EnableOptInAccess || !IsOptInReady(nview))
             return false;
 
-        var name = CapturePlayerName(player);
-        RequestOptInSelf(nview, playerId, name);
-        AccessFeedback.Show(user, LockSmithLocalization.MsgOptedInToken);
+        // "You joined" shows once the owner's write reaches us (PieceRpc confirm).
+        if (!PieceRpc.HasPending(nview, GameHookTargets.RpcOptInSelf))
+            RequestOptInSelf(nview, playerId, CapturePlayerName(player));
         return true;
     }
 
@@ -685,7 +657,6 @@ public static class PieceGuestAccess
             _pendingLeaveId = ZDOID.None;
             _pendingLeaveUntil = 0f;
             RequestOptOutSelf(nview, playerId);
-            AccessFeedback.Show(user, LockSmithLocalization.MsgOptedOutToken);
             return true;
         }
 

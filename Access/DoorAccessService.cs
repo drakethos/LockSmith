@@ -111,10 +111,13 @@ public static class DoorAccessService
 
     public static void RequestSetPublic(ZNetView nview, bool isPublic, long playerId)
     {
-        if (nview.IsOwner())
-            ApplySetPublic(nview, isPublic, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcSetDoorPublic, isPublic ? 1 : 0, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcSetDoorPublic,
+            new object[] { isPublic ? 1 : 0, playerId },
+            view => ApplySetPublic(view, isPublic, playerId),
+            view => PieceAccessState.IsManaged(view) && PieceAccessState.IsPublic(view) == isPublic,
+            onFailed: PieceGuestAccess.ShowSyncFailed);
     }
 
     public static void RegisterRpc(Door door)
@@ -123,9 +126,11 @@ public static class DoorAccessService
         if (nview == null || !nview.IsValid())
             return;
 
+        nview.Unregister(GameHookTargets.RpcSetDoorPublic);
         nview.Register<int, long>(GameHookTargets.RpcSetDoorPublic, (long sender, int flag, long playerId) =>
         {
-            ApplySetPublic(nview, flag == 1, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetDoorPublic, sender, playerId))
+                ApplySetPublic(nview, flag == 1, playerId);
         });
 
         PieceClearService.RegisterRpc(nview);

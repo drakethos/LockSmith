@@ -59,6 +59,19 @@ namespace LockSmith
             Logger.LogInfo($"{ModName} {Version} Awake (official key = keys.bundle MasterKey).");
         }
 
+        private void Update()
+        {
+            try
+            {
+                PieceRpc.Tick();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"PieceRpc tick failed: {ex}");
+                PieceRpc.Clear();
+            }
+        }
+
         private void OnVanillaPrefabs()
         {
             PrefabManager.OnVanillaPrefabsAvailable -= OnVanillaPrefabs;

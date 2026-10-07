@@ -131,27 +131,23 @@ public static class PieceClearService
         if (zdo == null)
             return;
 
-        try
-        {
-            nview.Unregister(GameHookTargets.RpcClearLockSmith);
-        }
-        catch (System.Exception)
-        {
-            /* not registered yet */
-        }
-
+        nview.Unregister(GameHookTargets.RpcClearLockSmith);
         nview.Register<long>(GameHookTargets.RpcClearLockSmith, (long sender, long playerId) =>
         {
-            ApplyClear(nview, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcClearLockSmith, sender, playerId))
+                ApplyClear(nview, playerId);
         });
     }
 
     public static void RequestClear(ZNetView nview, long playerId)
     {
-        if (nview.IsOwner())
-            ApplyClear(nview, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcClearLockSmith, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcClearLockSmith,
+            new object[] { playerId },
+            view => ApplyClear(view, playerId),
+            view => !HasLockSmithData(view),
+            onFailed: PieceGuestAccess.ShowSyncFailed);
     }
 
     public static void ApplyClear(ZNetView nview, long playerId)

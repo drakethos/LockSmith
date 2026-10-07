@@ -38,6 +38,8 @@ public static class LockSmithLocalization
     public const string MsgClearedToken = "locksmith_msg_cleared";
     public const string MsgNothingToClearToken = "locksmith_msg_nothing_to_clear";
     public const string MsgNeedActiveWardToken = "locksmith_msg_need_active_ward";
+    public const string MsgSyncFailedToken = "locksmith_msg_sync_failed";
+    public const string MsgJoinFailedToken = "locksmith_msg_join_failed";
     public const string HoverMakePublicToken = "locksmith_hover_make_public";
     public const string HoverMakePrivateToken = "locksmith_hover_make_private";
     public const string HoverDesignateToken = "locksmith_hover_designate";
@@ -103,6 +105,8 @@ public static class LockSmithLocalization
             { MsgClearedToken, "LockSmith removed — piece is vanilla again" },
             { MsgNothingToClearToken, "Nothing LockSmith to clear on this piece" },
             { MsgNeedActiveWardToken, "Needs an active ward" },
+            { MsgSyncFailedToken, "Change didn't go through — try again" },
+            { MsgJoinFailedToken, "Couldn't join — Join may have closed. Try again" },
             { HoverMakePublicToken, "Make public" },
             { HoverMakePrivateToken, "Make private" },
             { HoverDesignateToken, "Enable LockSmith" },

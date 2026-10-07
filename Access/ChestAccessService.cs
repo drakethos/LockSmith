@@ -244,10 +244,13 @@ public static class ChestAccessService
 
     public static void RequestSetPublic(ZNetView nview, bool isPublic, long playerId)
     {
-        if (nview.IsOwner())
-            ApplySetPublic(nview, isPublic, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcSetChestPublic, isPublic ? 1 : 0, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcSetChestPublic,
+            new object[] { isPublic ? 1 : 0, playerId },
+            view => ApplySetPublic(view, isPublic, playerId),
+            view => PieceAccessState.IsManaged(view) && PieceAccessState.IsPublic(view) == isPublic,
+            onFailed: PieceGuestAccess.ShowSyncFailed);
     }
 
     public static void RegisterRpc(Container container)
@@ -256,9 +259,11 @@ public static class ChestAccessService
         if (nview == null || !nview.IsValid())
             return;
 
+        nview.Unregister(GameHookTargets.RpcSetChestPublic);
         nview.Register<int, long>(GameHookTargets.RpcSetChestPublic, (long sender, int flag, long playerId) =>
         {
-            ApplySetPublic(nview, flag == 1, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetChestPublic, sender, playerId))
+                ApplySetPublic(nview, flag == 1, playerId);
         });
 
         PieceClearService.RegisterRpc(nview);

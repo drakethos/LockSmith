@@ -238,10 +238,13 @@ public static class KeyPassService
             return;
         }
 
-        PieceGuestAccess.RequestMergeGuests(nview, fromKey, playerId);
-        PieceAccessState.MarkManaged(nview);
+        // Owner marks the piece managed; writing it here (non-owner) forked the ZDO between players.
         var sub = FormatMembershipSubtitle(item) ?? "names";
-        AccessFeedback.ShowRaw(local, "Pasted " + sub);
+        PieceGuestAccess.RequestMergeGuests(
+            nview,
+            fromKey,
+            playerId,
+            () => AccessFeedback.ShowRaw(Player.m_localPlayer, "Pasted " + sub));
     }
 
     public static void TryGrabNearby(ItemDrop.ItemData item)

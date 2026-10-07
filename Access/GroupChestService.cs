@@ -23,18 +23,11 @@ public static class GroupChestService
         if (nview == null || !nview.IsValid())
             return;
 
-        try
-        {
-            nview.Unregister(GameHookTargets.RpcSetGroupMode);
-        }
-        catch (System.Exception)
-        {
-            /* not registered yet */
-        }
-
+        nview.Unregister(GameHookTargets.RpcSetGroupMode);
         nview.Register<int, long>(GameHookTargets.RpcSetGroupMode, (long sender, int flag, long playerId) =>
         {
-            ApplySetTeamMode(nview, flag == 1, playerId);
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetGroupMode, sender, playerId))
+                ApplySetTeamMode(nview, flag == 1, playerId);
         });
 
         PieceClearService.RegisterRpc(nview);
@@ -227,10 +220,13 @@ public static class GroupChestService
 
     public static void RequestSetTeamMode(ZNetView nview, bool team, long playerId)
     {
-        if (nview.IsOwner())
-            ApplySetTeamMode(nview, team, playerId);
-        else
-            nview.InvokeRPC(GameHookTargets.RpcSetGroupMode, team ? 1 : 0, playerId);
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcSetGroupMode,
+            new object[] { team ? 1 : 0, playerId },
+            view => ApplySetTeamMode(view, team, playerId),
+            view => GroupAccessState.IsTeamMode(view) == team,
+            onFailed: PieceGuestAccess.ShowSyncFailed);
     }
 
     public static void ApplySetTeamMode(ZNetView nview, bool team, long playerId)

@@ -21,6 +21,8 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
+**0.4.3** — Multiplayer RPC hardening: Join/opt-in, paste, and public/team toggles confirm and re-send until they land; fixes split guest lists between players. Requires DrakeModsLibs **0.9.7+**.
+
 **0.4.2** — Soft ward-stack bridges (WardIsLove / ProtectiveWards / Arcane Ward) + Compatibility API. Requires DrakeModsLibs **0.9.7+**.
 
 **0.4.1** — Multiplayer Join fix (RPC re-bind + Join toggle sync). Requires DrakeModsLibs **0.9.4+**.
