@@ -1,5 +1,6 @@
 using LockSmith.Access;
 using HarmonyLib;
+using LockSmith.UI;
 
 namespace LockSmith.Patches;
 
@@ -57,8 +58,7 @@ public static class ContainerAccessPatches
     }
 
     /// <summary>
-    /// Prefix hijack: key in hand → never run vanilla Open.
-    /// Private-family → team UX; normal chests → ward public/private.
+    /// Prefix hijack: key in hand → Lock menu, never vanilla Open.
     /// </summary>
     [HarmonyPrefix]
     [HarmonyPatch(GameHookTargets.ContainerInteract)]
@@ -81,34 +81,7 @@ public static class ContainerAccessPatches
                 try
                 {
                     if (!hold)
-                    {
-                        if (PieceGuestService.TryHandleGuestKeyLeave(__instance, character))
-                        {
-                            __result = true;
-                            return false;
-                        }
-
-                        // Guest with key: open normally (names/leave on hover).
-                        if (PieceGuestService.ShouldGuestKeyFallThroughOpen(__instance, character))
-                        {
-                            if (ChestAccessService.ShouldBypassWardCheck(__instance)
-                                || GroupChestService.ShouldBypassWard(__instance))
-                            {
-                                if (__instance.m_checkGuardStone)
-                                {
-                                    __instance.m_checkGuardStone = false;
-                                    __state = true;
-                                }
-                            }
-
-                            return true;
-                        }
-
-                        if (GroupAccessState.IsPrivateFamilyChest(__instance))
-                            GroupChestService.TryHandleKeyInteract(__instance, character, hold, alt);
-                        else
-                            ChestAccessService.TryKeyInteract(__instance, character, alt);
-                    }
+                        PieceAccessMenu.TryOpenWithKey(__instance, character);
 
                     __result = true;
                     return false;
@@ -121,14 +94,14 @@ public static class ContainerAccessPatches
                 }
             }
 
-            // Guest unlock/lock for everyone (ward chests/doors only).
-            if (PieceGuestService.TryHandleGuestPublicToggle(__instance, character, hold, alt))
+            // No key: AltPlace+E opens the Lock menu when this player has something to do here.
+            if (alt && !hold && PieceAccessMenu.TryOpenNoKey(__instance, character))
             {
                 __result = true;
                 return false;
             }
 
-            // Join (E) / Leave (Alt+E while Join open) without key.
+            // Join (E) without key.
             if (GroupChestService.TryHandleOptInInteract(__instance, character, hold, alt)
                 || PieceGuestService.TryHandleOptInInteract(__instance, character, hold, alt))
             {
@@ -305,9 +278,10 @@ public static class ContainerAccessPatches
             if (!string.IsNullOrEmpty(publicSuffix))
                 __result += publicSuffix;
 
-            var join = GetOptInJoinLine(__instance);
-            if (!string.IsNullOrEmpty(join))
-                __result += join;
+            // Vanilla hover: Join / Lock menu hint only for players with options (strangers see nothing).
+            var hint = PieceAccessMenu.NoKeyHint(__instance);
+            if (hint.Length > 0)
+                __result += "\n" + hint;
         }
         catch (System.Exception ex)
         {
@@ -319,38 +293,4 @@ public static class ContainerAccessPatches
         }
     }
 
-    private static string GetOptInJoinLine(Container container)
-    {
-        if (!LockSmithConfig.EnableOptInAccess)
-            return string.Empty;
-
-        ZNetView? nview = null;
-        if (GroupAccessState.IsPrivateFamilyChest(container))
-        {
-            nview = GroupAccessState.GetNetView(container);
-            if (!GroupAccessState.IsTeamMode(nview))
-                return string.Empty;
-        }
-        else if (PieceAccessState.IsEligibleChest(container))
-        {
-            nview = PieceAccessState.GetNetView(container);
-        }
-
-        if (!PieceGuestAccess.IsOptInReady(nview))
-            return string.Empty;
-
-        var local = Player.m_localPlayer;
-        if (local == null)
-            return string.Empty;
-
-        var id = local.GetPlayerID();
-        if (PieceGuestAccess.IsGuest(nview, id))
-            return string.Empty;
-
-        if (GroupAccessState.IsPrivateFamilyChest(container) && GroupAccessState.IsCreator(container, id))
-            return string.Empty;
-
-        var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
-        return "\n" + useKey + " " + LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken);
-    }
 }

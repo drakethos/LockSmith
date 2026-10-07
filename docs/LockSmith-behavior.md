@@ -6,7 +6,22 @@ Version targets / backlog: see [`drakeVision.md`](drakeVision.md).
 
 ## One line
 
-Key designates a chest/door as LockSmith. After that, permitted players Alt+E public/private without holding the key; key still required for Team / Join setup.
+**AltPlace+E** (no key needed) or key + **E** opens the **Lock menu** on a chest/door, for players with access only. Every action is a button there; nothing toggles silently.
+
+## Lock menu (Unreleased)
+
+- `UI/PieceAccessMenu.cs`. It builds context-sensitive buttons and calls the existing services (`ChestAccessService` / `DoorAccessService.RequestSetPublic`, `GroupChestService.RequestSetTeamMode`, `PieceGuestAccess.TryRequestJoinToggle` / `RequestOptOutSelf`, `PieceClearService.RequestClear`, `KeyPassService.TryPullFromPiece` / `TryPasteOntoPiece`).
+- Key + E always opens the menu. If there's nothing to show, it gives one reason (Needs an active ward / Ward members only / Only the owner).
+- AltPlace + E (no key) opens it only when there is a button for that player. Otherwise vanilla runs. Owner tools need no key unless `RequireKeyForSetup` is on. Hover hints use `PieceAccessMenu.HasNoKeyMenu`, so strangers never see one.
+- `UseKey` off: `GetEquippedLocksmithKey` returns null (all key paths go quiet), `ContentRegistration.SyncKeyRecipe` disables the recipe at runtime, and `RequireKeyForSetup` reads as off.
+- One at a time: `Access/PieceMenuLock.cs`. The menu asks the ZDO owner for a lease (`locksmith_menu_holder` / `_name` / `_until`, network ticks, 10s). On yes the owner does `ForceSendZDO` + `SetOwner(requester)` like `Container.RPC_RequestOpen`, so the holder's `PieceRpc` actions apply locally. The holder renews every 3s while the menu or Yes/No is open and releases on close. Join (E), Ctrl+V/menu paste and owner-side `ApplyOptInSelf` refuse while another player holds it. Opening the chest/door is not gated.
+- Copy/Paste: the key holds names when it's in hand, otherwise a session clipboard (`KeyPassService.CopyToSession` / `PasteFromSession`).
+- Plain E (no key) = vanilla open. While Join is open for a non-guest it only shows the `[AltPlace+E] Join access` reminder; joining is the menu's **Join access** button.
+- Hover hints come from `PieceAccessMenu.NoKeyHint`: the Join hint when that's the only option, the Lock menu hint when there are more, nothing otherwise.
+- `EnableAddNearby`: an owner button that merges the closest non-guest player (5m, `KeyPassService.FindNearestPlayer`) onto the guest list.
+- The menu re-renders every 0.25s while open (state plus pending RPCs). A button greys out while its `PieceRpc` request is pending. It closes beyond 6m, when the piece unloads, or when a key-opened menu loses the key.
+- Yes/No (`DrakeConfirmPanel`): Remove LockSmith and Leave access, both always.
+- The sections below describe the state model. Wherever they mention modifier chords, read that as a menu button now.
 
 ## Intended
 

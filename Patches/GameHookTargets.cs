@@ -46,6 +46,20 @@ public static class GameHookTargets
     /// <summary>ZNetView RPC: strip all LockSmith state from a piece.</summary>
     public const string RpcClearLockSmith = "RPC_LockSmithClear";
 
+    /// <summary>ZNetView RPC: ask the owner for the Lock menu lease (owner hands over ownership on yes).</summary>
+    public const string RpcMenuRequest = "RPC_LockSmithMenuRequest";
+
+    /// <summary>ZNetView RPC: owner's answer to <see cref="RpcMenuRequest"/> (granted, holder name).</summary>
+    public const string RpcMenuResponse = "RPC_LockSmithMenuResponse";
+
+    /// <summary>ZNetView RPC: holder gives the Lock menu lease back.</summary>
+    public const string RpcMenuRelease = "RPC_LockSmithMenuRelease";
+
+    /// <summary>ZDO long/string/long: who holds the Lock menu on this piece, and until when (network ticks).</summary>
+    public const string ZdoMenuHolder = "locksmith_menu_holder";
+    public const string ZdoMenuHolderName = "locksmith_menu_holder_name";
+    public const string ZdoMenuUntil = "locksmith_menu_until";
+
     /// <summary>ZDO int: 0 private (default), 1 public (ward chests/doors).</summary>
     public const string ZdoPublicFlag = "locksmith_public";
 

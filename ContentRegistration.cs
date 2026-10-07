@@ -28,6 +28,34 @@ public static class ContentRegistration
 
     public static string? RegisteredKeyPrefab => _registeredKeyPrefab;
 
+    private static ObjectDB? _recipeDb;
+    private static bool? _recipeEnabled;
+
+    /// <summary>
+    /// Show/hide the key recipe to match synced <see cref="LockSmithConfig.UseKey"/>. The recipe is
+    /// registered at startup (before server config arrives), so toggle <c>m_enabled</c> at runtime.
+    /// Cheap per-frame call: only touches recipes when the value or ObjectDB instance changes.
+    /// </summary>
+    public static void SyncKeyRecipe()
+    {
+        var db = ObjectDB.instance;
+        if (db == null)
+            return;
+
+        var enabled = LockSmithConfig.UseKey;
+        if (ReferenceEquals(db, _recipeDb) && _recipeEnabled == enabled)
+            return;
+
+        _recipeDb = db;
+        _recipeEnabled = enabled;
+        foreach (var recipe in db.m_recipes)
+        {
+            if (recipe != null && recipe.m_item != null
+                && recipe.m_item.gameObject.name.Equals(OfficialKeyId, StringComparison.OrdinalIgnoreCase))
+                recipe.m_enabled = enabled;
+        }
+    }
+
     public static IReadOnlyList<string> RegisteredKeyPrefabs =>
         string.IsNullOrEmpty(_registeredKeyPrefab)
             ? Array.Empty<string>()

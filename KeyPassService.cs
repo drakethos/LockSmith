@@ -184,6 +184,11 @@ public static class KeyPassService
             return;
         }
 
+        TryPullFromPiece(item, nview);
+    }
+
+    public static void TryPullFromPiece(ItemDrop.ItemData item, ZNetView nview)
+    {
         var fromPiece = PieceGuestAccess.GetGuests(nview);
         if (fromPiece.Count == 0)
         {
@@ -199,21 +204,72 @@ public static class KeyPassService
     /// <summary>Ctrl+V — merge key guests onto the looked-at piece (always merge).</summary>
     public static void TryPasteOntoLookTarget(ItemDrop.ItemData item)
     {
+        if (!TryGetLookTargetNview(out var nview))
+        {
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "Look at a chest or door first.");
+            return;
+        }
+
+        TryPasteOntoPiece(item, nview);
+    }
+
+    /// <summary>Merge key guests onto <paramref name="nview"/> (always merge).</summary>
+    public static void TryPasteOntoPiece(ItemDrop.ItemData item, ZNetView nview)
+    {
         var local = Player.m_localPlayer;
         if (!local)
             return;
 
         if (!HasPassPayload(item))
         {
-            AccessFeedback.ShowRaw(local, "Key has no names — Ctrl+C a piece first.");
+            AccessFeedback.ShowRaw(local, "Key has no names — copy a piece first.");
             return;
         }
 
-        if (!TryGetLookTargetNview(out var nview))
+        PasteGuests(nview, GetGuests(item), FormatMembershipSubtitle(item) ?? "names");
+    }
+
+    // No-key clipboard: lives for this play session only (no item to carry it).
+    static readonly List<PieceGuest> SessionNames = new List<PieceGuest>();
+
+    public static bool HasSessionNames => SessionNames.Count > 0;
+
+    public static int SessionNameCount => SessionNames.Count;
+
+    public static void CopyToSession(ZNetView nview)
+    {
+        var fromPiece = PieceGuestAccess.GetGuests(nview);
+        if (fromPiece.Count == 0)
         {
-            AccessFeedback.ShowRaw(local, "Look at a chest or door first.");
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "No guests on that piece.");
             return;
         }
+
+        SessionNames.Clear();
+        SessionNames.AddRange(fromPiece);
+        AccessFeedback.ShowRaw(Player.m_localPlayer, "Copied " + fromPiece.Count + " guest(s)");
+    }
+
+    public static void PasteFromSession(ZNetView nview)
+    {
+        if (SessionNames.Count == 0)
+        {
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "Nothing copied yet.");
+            return;
+        }
+
+        PasteGuests(nview, new List<PieceGuest>(SessionNames), SessionNames.Count + " guest(s)");
+    }
+
+    /// <summary>Merge <paramref name="names"/> onto <paramref name="nview"/> (always merge).</summary>
+    static void PasteGuests(ZNetView nview, List<PieceGuest> names, string label)
+    {
+        var local = Player.m_localPlayer;
+        if (!local)
+            return;
+
+        if (PieceMenuLock.BlockIfHeldByOther(nview, local))
+            return;
 
         var lookPos = nview.transform.position;
         var lookContainer = nview.GetComponentInChildren<Container>();
@@ -231,20 +287,37 @@ public static class KeyPassService
             return;
         }
 
-        var fromKey = GetGuests(item);
-        if (fromKey.Count == 0)
+        if (names.Count == 0)
         {
-            AccessFeedback.ShowRaw(local, "Key has no names.");
+            AccessFeedback.ShowRaw(local, "Nothing to paste.");
             return;
         }
 
         // Owner marks the piece managed; writing it here (non-owner) forked the ZDO between players.
-        var sub = FormatMembershipSubtitle(item) ?? "names";
         PieceGuestAccess.RequestMergeGuests(
             nview,
-            fromKey,
+            names,
             playerId,
-            () => AccessFeedback.ShowRaw(Player.m_localPlayer, "Pasted " + sub));
+            () => AccessFeedback.ShowRaw(Player.m_localPlayer, "Pasted " + label));
+    }
+
+    /// <summary>Closest other player within <see cref="NearbyRange"/> that passes <paramref name="accept"/>.</summary>
+    public static Player? FindNearestPlayer(Player from, Func<Player, bool> accept)
+    {
+        Player? nearest = null;
+        var best = NearbyRange;
+        foreach (var p in Player.GetAllPlayers())
+        {
+            if (!p || p == from || !accept(p))
+                continue;
+            var d = Vector3.Distance(from.transform.position, p.transform.position);
+            if (d > best)
+                continue;
+            best = d;
+            nearest = p;
+        }
+
+        return nearest;
     }
 
     public static void TryGrabNearby(ItemDrop.ItemData item)
@@ -253,26 +326,14 @@ public static class KeyPassService
         if (!local)
             return;
 
-        Player? nearest = null;
-        var best = NearbyRange;
-        foreach (var p in Player.GetAllPlayers())
-        {
-            if (!p || p == local)
-                continue;
-            var d = Vector3.Distance(local.transform.position, p.transform.position);
-            if (d > best)
-                continue;
-            best = d;
-            nearest = p;
-        }
-
+        var nearest = FindNearestPlayer(local, _ => true);
         if (!nearest)
         {
             AccessFeedback.ShowRaw(local, "No player nearby.");
             return;
         }
 
-        MergeIntoKey(item, new[] { new PieceGuest(nearest.GetPlayerID(), nearest.GetPlayerName()) });
+        MergeIntoKey(item, new[] { new PieceGuest(nearest!.GetPlayerID(), nearest.GetPlayerName()) });
         AccessFeedback.ShowRaw(local, "Added " + nearest.GetPlayerName() + " to key.");
     }
 
@@ -367,6 +428,8 @@ public static class KeyPassService
         }
 
         SetGuests(item, merged);
+        if (!LockSmithConfig.EnableKeyExtras)
+            return;
         if (merged.Count == 1)
             SetLabelBracket(item, string.IsNullOrEmpty(merged[0].DisplayName) ? "Pass" : merged[0].DisplayName);
         else if (merged.Count > 1 && string.IsNullOrEmpty(GetLabelBracket(item)))

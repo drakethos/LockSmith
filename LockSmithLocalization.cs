@@ -25,18 +25,13 @@ public static class LockSmithLocalization
     public const string MsgWrongTargetToken = "locksmith_msg_wrong_target";
     public const string MsgGroupOwnerOnlyToken = "locksmith_msg_group_owner_only";
     public const string MsgGroupMemberToken = "locksmith_msg_group_member";
-    public const string MsgGroupNeedTeamToken = "locksmith_msg_group_need_team";
     public const string MsgOptInOpenedToken = "locksmith_msg_optin_opened";
     public const string MsgOptInClosedToken = "locksmith_msg_optin_closed";
     public const string MsgOptedInToken = "locksmith_msg_opted_in";
     public const string MsgOptedOutToken = "locksmith_msg_opted_out";
-    public const string MsgLeaveConfirmToken = "locksmith_msg_leave_confirm";
     public const string MsgAlreadyOptedInToken = "locksmith_msg_already_opted_in";
     public const string MsgNoTeamAccessToken = "locksmith_msg_no_team_access";
-    public const string MsgPublicNoSetupToken = "locksmith_msg_public_no_setup";
-    public const string MsgClearConfirmToken = "locksmith_msg_clear_confirm";
     public const string MsgClearedToken = "locksmith_msg_cleared";
-    public const string MsgNothingToClearToken = "locksmith_msg_nothing_to_clear";
     public const string MsgNeedActiveWardToken = "locksmith_msg_need_active_ward";
     public const string MsgSyncFailedToken = "locksmith_msg_sync_failed";
     public const string MsgJoinFailedToken = "locksmith_msg_join_failed";
@@ -50,6 +45,7 @@ public static class LockSmithLocalization
     public const string HoverCloseOptInToken = "locksmith_hover_close_optin";
     public const string HoverJoinAccessToken = "locksmith_hover_join_access";
     public const string HoverLeaveAccessToken = "locksmith_hover_leave_access";
+    public const string HoverLockMenuToken = "locksmith_hover_lock_menu";
     public const string HoverGuestsHeaderToken = "locksmith_hover_guests_header";
     public const string InventoryTabTitleToken = "locksmith_inventory_tab_title";
     public const string InventoryHintPhraseToken = "locksmith_inventory_hint_phrase";
@@ -57,6 +53,13 @@ public static class LockSmithLocalization
     public const string PublicPieceDescToken = "locksmith_public_piece_desc";
     public const string MsgPublicPrefabToken = "locksmith_msg_public_prefab";
     public const string PieceCategoryPublicToken = "locksmith_category_public";
+
+    public const string DefaultKeyDescription =
+        "Optional. Hold it and press <color=#ffff00><b>E</b></color> on a chest or door to open the Lock menu (Shift+E works without it). Copied guest names are saved on the key.";
+
+    /// <summary>Pre-0.5 default, still saved in older config files. Swapped for the new default.</summary>
+    const string LegacyKeyDescription =
+        "Equip to designate a chest/door. After that, <color=#ffff00><b>Alt+E</b></color> toggles public/private if you have access. Key required for Team / Join setup. <color=#ffff00><b>Shift+Right-click</b></color> the key: Relabel, grab/pull names, clear, or clone.";
 
     public static void Register()
     {
@@ -66,7 +69,8 @@ public static class LockSmithLocalization
             ? "Locksmith Key"
             : LockSmithConfig.KeyName.Trim();
         var desc = string.IsNullOrWhiteSpace(LockSmithConfig.KeyDescription)
-            ? "Equip to designate a chest/door. After that, <color=#ffff00><b>Alt+E</b></color> toggles public/private if you have access. Key required for Team / Join setup. <color=#ffff00><b>Shift+Right-click</b></color> the key: Relabel, grab/pull names, clear, or clone."
+                   || LockSmithConfig.KeyDescription.Trim() == LegacyKeyDescription
+            ? DefaultKeyDescription
             : LockSmithConfig.KeyDescription.Trim();
 
         localization.AddTranslation("English", new Dictionary<string, string>
@@ -84,39 +88,35 @@ public static class LockSmithLocalization
             { PieceOptInReadyToken, "[Join open]" },
             { MsgNowPublicToken, "Now public" },
             { MsgNowPrivateToken, "Now private" },
-            { MsgManagedToken, "LockSmith enabled on this piece" },
-            { MsgNowPersonalToken, "Chest is personal (team paused — names kept)" },
-            { MsgNowTeamToken, "Chest is team (shared)" },
-            { MsgDeniedToken, "Only ward members can change access" },
-            { MsgDisabledToken, "Access is disabled on this server" },
-            { MsgWrongTargetToken, "Hold the Locksmith key and look at a chest or door" },
-            { MsgGroupOwnerOnlyToken, "Only the chest creator can change team access" },
+            { MsgManagedToken, "LockSmith on" },
+            { MsgNowPersonalToken, "Now personal" },
+            { MsgNowTeamToken, "Now team (shared)" },
+            { MsgDeniedToken, "Ward members only" },
+            { MsgDisabledToken, "Turned off on this server" },
+            { MsgWrongTargetToken, "Look at a chest or door" },
+            { MsgGroupOwnerOnlyToken, "Only the owner can change this" },
             { MsgGroupMemberToken, "[Team]" },
-            { MsgGroupNeedTeamToken, "Switch the chest to Team first" },
-            { MsgOptInOpenedToken, "Join is open — others press E to opt in" },
-            { MsgOptInClosedToken, "Join is closed" },
-            { MsgOptedInToken, "You joined access" },
-            { MsgOptedOutToken, "You left access" },
-            { MsgLeaveConfirmToken, "YOU SURE??? Leave access — you can't rejoin unless the owner opens Join. Press leave again within 5s to confirm." },
+            { MsgOptInOpenedToken, "Join open — others press E" },
+            { MsgOptInClosedToken, "Join closed" },
+            { MsgOptedInToken, "You have access" },
+            { MsgOptedOutToken, "You left" },
             { MsgAlreadyOptedInToken, "You already have access" },
             { MsgNoTeamAccessToken, "No team access" },
-            { MsgPublicNoSetupToken, "Public pieces stay open — lock it private to change Join settings" },
-            { MsgClearConfirmToken, "YOU SURE??? This clears guest names. {0}+E again to confirm. (Got a backup key? — someday ;))" },
-            { MsgClearedToken, "LockSmith removed — piece is vanilla again" },
-            { MsgNothingToClearToken, "Nothing LockSmith to clear on this piece" },
+            { MsgClearedToken, "LockSmith removed" },
             { MsgNeedActiveWardToken, "Needs an active ward" },
-            { MsgSyncFailedToken, "Change didn't go through — try again" },
-            { MsgJoinFailedToken, "Couldn't join — Join may have closed. Try again" },
+            { MsgSyncFailedToken, "Didn't go through — try again" },
+            { MsgJoinFailedToken, "Couldn't join — try again" },
             { HoverMakePublicToken, "Make public" },
             { HoverMakePrivateToken, "Make private" },
             { HoverDesignateToken, "Enable LockSmith" },
-            { HoverClearLockSmithToken, "Clear LockSmith" },
+            { HoverClearLockSmithToken, "Remove LockSmith" },
             { HoverMakePersonalToken, "Make personal" },
             { HoverMakeTeamToken, "Make team" },
-            { HoverOpenOptInToken, "Open join" },
-            { HoverCloseOptInToken, "Close join" },
+            { HoverOpenOptInToken, "Open Join" },
+            { HoverCloseOptInToken, "Close Join" },
             { HoverJoinAccessToken, "Join access" },
             { HoverLeaveAccessToken, "Leave access" },
+            { HoverLockMenuToken, "Lock menu" },
             { HoverGuestsHeaderToken, "Guests:" },
             { PublicNameSuffixToken, " (public)" },
             { PublicPieceDescToken, "<color=#FFCC33>Always open to anyone. This cannot be locked.</color>" },

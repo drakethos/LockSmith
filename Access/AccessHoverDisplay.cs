@@ -78,6 +78,22 @@ public static class AccessHoverDisplay
             ? LockSmithLocalization.T(LockSmithLocalization.PieceTeamToken)
             : LockSmithLocalization.T(LockSmithLocalization.PieceGuestsTagToken);
 
+    /// <summary>The one action hint: <c>[E] Lock menu</c> with the key, <c>[AltPlace+E] Lock menu</c> without.</summary>
+    public static string MenuHint(bool withKey)
+    {
+        var keys = withKey
+            ? "[<color=yellow><b>$KEY_Use</b></color>]"
+            : "[<color=yellow><b>$KEY_AltPlace</b></color>+<color=yellow><b>$KEY_Use</b></color>]";
+        return Localization.instance.Localize(keys) + " "
+               + LockSmithLocalization.T(LockSmithLocalization.HoverLockMenuToken);
+    }
+
+    /// <summary><c>[AltPlace+E] Join access</c>: joining goes through the Lock menu, never plain E.</summary>
+    public static string JoinHint() =>
+        Localization.instance.Localize(
+            "[<color=yellow><b>$KEY_AltPlace</b></color>+<color=yellow><b>$KEY_Use</b></color>]")
+        + " " + LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken);
+
     public static string GuestsCountLabel(int count) =>
         AccessCountLabel(team: false, count);
 

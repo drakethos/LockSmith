@@ -16,6 +16,7 @@ jobs:
     outputs:
       version: ${{ steps.ver.outputs.version }}
       tag: ${{ steps.ver.outputs.tag }}
+      is_prerelease: ${{ steps.ver.outputs.is_prerelease }}
       zip: ${{ steps.pkg.outputs.zip }}
       description: ${{ steps.pkg.outputs.description }}
       website_url: ${{ steps.pkg.outputs.website_url }}
@@ -30,6 +31,18 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           TAG_VERSION="${TAG#v}"
+
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            IS_PRERELEASE=false
+            CHANNEL=stable
+          elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$ ]]; then
+            IS_PRERELEASE=true
+            CHANNEL=beta
+          else
+            echo "::error::Tag ${TAG} must be vX.Y.Z (stable) or vX.Y.Z-beta.N (Hexium-only beta)." >&2
+            exit 1
+          fi
+
           PKG_VERSION=$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' mod.package.props | head -1 | xargs)
           if [ -z "$PKG_VERSION" ]; then
             echo "::error::Could not read <Version> from mod.package.props" >&2
@@ -41,7 +54,8 @@ jobs:
           fi
           echo "version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Release version: $PKG_VERSION (mod.package.props)"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "Release version: $PKG_VERSION (${CHANNEL}; mod.package.props)"
 
       # ── Install .NET SDK (Roslyn C#10) ──────────────────────────────────────
       - name: Setup .NET SDK
@@ -200,7 +214,8 @@ jobs:
           ls -lh "$ZIP_NAME"
 
       # ── Create GitHub Release and attach the zip ────────────────────────────
-      - name: Create GitHub Release
+      - name: Create GitHub Release (stable)
+        if: steps.ver.outputs.is_prerelease != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
@@ -221,6 +236,35 @@ jobs:
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.ver.outputs.tag }}/CHANGELOG.md) for what's new.
           files: ${{ steps.pkg.outputs.zip }}
 
+      - name: Create GitHub Release (beta)
+        if: steps.ver.outputs.is_prerelease == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: "LockSmith ${{ steps.ver.outputs.version }} (beta)"
+          prerelease: true
+          body: |
+            ## LockSmith v${{ steps.ver.outputs.version }} (beta)
+
+            **Beta for 0.5.0.** Hexium + GitHub prerelease only (Thunderstore skipped; Hexium accepts `-beta.N`). Not a stable store build — please test and report issues before the 0.5.0 cut.
+
+            ### Highlights
+            - **One Lock menu** (Shift+E) replaces the key combos. Only players with access see it.
+            - **No key needed.** `UseKey` off = simple mode (no key item at all); on = advanced mode with the physical key.
+            - **One player in the Lock menu at a time** per door/chest (owner hands the piece over, like vanilla chests).
+            - Join is a menu button; optional **Add nearby player**; Yes/No popups instead of double-press warnings.
+            - Settings cleanup (`EnableKeyMode` → `EnableManagedAccess`, value carries over); piece mode skips world-only chests/doors.
+
+            ### Install
+            Drop the zip into **r2modman**, **Thunderstore Mod Manager**, or **Gale** via "Import local mod", or extract into:
+            ```
+            BepInEx/plugins/DrakeMods-LockSmith/
+            ```
+
+            ---
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.ver.outputs.tag }}/CHANGELOG.md) for the full list.
+          files: ${{ steps.pkg.outputs.zip }}
+
       - name: Upload Thunderstore zip artifact
         uses: actions/upload-artifact@v4
         with:
@@ -230,6 +274,7 @@ jobs:
 
   publish-thunderstore:
     needs: build-and-release
+    if: needs.build-and-release.outputs.is_prerelease != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Download Thunderstore zip
@@ -260,66 +305,37 @@ jobs:
 
   publish-hexium:
     needs: [build-and-release, publish-thunderstore]
+    # Run after a successful build even when Thunderstore was skipped (beta tags).
+    # Uses publish-hexium.py (not tcli) so Hexium can receive -beta.X versions.
+    if: |
+      always()
+      && needs.build-and-release.result == 'success'
+      && (needs.publish-thunderstore.result == 'success'
+          || needs.publish-thunderstore.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout publish script
+        uses: actions/checkout@v4
+
       - name: Download Thunderstore zip
         uses: actions/download-artifact@v4
         with:
           name: thunderstore-zip
           path: dist
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "8.0.x"
-
-      - name: Install tcli
-        run: dotnet tool install -g tcli
-
       - name: Publish package to Hexium
         env:
-          VERSION: ${{ needs.build-and-release.outputs.version }}
-          DESCRIPTION: ${{ needs.build-and-release.outputs.description }}
-          WEBSITE_URL: ${{ needs.build-and-release.outputs.website_url }}
-          ZIP_NAME: ${{ needs.build-and-release.outputs.zip }}
           HEXIUM_TOKEN: ${{ secrets.HEXIUM_TOKEN }}
+          ZIP_NAME: ${{ needs.build-and-release.outputs.zip }}
         run: |
           set -euo pipefail
           if [ -z "${HEXIUM_TOKEN}" ]; then
             echo "::error::HEXIUM_TOKEN secret is not set" >&2
             exit 1
           fi
-
-          # Escape description for TOML double-quoted string
-          DESC_ESC=$(printf '%s' "$DESCRIPTION" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1])')
-          WEB_ESC=$(printf '%s' "$WEBSITE_URL" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1])')
-
-          cat > thunderstore.toml <<EOF
-          [config]
-          schemaVersion = "0.0.1"
-
-          [package]
-          namespace = "DrakeMods"
-          name = "LockSmith"
-          versionNumber = "${VERSION}"
-          description = "${DESC_ESC}"
-          websiteUrl = "${WEB_ESC}"
-          containsNsfwContent = false
-
-          [publish]
-          repository = "https://valheim.hexium.gg"
-          communities = ["valheim"]
-
-          [publish.categories]
-          valheim = ["Quality of Life", "Building", "Crafting", "Valheim 1.0"]
-          EOF
-
-          # Strip leading indentation from heredoc
-          sed -i 's/^          //' thunderstore.toml
-          cat thunderstore.toml
-
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          tcli publish \
-            --config-path thunderstore.toml \
+          python3 .github/scripts/publish-hexium.py \
             --file "dist/${ZIP_NAME}" \
-            --token "${HEXIUM_TOKEN}"
+            --repository "https://valheim.hexium.gg" \
+            --namespace "DrakeMods" \
+            --communities "valheim" \
+            --categories "Quality of Life,Building,Crafting,Valheim 1.0"

@@ -33,7 +33,7 @@ public static class InventoryKeyMenuPatch
     {
         try
         {
-            if (!LockSmithConfig.EnableKeyPasses)
+            if (!LockSmithConfig.UseKey || !LockSmithConfig.EnableKeyPasses)
                 return;
             if (!ChestAccessService.IsLocksmithKey(item) || tooltip == null)
                 return;

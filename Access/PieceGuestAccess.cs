@@ -534,6 +534,12 @@ public static class PieceGuestAccess
             return;
         }
 
+        if (PieceMenuLock.IsHeldByOther(nview, playerId, out _))
+        {
+            LockSmith.Log?.LogDebug($"Opt-in ignored for {playerId} on {nview.name} — Lock menu in use.");
+            return;
+        }
+
         var container = nview.GetComponentInChildren<Container>();
         if (container != null && GroupAccessState.IsPrivateFamilyChest(container)
             && !GroupAccessState.IsTeamMode(nview))
@@ -599,13 +605,12 @@ public static class PieceGuestAccess
     }
 
     /// <summary>
-    /// No key: Join when opt-in ready (E), or Leave when already a guest (AltPlace / SetupModifier).
-    /// Plain E while a guest falls through so Open still works.
-    /// Leave uses a 5s double-confirm (can't rejoin without owner opening Join).
+    /// No key, plain E while Join is open and the player is not a guest yet: point them at
+    /// AltPlace+E (Join is a Lock menu button). Guests fall through so Open still works.
     /// </summary>
     public static bool TryHandleGuestSelfInteract(ZNetView? nview, Humanoid user, bool hold, bool alt)
     {
-        if (hold || nview == null || !nview.IsValid())
+        if (hold || alt || nview == null || !nview.IsValid())
             return false;
 
         var player = user as Player;
@@ -613,56 +618,14 @@ public static class PieceGuestAccess
             return false;
 
         var playerId = player.GetPlayerID();
-        if (playerId == 0L)
-            return false;
-
-        if (IsGuest(nview, playerId))
-        {
-            var leaveChord = alt || LockSmithInput.IsSetupModifierHeld();
-            if (!leaveChord)
-                return false;
-
-            return TryConfirmOptOut(nview, user, playerId);
-        }
-
-        if (alt || LockSmithInput.IsSetupModifierHeld())
+        if (playerId == 0L || IsGuest(nview, playerId))
             return false;
 
         if (!LockSmithConfig.EnableOptInAccess || !IsOptInReady(nview))
             return false;
 
-        // "You joined" shows once the owner's write reaches us (PieceRpc confirm).
-        if (!PieceRpc.HasPending(nview, GameHookTargets.RpcOptInSelf))
-            RequestOptInSelf(nview, playerId, CapturePlayerName(player));
-        return true;
-    }
-
-    private static ZDOID _pendingLeaveId = ZDOID.None;
-    private static float _pendingLeaveUntil;
-    private const float LeaveConfirmSeconds = 5f;
-
-    /// <summary>Guest leave with key or AltPlace: double-tap confirm within 5s.</summary>
-    public static bool TryConfirmOptOut(ZNetView nview, Humanoid user, long playerId)
-    {
-        if (nview == null || !nview.IsValid() || playerId == 0L)
-            return false;
-
-        var zdo = nview.GetZDO();
-        if (zdo == null)
-            return false;
-
-        var id = zdo.m_uid;
-        if (_pendingLeaveId == id && Time.time <= _pendingLeaveUntil)
-        {
-            _pendingLeaveId = ZDOID.None;
-            _pendingLeaveUntil = 0f;
-            RequestOptOutSelf(nview, playerId);
-            return true;
-        }
-
-        _pendingLeaveId = id;
-        _pendingLeaveUntil = Time.time + LeaveConfirmSeconds;
-        AccessFeedback.Show(user, LockSmithLocalization.MsgLeaveConfirmToken);
+        // Joining lives in the Lock menu (AltPlace+E); plain E just points there.
+        AccessFeedback.ShowRaw(user, AccessHoverDisplay.JoinHint());
         return true;
     }
 
@@ -683,26 +646,8 @@ public static class PieceGuestAccess
         if (!LockSmithConfig.EnableOptInAccess)
             return;
 
-        var ready = IsOptInReady(nview);
-        if (ready)
+        if (IsOptInReady(nview))
             sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceOptInReadyToken));
-
-        if (isCreator)
-        {
-            var setupUse = Localization.instance.Localize(
-                LockSmithInput.FormatModifierUse(LockSmithConfig.SetupModifier));
-            var action = LockSmithLocalization.T(
-                ready
-                    ? LockSmithLocalization.HoverCloseOptInToken
-                    : LockSmithLocalization.HoverOpenOptInToken);
-            sb.Append('\n').Append(setupUse).Append(' ').Append(action);
-        }
-        else if (ready)
-        {
-            var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
-            sb.Append('\n').Append(useKey).Append(' ')
-                .Append(LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken));
-        }
     }
 
     private static bool IsPlaceholderName(string? name, long playerId)
@@ -720,26 +665,6 @@ public static class PieceGuestAccess
             return true;
 
         return false;
-    }
-
-    private static string CapturePlayerName(Player player)
-    {
-        if (player == null)
-            return string.Empty;
-
-        try
-        {
-            var raw = player.GetPlayerName();
-            var normalized = NormalizePlayerName(raw);
-            if (!string.IsNullOrEmpty(normalized))
-                return normalized;
-        }
-        catch (Exception ex)
-        {
-            LockSmith.Log?.LogDebug($"CapturePlayerName failed: {ex.Message}");
-        }
-
-        return ResolveLiveName(player.GetPlayerID()) ?? string.Empty;
     }
 
     private static string NormalizePlayerName(string? name)

@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.5.0-beta.1
+
+Hexium-only beta (Thunderstore skipped). Requires **DrakeModsLibs 0.9.12+**.
+
+
+- **No key needed.** **AltPlace+E** (Shift+E by default) on a chest or door opens the Lock menu with every option for players who have access: ward members, the private-chest owner, and guests. Players without access don't see the hint, and AltPlace+E stays vanilla for them. A new synced `RequireKeyForSetup` (default off) brings back "owner tools need the key in hand".
+  - New synced `UseKey` (default on). On is **enhanced mode**: the key is craftable, E with it opens the menu, hovers show guest names, and copied guests save on the key. Off is **simple mode**: the key item is not added to the game, hovers show only the state and the Shift+E hint, and guest names appear only in the Lock menu. Restart required after changing.
+  - Copy/Paste without a key uses a clipboard that lasts for your play session. With the key in hand, names go on the key as before.
+- **One Lock menu instead of key combos.** Press **AltPlace+E** on a chest or door, or **E** while holding the key. A small menu shows the current state (Public/Private, Join open, guest names) and only the buttons you can use: Enable LockSmith, Make public/private, Make personal/team, Open/Close Join, Copy/Paste guests, Leave access, Remove LockSmith.
+  - Holding the key and pressing **E** no longer toggles anything by itself.
+  - Removed the `ClearModifier` (Alt) and `SetupModifier` (Shift) chords and their config entries.
+  - Hover text is now the state plus a single `Lock menu` hint.
+  - The menu refreshes as changes confirm, and buttons grey out while a change is syncing, so double-clicks can't send twice.
+- **One player in the Lock menu at a time** per door/chest (opening the chest/door itself is unchanged). Opening the menu takes a short lease and, like a vanilla chest, the current owner hands the piece over, so menu actions are local writes instead of requests bouncing between players. Others trying the menu, Join or Paste on that piece see "Name is using this — try again in a moment". The lease renews while the menu or its Yes/No is open, is released on close, and runs out after ~10s if the holder disconnects.
+- **Joining is a Lock menu button now.** While a piece shows [Join open], **AltPlace+E → Join access**. Plain E always does the normal open (it just reminds you of Shift+E). Hovers show `[Shift+E] Join access` to players who can join, and nothing to players who can't.
+- **Add nearby player** (new synced `EnableAddNearby`, default on): owners get an "Add *name*" button for the closest player within 5m who isn't a guest yet. Works with or without the key.
+- **Leave always asks** "Leave access?", and the text says whether you can rejoin.
+- Fixed an empty Lock menu (title, no buttons) after logout or a character swap. The fix is in DrakeModsLibs `DrakeWoodActionMenu`.
+- **Yes/No popups replace "press again within 5s" warnings.**
+  - Remove LockSmith always asks first.
+  - Leave access asks only when Join is closed (you can't rejoin until the owner opens it). While Join is open you leave right away.
+- **Leaving works any time**, not only while Join is open.
+- **Shorter messages** on screen.
+- **Settings cleanup.** `EnableKeyMode` is renamed `EnableManagedAccess` (the master switch for the Lock menu on placed pieces), and existing values carry over. All key settings (UseKey, RequireKeyForSetup, EnableKeyExtras, name and recipe) are grouped under **Key (advanced)**. Descriptions no longer mention the removed hotkeys.
+- **Piece mode no longer clones world-only chests/doors.** Only pieces in a build tool's piece table count as donors, so dungeon, treasure and Dvergr-town props are left out. `dvergrtown_wood_door` is dropped from the defaults; the allow list still overrides.
+- **Key extras off by default:** new synced `EnableKeyExtras` (default off) controls the key's inventory menu (Relabel / Grab nearby / Clear names / Clone key). Copy/Paste guests stays on (`EnableKeyPasses`) as menu buttons and Ctrl+C / Ctrl+V. The key no longer auto-renames itself `[Pass]` / `[Team]` unless extras are on.
+- New key description. Configs still holding the old default text pick up the new one automatically.
+- **Multiplayer fix:** the piece owner identified who sent a request through `Character.m_nview`, which is protected in the live game. It now uses `GetComponent<ZNetView>()`.
+
 ## 0.4.3
 
 - **Multiplayer RPC hardening:** all piece changes (Join open/close, opt-in/out, public/private, team mode, clear, Ctrl+V paste) go through one owner-routed path (`PieceRpc`).

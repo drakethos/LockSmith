@@ -9,7 +9,8 @@ namespace LockSmith.UI;
 
 /// <summary>
 /// Locksmith key inventory menu — RenameIt-looking chrome via DrakeModsLibs wood panels.
-/// Registers as a <see cref="DrakeTabHost"/> tab (default on Locksmith keys).
+/// Registers as a <see cref="DrakeTabHost"/> tab (default on Locksmith keys) when
+/// <see cref="LockSmithConfig.EnableKeyExtras"/> is on.
 /// Inventory open chord is owned by Libs (<c>Integration.InventoryOpenModifier</c>).
 /// </summary>
 public static class KeyPassMenu
@@ -40,12 +41,13 @@ public static class KeyPassMenu
                 title: "Lock",
                 priority: DrakeTabRegistration.DefaultFeaturePriority,
                 isAvailable: item =>
-                    LockSmithConfig.EnableKeyPasses
+                    LockSmithConfig.UseKey
+                    && LockSmithConfig.EnableKeyExtras
                     && ChestAccessService.IsLocksmithKey(item)
                     && IsItemInLocalInventory(item),
                 show: ctx => Open(ctx.Item),
                 claimDefault: item =>
-                    LockSmithConfig.EnableKeyPasses && ChestAccessService.IsLocksmithKey(item),
+                    LockSmithConfig.UseKey && LockSmithConfig.EnableKeyExtras && ChestAccessService.IsLocksmithKey(item),
                 hide: HideForHost,
                 getHintPhrase: () => LockSmithLocalization.T(LockSmithLocalization.InventoryHintPhraseToken),
                 getTitle: () => LockSmithLocalization.T(LockSmithLocalization.InventoryTabTitleToken));

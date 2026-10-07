@@ -1,4 +1,20 @@
-# LockSmith
+# LockSmith — ⚠️ Moving to Hexium
+
+> [!IMPORTANT]
+> **DrakeMods is moving to Hexium.**
+>
+> This is one of the last updates we'll post on Thunderstore. No new DrakeMods will be released here, and existing mods will get only limited support on Thunderstore from now on.
+>
+> For the latest updates, newest versions and future mods, follow us on **Hexium**:
+> 👉 **[DrakeMods on Hexium](https://valheim.hexium.gg/?q=DrakeMods)**
+>
+> These Thunderstore listings will be deprecated after this.
+
+> [!TIP]
+> ### 🎨 DrakesReskinIt is finally coming, on Hexium!
+> Give any item a new inventory icon, a new equipped model and custom colors, then save your looks as presets.
+> Lock down your base with LockSmith, then make the gear inside it look the part. ReskinIt runs on the same DrakeModsLibs you already have installed.
+> 👉 **[DrakesReskinIt on Hexium](https://valheim.hexium.gg/mods/DrakeMods/DrakesReskinIt)**
 
 Share chests and doors behind your ward without putting people on the ward. Designate a piece with the Locksmith key, then open it publicly or grant guest access to individuals. Also covers Personal/Team private chests for shared stashes.
 
@@ -9,7 +25,7 @@ Ward-friendly access for Valheim bases:
 - **Guests** on ward pieces via a Join list, works similar to ward opt-in
 - **Easy to clear** without rebuild
 
-Craft one **Locksmith Key**, designate a piece, then permitted players use **Alt+E** for public/private without holding the key. The key stays required for Team / Join setup.
+Press **Shift+E** (the game's AltPlace key + Use) on a chest or door you have access to. A small **Lock menu** opens with buttons for everything. No key needed, and no combos to learn.
 
 **Requires (everyone on the server):** [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/), [Jotunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/), [DrakeModsLibs](https://thunderstore.io/c/valheim/p/DrakeMods/DrakeModsLibs/)
 
@@ -20,6 +36,8 @@ BepInEx/plugins/DrakeMods-LockSmith/
 ```
 
 ## Version
+
+**0.5.0-beta.1** (Hexium beta): one Lock menu (Shift+E) instead of key combos, no key needed (optional advanced key), one player in the menu at a time, Join as a menu button, Add nearby player, Yes/No popups. Requires DrakeModsLibs **0.9.12+**.
 
 **0.4.3** — Multiplayer RPC hardening: Join/opt-in, paste, and public/team toggles confirm and re-send until they land; fixes split guest lists between players. Requires DrakeModsLibs **0.9.7+**.
 
@@ -37,28 +55,48 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 
 ## How to use
 
-### Designate a piece (key)
+> **Shift+E on a chest or door opens the Lock menu** if you have access there (ward member, chest owner, or guest).
+> No access? You won't see it, and Shift+E does the normal thing.
+> If a door or chest shows **[Join open]**, press **Shift+E** → **Join access**. Plain E always does the normal open.
+>
+> The Locksmith key is optional flavor (`UseKey`, on by default): holding it and pressing **E** opens the same menu, and copied guest names are saved on the key. Turn `UseKey` off for a key-free server, or turn `RequireKeyForSetup` on to make owners carry it.
 
-1. Equip the **Locksmith Key**.
-2. Look at a player-built chest, door, or gate.
-3. **E** → **Enable LockSmith** (sets `locksmith_managed`). First use claims it.
-4. Unequip the key for day-to-day use.
-5. **ClearModifier+E** (default **Alt+E**, key equipped) → Clear LockSmith. Guests → confirm twice.
-6. **SetupModifier+E** (default **Shift+E**, key equipped) → Open/close Join.
+### The Lock menu
 
-### Ward chests / doors — after designate
+The menu shows what's going on (Public / Private, Join open, guest names) and only the buttons you can use right now:
 
-1. If you have **ward or guest** access: **Alt+E** → public / private (**no key**).
-2. Strangers cannot toggle. **`[Public]`** means open — no Join/setup until private again.
-3. Key still needed for **SetupModifier+E** Join open/close (guest list on that piece).
+| Button | Who |
+| --- | --- |
+| Join access | Anyone, while the piece shows [Join open] |
+| Enable LockSmith | Ward member, first time on a piece |
+| Make public / Make private | Ward member, or a guest on that piece |
+| Make personal / Make team | Private-chest owner (`EnablePersonalPause`) |
+| Open Join / Close Join | Ward member, or private-chest owner |
+| Add *name* (nearby player) | Ward member or owner, if `EnableAddNearby` is on |
+| Copy guests / Paste guests | Ward member or owner |
+| Leave access | Guest on that piece |
+| Remove LockSmith… | Ward member, or private-chest owner |
+
+Without a key, copied guests last for your play session. With the key in hand they're saved on the key, and **Ctrl+C / Ctrl+V** work while looking at a piece.
+
+### Sharing a door or chest with someone
+
+1. **Shift+E** on the door → **Enable LockSmith** → **Open Join**.
+2. Your friend walks up and presses **Shift+E** → **Join access**. They're on the guest list and can now open it without being on your ward. (Or, if they're standing next to you, use **Add *name*** in your menu.)
+3. Back in the menu → **Close Join** when everyone's in.
+4. Same people on another door? **Copy guests** here, then **Paste guests** there.
+
+### One at a time
+
+Only one player can have the Lock menu open on a door or chest. Anyone else trying the menu, Join or Paste there sees "Name is using this — try again in a moment". Opening the door or chest itself is never blocked.
+
+### Leaving
+
+**Shift+E** → **Leave access** → Yes. The popup tells you whether you can come back (only while Join is open).
 
 ### Private chests — Personal / Team
 
-1. Equip the key on a **private chest**.
-2. **E** → Personal ↔ Team (creator) — also designates.
-3. **SetupModifier+E** (default **Shift+E**) → open/close **Join** (opt-in ready). Key required.
-4. Other character: **E** → Join access. Guests see names on hover; **Alt+E** → Leave access while Join is open.
-5. Hover shows Open (not vanilla No access) when you have team/guest rights.
+Private chests work the same way. The owner gets Make personal/team (when `EnablePersonalPause` is on) and Open/Close Join. Team members can open it, and use **Shift+E** → Leave access.
 
 ### Public hammer pieces (piece mode)
 
@@ -66,13 +104,6 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 2. Hammer → **Public** category: always-open clones of ward-locked chests/doors (vanilla and discovered mod pieces).
 3. Names append **`(public)`** when `PublicPieceNameSuffix` is on. A placed clone shows **[Public]** (`PublicPieceHoverText`). The hammer description is gold: always open, cannot be locked. Already-public vanilla pieces (e.g. Christmas boxes) are not duplicated.
 4. Use `PublicPieceDenyList` / `PublicPieceAllowList` to trim or force donors. Key mode does not designate these clones.
-
-### Ward chests / doors — partial guest access
-
-1. Designate with key, then **SetupModifier+E** (with key) → open/close **Join**.
-2. A player **not** on the ward presses **E** while Join is open → guest list.
-3. Guests can open that chest/door without ward permit (`EnablePieceGuests`).
-4. Guests (and ward members) can **Alt+E** public/private without the key. Private chests are excluded.
 
 ### Config (synced)
 
@@ -84,20 +115,23 @@ Default recipe: **1 Wood**, craftable from the inventory (no station). Configura
 | `EnablePersonalPause` | off | Personal↔Team pause switch (keeps names); off = team-only |
 | `EnablePieceGuests` | on | Guest ACL on ward chests/doors |
 | `EnableOptInAccess` | on | Ward-style Join open / E to opt in |
-| `EnableKeyMode` | on | Craft / use the Locksmith key |
+| `EnableManagedAccess` | on | Master switch for the Lock menu on placed doors/chests (was `EnableKeyMode`; value carries over) |
 | `EnablePieceMode` | off | Hammer **Public** tab: always-open chest/door clones (vanilla + mods); no key/ZDO. Restart after change |
 | `PublicPieceAllowList` | empty | Extra donor prefab names to clone (comma-separated). Restart |
 | `PublicPieceDenyList` | empty | Donor prefab names never cloned. Restart |
 | `PublicPieceNameSuffix` | on | Append localized `(public)` to clone display names. Restart |
 | `PublicPieceHoverText` | `[Public]` | Plain hover line on placed Public doors and chests. Empty uses `[Public]` |
-| `EnableGuestPublicToggle` | on | Permitted Alt+E public/private (no key) |
-| `EnableDesignate` | on | Key must Enable LockSmith before no-key Alt+E |
+| `EnableGuestPublicToggle` | on | Make public/private in the Lock menu without the key (ward members and guests) |
+| `EnableKeyPasses` | on | Copy/Paste guests: menu buttons and Ctrl+C / Ctrl+V |
+| `UseKey` | on | Enhanced mode: the Locksmith key exists (craftable; E with it opens the menu; hover shows guest names; stores copied guests, Ctrl+C/V). Off = simple mode: key not added to the game, Shift+E menu only. Restart after change |
+| `EnableAddNearby` | on | Lock menu button to add the closest player (5m) to the guest list |
+| `RequireKeyForSetup` | off | On = Enable / Join / Personal-Team / Paste / Remove need the key in hand |
+| `EnableKeyExtras` | off | Key inventory menu: Relabel, Grab nearby, Clear names, Clone key |
+| `EnableDesignate` | on | A piece must be enabled with the key before other options show |
 | `RequireActiveWard` | on | No manage/toggle on normal chests/doors unless inside an enabled ward (private chests exempt) |
-| `ClearModifier` | Alt | Local — key + modifier+E clears LockSmith |
-| `SetupModifier` | Shift | Local — key + modifier+E opens/closes Join |
 | `TeamLabelColor` | `#FF00FF` | Local only — color for Team/Guests labels |
 
-Inventory key menu uses **DrakeModsLibs** `Integration.InventoryOpenModifier` (default Shift) + right-click — shared with RenameIt when both claim an item.
+With `EnableKeyExtras` on, the key's inventory menu uses **DrakeModsLibs** `Integration.InventoryOpenModifier` (default Shift) + right-click — shared with RenameIt when both claim an item.
 
 ## Compatibility API
 

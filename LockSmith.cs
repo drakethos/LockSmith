@@ -39,18 +39,28 @@ namespace LockSmith
 
             UI.KeyPassMenu.RegisterTab();
 
-            var pluginDir = Path.GetDirectoryName(Info.Location) ?? "";
-            // Gale/some managers flatten Thunderstore zips (keys.bundle at plugin root).
-            // ArtItemLoader expects Assets/Items/keys/ — repair before register.
-            RepairFlattenedArtLayout(pluginDir);
-            // Official key only: Assets/Items/keys/masterkey.json + keys.bundle (MasterKey).
-            // Pass config: null so ArtItemLoader does not create a duplicate "masterkey" section
-            // (Display name / Description / Materials). Recipe + name live under LockSmith → 03 Key.
-            ArtItemLoader.Register(
-                Logger,
-                pluginDir,
-                config: null,
-                ContentRegistration.CustomizeMasterKeyArtItem);
+            // UseKey off = simple mode: the key item is never registered (restart after changing,
+            // like EnablePieceMode). SyncKeyRecipe still hides the recipe if a client's local value
+            // disagrees with the server's.
+            if (LockSmithConfig.UseKey)
+            {
+                var pluginDir = Path.GetDirectoryName(Info.Location) ?? "";
+                // Gale/some managers flatten Thunderstore zips (keys.bundle at plugin root).
+                // ArtItemLoader expects Assets/Items/keys/ — repair before register.
+                RepairFlattenedArtLayout(pluginDir);
+                // Official key only: Assets/Items/keys/masterkey.json + keys.bundle (MasterKey).
+                // Pass config: null so ArtItemLoader does not create a duplicate "masterkey" section
+                // (Display name / Description / Materials). Recipe + name live under LockSmith → 03 Key.
+                ArtItemLoader.Register(
+                    Logger,
+                    pluginDir,
+                    config: null,
+                    ContentRegistration.CustomizeMasterKeyArtItem);
+            }
+            else
+            {
+                Logger.LogInfo("UseKey is off — Locksmith key not registered (simple mode).");
+            }
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabs;
             _harmony.PatchAll();
@@ -70,6 +80,18 @@ namespace LockSmith
                 Logger.LogError($"PieceRpc tick failed: {ex}");
                 PieceRpc.Clear();
             }
+
+            try
+            {
+                PieceMenuLock.Tick();
+                UI.PieceAccessMenu.Tick();
+                ContentRegistration.SyncKeyRecipe();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"LockSmith menu/recipe tick failed: {ex}");
+                UI.PieceAccessMenu.Close();
+            }
         }
 
         private void OnVanillaPrefabs()
@@ -79,7 +101,8 @@ namespace LockSmith
             {
                 LockSmithLocalization.Register();
                 // ArtItemLoader also hooks this event and subscribed first — masterkey should exist now.
-                ContentRegistration.FinalizeOfficialKeyFromKeysPack();
+                if (LockSmithConfig.UseKey)
+                    ContentRegistration.FinalizeOfficialKeyFromKeysPack();
                 PublicPieceRegistration.TryRegisterAll("OnVanillaPrefabsAvailable");
             }
             catch (Exception ex)

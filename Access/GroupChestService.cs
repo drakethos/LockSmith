@@ -11,7 +11,7 @@ public static class GroupChestService
 {
     public static bool IsEligible(Container? container) =>
         LockSmithConfig.EnableGroupChests
-        && LockSmithConfig.EnableKeyMode
+        && LockSmithConfig.EnableManagedAccess
         && GroupAccessState.IsPrivateFamilyChest(container);
 
     public static void RegisterRpc(Container container)
@@ -34,46 +34,6 @@ public static class GroupChestService
         PieceGuestAccess.RegisterRpcs(nview);
         GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
         GroupAccessState.SyncPrivacyFromZdo(container);
-    }
-
-    /// <summary>
-    /// Key: SetupModifier+E toggles Join; plain E toggles Personal↔Team only when
-    /// <see cref="LockSmithConfig.EnablePersonalPause"/> is on.
-    /// </summary>
-    public static bool TryHandleKeyInteract(Container container, Humanoid user, bool hold, bool alt)
-    {
-        if (!IsEligible(container))
-            return false;
-
-        if (hold)
-            return true;
-
-        if (PieceClearService.TryHandleKeyClear(container, user))
-            return true;
-
-        var player = user as Player;
-        if (player == null)
-            return true;
-
-        var playerId = player.GetPlayerID();
-        if (!GroupAccessState.IsCreator(container, playerId))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgGroupOwnerOnlyToken);
-            return true;
-        }
-
-        var nview = GroupAccessState.GetNetView(container);
-        if (nview == null || !nview.IsValid())
-            return true;
-
-        GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
-
-        if (LockSmithInput.IsSetupModifierHeld())
-            TryToggleOptIn(user, nview, playerId);
-        else if (LockSmithConfig.EnablePersonalPause)
-            TryToggleTeamMode(user, nview, playerId);
-
-        return true;
     }
 
     /// <summary>No key: join when Join is open, or leave if already a guest.</summary>
@@ -144,7 +104,8 @@ public static class GroupChestService
         if (reveal)
             PieceGuestAccess.TryRefreshGuestNames(nview);
 
-        var summary = PieceGuestAccess.FormatGuestSummary(nview, reveal, team: true);
+        // Simple mode (no key): no member line; the list lives in the Lock menu.
+        var summary = reveal ? PieceGuestAccess.FormatGuestSummary(nview, revealNames: true, team: true) : string.Empty;
         if (!string.IsNullOrEmpty(summary))
             sb.Append('\n').Append(summary);
 
@@ -155,18 +116,13 @@ public static class GroupChestService
         {
             sb.Append('\n').Append(useKey).Append(' ')
                 .Append(Localization.instance.Localize("$piece_container_open"));
-            if (!isCreator && PieceGuestAccess.IsGuest(nview, playerId))
-            {
-                var altUse = Localization.instance.Localize(
-                    "[<color=yellow><b>$KEY_AltPlace</b></color>+<color=yellow><b>$KEY_Use</b></color>]");
-                sb.Append('\n').Append(altUse).Append(' ')
-                    .Append(LockSmithLocalization.T(LockSmithLocalization.HoverLeaveAccessToken));
-            }
+            var hint = PieceAccessMenu.NoKeyHint(container);
+            if (hint.Length > 0)
+                sb.Append('\n').Append(hint);
         }
         else if (PieceGuestAccess.IsOptInReady(nview))
         {
-            sb.Append('\n').Append(useKey).Append(' ')
-                .Append(LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken));
+            sb.Append('\n').Append(AccessHoverDisplay.JoinHint());
         }
         else
         {
@@ -175,47 +131,6 @@ public static class GroupChestService
 
         hoverText = sb.ToString();
         return true;
-    }
-
-    private static void TryToggleTeamMode(Humanoid user, ZNetView nview, long playerId)
-    {
-        var nextTeam = !GroupAccessState.IsTeamMode(nview);
-        RequestSetTeamMode(nview, nextTeam, playerId);
-
-        if (nview.IsOwner() && GroupAccessState.IsTeamMode(nview) != nextTeam)
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDeniedToken);
-            return;
-        }
-
-        AccessFeedback.Show(
-            user,
-            nextTeam ? LockSmithLocalization.MsgNowTeamToken : LockSmithLocalization.MsgNowPersonalToken);
-    }
-
-    private static void TryToggleOptIn(Humanoid user, ZNetView nview, long playerId)
-    {
-        if (!LockSmithConfig.EnableOptInAccess)
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDisabledToken);
-            return;
-        }
-
-        if (!GroupAccessState.IsTeamMode(nview))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgGroupNeedTeamToken);
-            return;
-        }
-
-        if (!PieceGuestAccess.TryRequestJoinToggle(nview, playerId, out var next))
-        {
-            AccessFeedback.ShowRaw(user, "Join is still syncing — try again.");
-            return;
-        }
-
-        AccessFeedback.Show(
-            user,
-            next ? LockSmithLocalization.MsgOptInOpenedToken : LockSmithLocalization.MsgOptInClosedToken);
     }
 
     public static void RequestSetTeamMode(ZNetView nview, bool team, long playerId)
@@ -234,7 +149,7 @@ public static class GroupChestService
         if (nview == null || !nview.IsValid() || !nview.IsOwner())
             return;
 
-        if (!LockSmithConfig.EnableGroupChests || !LockSmithConfig.EnableKeyMode)
+        if (!LockSmithConfig.EnableGroupChests || !LockSmithConfig.EnableManagedAccess)
             return;
 
         var container = nview.GetComponentInChildren<Container>();
@@ -299,8 +214,6 @@ public static class GroupChestService
             team = true;
         }
 
-        var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
-
         var sb = new StringBuilder();
         sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
 
@@ -326,47 +239,13 @@ public static class GroupChestService
             }
         }
 
-        if (isOwner)
-        {
-            if (LockSmithConfig.EnablePersonalPause)
-            {
-                var toggle = LockSmithLocalization.T(
-                    team
-                        ? LockSmithLocalization.HoverMakePersonalToken
-                        : LockSmithLocalization.HoverMakeTeamToken);
-                sb.Append('\n').Append(useKey).Append(' ').Append(toggle);
-            }
+        if (team && PieceGuestAccess.IsOptInReady(nview))
+            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceOptInReadyToken));
 
-            if (team)
-            {
-                // Join open/close only — guest list already in summary above.
-                if (LockSmithConfig.EnableOptInAccess)
-                {
-                    var ready = PieceGuestAccess.IsOptInReady(nview);
-                    if (ready)
-                        sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceOptInReadyToken));
-
-                    var setupUse = Localization.instance.Localize(
-                        LockSmithInput.FormatModifierUse(LockSmithConfig.SetupModifier));
-                    var action = LockSmithLocalization.T(
-                        ready
-                            ? LockSmithLocalization.HoverCloseOptInToken
-                            : LockSmithLocalization.HoverOpenOptInToken);
-                    sb.Append('\n').Append(setupUse).Append(' ').Append(action);
-                }
-            }
-        }
-        else if (team && local != null && PieceGuestAccess.IsGuest(nview, local.GetPlayerID()))
-        {
-            // Access count already shown.
-        }
+        if (isOwner || (team && local != null && PieceGuestAccess.IsGuest(nview, local.GetPlayerID())))
+            sb.Append('\n').Append(AccessHoverDisplay.MenuHint(withKey: true));
         else
-        {
             sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgGroupOwnerOnlyToken));
-        }
-
-        if (isOwner)
-            PieceClearService.AppendClearHover(sb, nview);
 
         hoverText = sb.ToString();
         return true;

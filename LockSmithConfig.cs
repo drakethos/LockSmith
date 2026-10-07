@@ -1,24 +1,18 @@
 using System;
+using System.Collections.Generic;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using DrakeModsLibs;
 using DrakeModsLibs.Sync;
+using HarmonyLib;
 
 namespace LockSmith;
-
-/// <summary>Keyboard modifier for LockSmith custom chords (local preference).</summary>
-public enum LockSmithModifier
-{
-    Alt,
-    Shift,
-    Control
-}
 
 /// <summary>Synced gameplay config. Count must match <see cref="ExpectedSyncedEntryCount"/>.</summary>
 public static class LockSmithConfig
 {
     /// <summary>Admin lock + feature/key entries. Bump when adding synced binds.</summary>
-    public const int ExpectedSyncedEntryCount = 21;
+    public const int ExpectedSyncedEntryCount = 25;
 
     private const string SectionAdmin = "01 Admin";
     private const string SectionFeatures = "02 Features";
@@ -28,7 +22,7 @@ public static class LockSmithConfig
 
     private const string DisplayAdmin = "Admin";
     private const string DisplayFeatures = "Features";
-    private const string DisplayKey = "Key";
+    private const string DisplayKey = "Key (advanced)";
     private const string DisplayDisplay = "Display";
 
     private static readonly DrakeConfigSync Sync = DrakeConfigSync.Create(
@@ -45,9 +39,13 @@ public static class LockSmithConfig
     private static ConfigEntry<bool> _enableOptInAccess = null!;
     private static ConfigEntry<bool> _enableGuestPublicToggle = null!;
     private static ConfigEntry<bool> _enableDesignate = null!;
-    private static ConfigEntry<bool> _enableKeyMode = null!;
+    private static ConfigEntry<bool> _enableManagedAccess = null!;
     private static ConfigEntry<bool> _enablePieceMode = null!;
     private static ConfigEntry<bool> _enableKeyPasses = null!;
+    private static ConfigEntry<bool> _enableKeyExtras = null!;
+    private static ConfigEntry<bool> _requireKeyForSetup = null!;
+    private static ConfigEntry<bool> _useKey = null!;
+    private static ConfigEntry<bool> _enableAddNearby = null!;
     private static ConfigEntry<bool> _requireActiveWard = null!;
     private static ConfigEntry<string> _publicPieceAllowList = null!;
     private static ConfigEntry<string> _publicPieceDenyList = null!;
@@ -58,8 +56,6 @@ public static class LockSmithConfig
     private static ConfigEntry<string> _keyCraftingStation = null!;
     private static ConfigEntry<string> _keyMaterials = null!;
     private static ConfigEntry<string> _teamLabelColor = null!;
-    private static ConfigEntry<LockSmithModifier> _clearModifier = null!;
-    private static ConfigEntry<LockSmithModifier> _setupModifier = null!;
 
     public static bool LockSyncedConfig => _lockSyncedConfig.Value;
     public static bool EnableChests => _enableChests.Value;
@@ -71,9 +67,14 @@ public static class LockSmithConfig
     public static bool EnableOptInAccess => _enableOptInAccess.Value;
     public static bool EnableGuestPublicToggle => _enableGuestPublicToggle.Value;
     public static bool EnableDesignate => _enableDesignate.Value;
-    public static bool EnableKeyMode => _enableKeyMode.Value;
+    public static bool EnableManagedAccess => _enableManagedAccess.Value;
     public static bool EnablePieceMode => _enablePieceMode.Value;
     public static bool EnableKeyPasses => _enableKeyPasses.Value;
+    public static bool EnableKeyExtras => _enableKeyExtras.Value;
+    /// <summary>On only when the key is in play; off means the menu is the whole tool.</summary>
+    public static bool RequireKeyForSetup => UseKey && _requireKeyForSetup.Value;
+    public static bool UseKey => _useKey.Value;
+    public static bool EnableAddNearby => _enableAddNearby.Value;
     /// <summary>Comma-separated donor prefab names force-included in public clones (restart required).</summary>
     public static string PublicPieceAllowList => _publicPieceAllowList.Value;
     /// <summary>Comma-separated donor prefab names never cloned (restart required).</summary>
@@ -101,12 +102,6 @@ public static class LockSmithConfig
 
     /// <summary>Local-only hex color for Team / Guests labels (e.g. #FF00FF).</summary>
     public static string TeamLabelColorHex => NormalizeHexColor(_teamLabelColor.Value);
-
-    /// <summary>Local: modifier+E with key clears LockSmith (default Alt).</summary>
-    public static LockSmithModifier ClearModifier => _clearModifier.Value;
-
-    /// <summary>Local: modifier+E with key opens/closes Join (default Alt). Keep different from Clear.</summary>
-    public static LockSmithModifier SetupModifier => _setupModifier.Value;
 
     public static void Bind(ConfigFile config, ManualLogSource log)
     {
@@ -148,7 +143,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnablePersonalPause",
             false,
-            "When true, key E toggles Personal↔Team as a pause switch (keeps names; friends locked out while Personal). When false (default), that toggle is hidden — chests stay team-shared and you only add people via Join.");
+            "When true, private-chest owners get Make personal / Make team in the Lock menu: a pause switch that keeps the names but locks friends out while Personal. When false (default), chests stay team-shared.");
 
         _enablePieceGuests = Sync.BindSynced(
             config,
@@ -156,7 +151,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnablePieceGuests",
             true,
-            "Partial ward access: guests on a chest/door can open without being on the ward.");
+            "Guests: players on a door's or chest's guest list can open it without being on the ward.");
 
         _enableOptInAccess = Sync.BindSynced(
             config,
@@ -164,7 +159,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableOptInAccess",
             true,
-            "Ward-style opt-in: creator opens Join access; other players press E to join (solo-testable).");
+            "Join (ward-style opt-in): an owner uses Open Join in the Lock menu, then other players press AltPlace+E → Join access.");
 
         _enableGuestPublicToggle = Sync.BindSynced(
             config,
@@ -172,7 +167,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableGuestPublicToggle",
             true,
-            "Permitted players (ward or guest) Alt+E public/private without the key. With EnableDesignate, only on designated pieces. Strangers never can. Not for private chests.");
+            "Ward members and guests get Make public / Make private in the Lock menu. Strangers never do. Not for private chests.");
 
         _enableDesignate = Sync.BindSynced(
             config,
@@ -180,15 +175,16 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableDesignate",
             true,
-            "Key must Enable LockSmith on a piece first (locksmith_managed). After that, permitted Alt+E works without holding the key. Off = key E toggles immediately; no designate gate.");
+            "A ward member must press Enable LockSmith in the Lock menu before a piece gets the other options. Off = every eligible door and chest is LockSmith-ready straight away.");
 
-        _enableKeyMode = Sync.BindSynced(
+        _enableManagedAccess = Sync.BindSynced(
             config,
             SectionFeatures,
             DisplayFeatures,
-            "EnableKeyMode",
+            "EnableManagedAccess",
             true,
-            "Craft and use the LockSmith key to designate pieces and change Team/Join settings.");
+            "Master switch for managed (dynamic) access on placed doors and chests: the Lock menu, public/private, Join and guests, Team chests. Off = LockSmith leaves placed pieces alone (use EnablePieceMode for always-public Hammer pieces). Was EnableKeyMode; the old value carries over.");
+        MigrateRenamedBool(config, SectionFeatures, "EnableKeyMode", _enableManagedAccess);
 
         _enablePieceMode = Sync.BindSynced(
             config,
@@ -204,7 +200,39 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableKeyPasses",
             true,
-            "Key pass clipboard: inventory menu on the Locksmith key (Relabel / grab / pull / clear / clone). Ctrl+C/V world copy-paste follows.");
+            "Copy guests / Paste guests buttons in the Lock menu. Without the key, copied names last for the play session; with the key in hand they are saved on the key and Ctrl+C / Ctrl+V work.");
+
+        _enableKeyExtras = Sync.BindSynced(
+            config,
+            SectionKey,
+            DisplayKey,
+            "EnableKeyExtras",
+            false,
+            "Advanced: extra tools in the key's inventory menu (Shift+Right-click): Relabel, Grab nearby person, Clear names, Clone key. Needs UseKey. Names on a key never grant access by themselves.");
+
+        _useKey = Sync.BindSynced(
+            config,
+            SectionKey,
+            DisplayKey,
+            "UseKey",
+            true,
+            "Advanced mode. The key is a physical item that gives finer control: holding it and pressing E opens the Lock menu, its hover shows guest names, copied guests are saved on the key (Ctrl+C / Ctrl+V), and RequireKeyForSetup / EnableKeyExtras apply. Off = simple mode: the key is never added to the game, hovers stay minimal, and everything goes through AltPlace+E. Restart required; keys already in inventories disappear while it is off.");
+
+        _enableAddNearby = Sync.BindSynced(
+            config,
+            SectionFeatures,
+            DisplayFeatures,
+            "EnableAddNearby",
+            true,
+            "Lock menu button that adds the closest player (within 5m) straight onto the guest list, so owners don't need Join for someone standing right there. Works with or without the key.");
+
+        _requireKeyForSetup = Sync.BindSynced(
+            config,
+            SectionKey,
+            DisplayKey,
+            "RequireKeyForSetup",
+            false,
+            "Advanced: owners must hold the key for Enable LockSmith / Join / Personal-Team / Paste / Remove. Make public/private and Leave still work without it. Needs UseKey. Off (default) = everything works from AltPlace+E.");
 
         _requireActiveWard = Sync.BindSynced(
             config,
@@ -259,8 +287,8 @@ public static class LockSmithConfig
             SectionKey,
             DisplayKey,
             "KeyDescription",
-            "Equip to designate a chest/door. After that, <color=#ffff00><b>Alt+E</b></color> toggles public/private if you have access. Key required for Team / Join setup. <color=#ffff00><b>Shift+Right-click</b></color> the key: Relabel, grab/pull names, clear, or clone.",
-            "Tooltip description for the craftable key. Yellow-tag Alt+E / Shift+Right-click here. Ctrl+C/V stay in interact hints only — do not repeat them here.");
+            LockSmithLocalization.DefaultKeyDescription,
+            "Tooltip description for the craftable key.");
 
         _keyCraftingStation = Sync.BindSynced(
             config,
@@ -286,22 +314,30 @@ public static class LockSmithConfig
             new ConfigDescription(
                 "Local color for [Team] / Guests labels (hex like #FF00FF). Not synced."));
 
-        _clearModifier = config.Bind(
-            SectionDisplay,
-            "ClearModifier",
-            LockSmithModifier.Alt,
-            new ConfigDescription(
-                "Local: with key, this modifier+E clears LockSmith. Default Alt. Do not match SetupModifier (or your Join / AltPlace bind)."));
-
-        _setupModifier = config.Bind(
-            SectionDisplay,
-            "SetupModifier",
-            LockSmithModifier.Shift,
-            new ConfigDescription(
-                "Local: with key, this modifier+E opens/closes Join. Default Shift so it stays clear of Alt+E Clear. Guest Leave / no-key public toggle still use the game AltPlace bind."));
-
         Sync.AddLockingConfigEntry(_lockSyncedConfig);
         Sync.FinalizeBinding(log, ExpectedSyncedEntryCount, () => LockSyncedConfig);
+    }
+
+    /// <summary>Carry a renamed bool's saved value over from its old key (one-time, then drop the orphan).</summary>
+    private static void MigrateRenamedBool(ConfigFile config, string section, string oldKey, ConfigEntry<bool> entry)
+    {
+        try
+        {
+            var orphans = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries")?.GetValue(config)
+                as Dictionary<ConfigDefinition, string>;
+            var old = new ConfigDefinition(section, oldKey);
+            if (orphans == null || !orphans.TryGetValue(old, out var raw))
+                return;
+
+            if (bool.TryParse(raw, out var value))
+                entry.Value = value;
+            orphans.Remove(old);
+            config.Save();
+        }
+        catch (Exception ex)
+        {
+            LockSmith.Log?.LogDebug($"Config migrate {oldKey} skipped: {ex.Message}");
+        }
     }
 
     private static string NormalizeHexColor(string? raw)

@@ -43,7 +43,8 @@ public static class ChestAccessService
     /// </summary>
     public static ItemDrop.ItemData? GetEquippedLocksmithKey(Humanoid? user)
     {
-        if (user == null)
+        // UseKey off: a key in hand is just a prop, so every key path (interact, hover, Ctrl+C/V) stays out.
+        if (user == null || !LockSmithConfig.UseKey)
             return null;
 
         EnsureFields();
@@ -143,105 +144,6 @@ public static class ChestAccessService
                || n.IndexOf("locksmith", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    /// <summary>
-    /// Key in hand path kept for call sites that want a single bool. Prefer Interact prefix
-    /// which always consumes when the key is equipped.
-    /// </summary>
-    public static bool TryHandleChestInteractWithKey(Container container, Humanoid user, bool hold, bool alt)
-    {
-        if (!IsHoldingLocksmithKey(user))
-            return false;
-
-        if (!hold)
-            TryKeyInteract(container, user, alt);
-
-        return true;
-    }
-
-    public static bool TryKeyInteract(Container container, Humanoid user, bool alt)
-    {
-        if (!LockSmithConfig.EnableChests || !LockSmithConfig.EnableKeyMode)
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDisabledToken);
-            return true;
-        }
-
-        if (PublicPieceRegistration.IsPublicPiece(container))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgPublicPrefabToken);
-            return true;
-        }
-
-        if (!PieceAccessState.IsEligibleChest(container))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgWrongTargetToken);
-            return true;
-        }
-
-        var pos = PieceAccessState.GetPosition(container);
-        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
-            return true;
-        }
-
-        if (PieceClearService.TryHandleKeyClear(container, user))
-            return true;
-
-        if (LockSmithInput.IsSetupModifierHeld())
-            return PieceGuestService.TryHandleKeyAlt(container, user);
-
-        return TryToggleChest(container, user);
-    }
-
-    public static bool TryToggleChest(Container container, Humanoid user)
-    {
-        var player = user as Player;
-        if (player == null)
-            return true;
-
-        var playerId = player.GetPlayerID();
-        var pos = PieceAccessState.GetPosition(container);
-
-        if (!WardAccess.HasLocalWardAccess(pos))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDeniedToken);
-            return true;
-        }
-
-        var nview = PieceAccessState.GetNetView(container);
-        if (nview == null || !nview.IsValid())
-            return true;
-
-        // First key use designates the piece; later uses toggle public/private.
-        if (PieceAccessState.NeedsDesignate(nview))
-        {
-            RequestSetPublic(nview, PieceAccessState.IsPublic(nview), playerId);
-            AccessFeedback.Show(user, LockSmithLocalization.MsgManagedToken);
-            return true;
-        }
-
-        var nextPublic = !PieceAccessState.IsPublic(nview);
-        RequestSetPublic(nview, nextPublic, playerId);
-
-        if (nview.IsOwner())
-        {
-            var applied = PieceAccessState.IsPublic(nview);
-            if (applied != nextPublic)
-            {
-                LockSmith.Log?.LogWarning(
-                    $"LockSmith public flag did not stick on {container.name} (wanted {nextPublic}, got {applied}).");
-                AccessFeedback.Show(user, LockSmithLocalization.MsgDeniedToken);
-                return true;
-            }
-        }
-
-        AccessFeedback.Show(
-            user,
-            nextPublic ? LockSmithLocalization.MsgNowPublicToken : LockSmithLocalization.MsgNowPrivateToken);
-        return true;
-    }
-
     public static void RequestSetPublic(ZNetView nview, bool isPublic, long playerId)
     {
         PieceRpc.Request(
@@ -307,7 +209,7 @@ public static class ChestAccessService
 
         if (guestToggle)
             allowed = true;
-        else if (!LockSmithConfig.EnableKeyMode)
+        else if (!LockSmithConfig.EnableManagedAccess)
             return;
 
         if (!allowed)
@@ -332,7 +234,7 @@ public static class ChestAccessService
     {
         hoverText = string.Empty;
 
-        if (!LockSmithConfig.EnableChests || !LockSmithConfig.EnableKeyMode)
+        if (!LockSmithConfig.EnableChests || !LockSmithConfig.EnableManagedAccess)
             return false;
 
         if (!IsHoldingLocksmithKey(Player.m_localPlayer))
@@ -358,7 +260,6 @@ public static class ChestAccessService
         var isPublic = PieceAccessState.IsPublic(nview);
         var status = LockSmithLocalization.T(
             isPublic ? LockSmithLocalization.PiecePublicToken : LockSmithLocalization.PiecePrivateToken);
-        var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
 
         var sb = new StringBuilder();
         sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
@@ -376,22 +277,14 @@ public static class ChestAccessService
 
         if (WardAccess.HasLocalWardAccess(pos))
         {
-            if (!managed)
-            {
-                sb.Append('\n').Append(useKey).Append(' ')
-                    .Append(LockSmithLocalization.T(LockSmithLocalization.HoverDesignateToken));
-            }
-            else
-            {
-                var action = LockSmithLocalization.T(
-                    isPublic
-                        ? LockSmithLocalization.HoverMakePrivateToken
-                        : LockSmithLocalization.HoverMakePublicToken);
-                sb.Append('\n').Append(useKey).Append(' ').Append(action);
+            if (managed)
                 PieceGuestService.AppendKeyHoverExtras(sb, container);
-            }
-
-            PieceClearService.AppendClearHover(sb, nview);
+            sb.Append('\n').Append(AccessHoverDisplay.MenuHint(withKey: true));
+        }
+        else if (PieceAccessMenu.HasNoKeyMenu(container))
+        {
+            // Not on the ward but Join is open / already a guest: the menu has something for them.
+            sb.Append('\n').Append(AccessHoverDisplay.MenuHint(withKey: true));
         }
         else
         {

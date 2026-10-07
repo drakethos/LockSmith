@@ -177,13 +177,16 @@ public static class PieceRpc
         }
 
         // A player's character ZDO is owned by that player's peer.
+        // GetComponent, not Character.m_nview: that field is protected in the live game
+        // (FieldAccessException there; the publicized build refs hide it).
         foreach (var p in Player.GetAllPlayers())
         {
-            if (p == null || p.m_nview == null || !p.m_nview.IsValid())
+            var view = p != null ? p.GetComponent<ZNetView>() : null;
+            if (view == null || !view.IsValid())
                 continue;
 
-            if (p.m_nview.GetZDO().GetOwner() == sender)
-                return p.GetPlayerID();
+            if (view.GetZDO().GetOwner() == sender)
+                return p!.GetPlayerID();
         }
 
         return 0L;

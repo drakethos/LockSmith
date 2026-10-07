@@ -162,6 +162,7 @@ public static class PublicPieceRegistration
         foreach (var name in allow)
             donors.Add(name);
 
+        var buildable = CollectBuildablePrefabNames();
         var count = 0;
         foreach (var donorName in donors)
         {
@@ -172,7 +173,15 @@ public static class PublicPieceRegistration
             if (AttemptedDonors.Contains(donorName))
                 continue;
 
-            var result = TryRegisterClone(donorName, forceAllow: allow.Contains(donorName));
+            var forceAllow = allow.Contains(donorName);
+
+            // Only pieces a player can actually build. World-spawned chests/doors (dungeon, treasure,
+            // Dvergr town) have a Piece too but sit in no build tool. Not "skipped": a mod may add
+            // its piece to a table later, so later passes look again.
+            if (!forceAllow && !buildable.Contains(donorName))
+                continue;
+
+            var result = TryRegisterClone(donorName, forceAllow);
             if (result == RegisterResult.Missing)
                 continue; // retry on deferred passes
 
@@ -182,6 +191,34 @@ public static class PublicPieceRegistration
         }
 
         return count;
+    }
+
+    /// <summary>Prefab names placeable from any build tool's piece table (hammer, cultivator, mod tools).</summary>
+    private static HashSet<string> CollectBuildablePrefabNames()
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        PieceTable[] tables;
+        try
+        {
+            tables = Resources.FindObjectsOfTypeAll<PieceTable>();
+        }
+        catch
+        {
+            return names;
+        }
+
+        foreach (var table in tables)
+        {
+            if (table == null || table.m_pieces == null)
+                continue;
+            foreach (var go in table.m_pieces)
+            {
+                if (go)
+                    names.Add(Utils.GetPrefabName(go));
+            }
+        }
+
+        return names;
     }
 
     private enum RegisterResult
@@ -653,7 +690,6 @@ public static class PublicPieceRegistration
         yield return "wood_door";
         yield return "wood_gate";
         yield return "darkwood_gate";
-        yield return "dvergrtown_wood_door";
     }
 
     private static GameObject? FindLoadedPrefab(string donorName)

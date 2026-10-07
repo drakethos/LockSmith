@@ -1,5 +1,6 @@
 using LockSmith.Access;
 using HarmonyLib;
+using LockSmith.UI;
 
 namespace LockSmith.Patches;
 
@@ -29,7 +30,7 @@ public static class DoorAccessPatches
     }
 
     /// <summary>
-    /// Prefix hijack: key in hand → never run vanilla open. Toggle public/private instead.
+    /// Prefix hijack: key in hand → Lock menu, never vanilla open.
     /// </summary>
     [HarmonyPrefix]
     [HarmonyPatch(GameHookTargets.DoorInteract)]
@@ -51,27 +52,7 @@ public static class DoorAccessPatches
                 try
                 {
                     if (!hold)
-                    {
-                        if (PieceGuestService.TryHandleGuestKeyLeave(__instance, character))
-                        {
-                            __result = true;
-                            return false;
-                        }
-
-                        if (PieceGuestService.ShouldGuestKeyFallThroughOpen(__instance, character))
-                        {
-                            if (DoorAccessService.ShouldBypassWardCheck(__instance)
-                                && __instance.m_checkGuardStone)
-                            {
-                                __instance.m_checkGuardStone = false;
-                                __state = true;
-                            }
-
-                            return true;
-                        }
-
-                        DoorAccessService.TryKeyInteract(__instance, character, alt);
-                    }
+                        PieceAccessMenu.TryOpenWithKey(__instance, character);
 
                     __result = true;
                     return false;
@@ -79,12 +60,12 @@ public static class DoorAccessPatches
                 catch (System.Exception ex)
                 {
                     // Never swallow Use while broken — let vanilla run so place/open aren't soft-locked.
-                    LockSmith.Log?.LogError($"LockSmith door toggle failed: {ex}");
+                    LockSmith.Log?.LogError($"LockSmith door key interact failed: {ex}");
                     return true;
                 }
             }
 
-            if (PieceGuestService.TryHandleGuestPublicToggle(__instance, character, hold, alt))
+            if (alt && !hold && PieceAccessMenu.TryOpenNoKey(__instance, character))
             {
                 __result = true;
                 return false;
@@ -210,20 +191,10 @@ public static class DoorAccessPatches
             if (!string.IsNullOrEmpty(suffix))
                 __result += suffix;
 
-            if (!LockSmithConfig.EnableOptInAccess)
-                return;
-
-            var nview = PieceAccessState.GetNetView(__instance);
-            if (!PieceGuestAccess.IsOptInReady(nview))
-                return;
-
-            var local = Player.m_localPlayer;
-            if (local == null || PieceGuestAccess.IsGuest(nview, local.GetPlayerID()))
-                return;
-
-            var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
-            __result += "\n" + useKey + " "
-                        + LockSmithLocalization.T(LockSmithLocalization.HoverJoinAccessToken);
+            // Vanilla hover: Join / Lock menu hint only for players with options (strangers see nothing).
+            var hint = PieceAccessMenu.NoKeyHint(__instance);
+            if (hint.Length > 0)
+                __result += "\n" + hint;
         }
         catch (System.Exception ex)
         {

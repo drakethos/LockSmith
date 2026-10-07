@@ -100,11 +100,13 @@ Ordered loosely by interest; any can jump a version if a plan pulls it in.
 - Collectable Halvar chests that become **real placeable containers** after unlock (incl. servers/alts where Halvar isn’t around).  
 - Separate content spike; amazing if clean, not required for 0.3/0.4.
 
-### Access setup menu (UI)
+### Access setup menu (UI) — **in progress (Unreleased)**
 
-- Current Join / Alt+E / key flows are a **good start**.  
-- **Later:** a proper Valheim-native panel to configure piece access (guests, public/private, Join) without memorizing keybinds.  
-- Keep the hotkey path for power users.
+- Tester feedback: Public/Private and Join are loved, but the key combos and long double-press warnings were too much for less tech-savvy players.
+- **Lock menu:** key + E (or AltPlace+E without the key) opens one panel with only the usable buttons. Yes/No dialogs replace the double-press warnings. Ctrl+C/V stay as power-user shortcuts.
+- Key extras (Relabel / Grab / Clone) are behind `EnableKeyExtras`, off by default.
+- **Later:** remove a single guest from the menu (pick a name, then Yes/No).
+- Considered and parked: an "Apply guests to whole ward" button, named access lists (doors subscribe to "Crew"), and a paper access-list item.
 
 ### Clone access onto a reusable key (physical pass) — **shipped in 0.3.9**
 

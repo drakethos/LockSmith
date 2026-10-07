@@ -5,123 +5,10 @@ using UnityEngine;
 namespace LockSmith.Access;
 
 /// <summary>
-/// Key + configurable modifier+E removes LockSmith from a piece (back to vanilla).
-/// If guests exist, first press warns; second press within a few seconds confirms.
+/// Removes LockSmith from a piece (back to vanilla). The Lock menu asks Yes/No first.
 /// </summary>
 public static class PieceClearService
 {
-    private static ZDOID _pendingClearId = ZDOID.None;
-    private static float _pendingClearUntil;
-
-    private const float ConfirmWindowSeconds = 5f;
-
-    public static bool TryHandleKeyClear(Container container, Humanoid user)
-    {
-        if (!LockSmithInput.IsClearModifierHeld() || container == null)
-            return false;
-
-        if (PublicPieceRegistration.IsPublicPiece(container))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgPublicPrefabToken);
-            return true;
-        }
-
-        if (!LockSmithConfig.EnableKeyMode)
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDisabledToken);
-            return true;
-        }
-
-        var nview = PieceAccessState.GetNetView(container);
-        if (nview == null || !nview.IsValid())
-            return true;
-
-        if (!HasLockSmithData(nview))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgNothingToClearToken);
-            return true;
-        }
-
-        var pos = PieceAccessState.GetPosition(container);
-        if (!WardAccess.AllowsToolOnPiece(pos, GroupAccessState.IsPrivateFamilyChest(container)))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
-            return true;
-        }
-
-        var player = user as Player;
-        if (player == null)
-            return true;
-
-        var playerId = player.GetPlayerID();
-        if (!CanClear(container, playerId))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDeniedToken);
-            return true;
-        }
-
-        return TryConfirmOrClear(nview, user, playerId);
-    }
-
-    public static bool TryHandleKeyClear(Door door, Humanoid user)
-    {
-        if (!LockSmithInput.IsClearModifierHeld() || door == null)
-            return false;
-
-        if (PublicPieceRegistration.IsPublicPiece(door))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgPublicPrefabToken);
-            return true;
-        }
-
-        if (!LockSmithConfig.EnableKeyMode)
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDisabledToken);
-            return true;
-        }
-
-        var nview = PieceAccessState.GetNetView(door);
-        if (nview == null || !nview.IsValid())
-            return true;
-
-        if (!HasLockSmithData(nview))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgNothingToClearToken);
-            return true;
-        }
-
-        var pos = PieceAccessState.GetPosition(door);
-        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgNeedActiveWardToken);
-            return true;
-        }
-
-        var player = user as Player;
-        if (player == null)
-            return true;
-
-        var playerId = player.GetPlayerID();
-        if (!CanClear(door, playerId))
-        {
-            AccessFeedback.Show(user, LockSmithLocalization.MsgDeniedToken);
-            return true;
-        }
-
-        return TryConfirmOrClear(nview, user, playerId);
-    }
-
-    public static void AppendClearHover(StringBuilder sb, ZNetView? nview)
-    {
-        if (sb == null || nview == null || !nview.IsValid() || !HasLockSmithData(nview))
-            return;
-
-        sb.Append('\n')
-            .Append(Localization.instance.Localize(LockSmithInput.FormatModifierUse(LockSmithConfig.ClearModifier)))
-            .Append(' ')
-            .Append(LockSmithLocalization.T(LockSmithLocalization.HoverClearLockSmithToken));
-    }
-
     public static void RegisterRpc(ZNetView? nview)
     {
         if (nview == null || !nview.IsValid())
@@ -130,6 +17,8 @@ public static class PieceClearService
         var zdo = nview.GetZDO();
         if (zdo == null)
             return;
+
+        PieceMenuLock.RegisterRpcs(nview);
 
         nview.Unregister(GameHookTargets.RpcClearLockSmith);
         nview.Register<long>(GameHookTargets.RpcClearLockSmith, (long sender, long playerId) =>
@@ -199,43 +88,6 @@ public static class PieceClearService
         if (PieceGuestAccess.IsOptInReady(nview))
             return true;
         return PieceGuestAccess.GetGuests(nview).Count > 0;
-    }
-
-    private static bool TryConfirmOrClear(ZNetView nview, Humanoid user, long playerId)
-    {
-        var zdo = nview.GetZDO();
-        if (zdo == null)
-            return true;
-
-        var guestCount = PieceGuestAccess.GetGuests(nview).Count;
-        var id = zdo.m_uid;
-
-        if (guestCount > 0)
-        {
-            if (_pendingClearId == id && Time.time <= _pendingClearUntil)
-            {
-                _pendingClearId = ZDOID.None;
-                _pendingClearUntil = 0f;
-                RequestClear(nview, playerId);
-                AccessFeedback.Show(user, LockSmithLocalization.MsgClearedToken);
-                return true;
-            }
-
-            _pendingClearId = id;
-            _pendingClearUntil = Time.time + ConfirmWindowSeconds;
-            var mod = LockSmithInput.ModifierLabel(LockSmithConfig.ClearModifier);
-            AccessFeedback.ShowRaw(
-                user,
-                string.Format(
-                    LockSmithLocalization.T(LockSmithLocalization.MsgClearConfirmToken),
-                    mod));
-            return true;
-        }
-
-        _pendingClearId = ZDOID.None;
-        RequestClear(nview, playerId);
-        AccessFeedback.Show(user, LockSmithLocalization.MsgClearedToken);
-        return true;
     }
 
     private static bool CanClear(Container container, long playerId)

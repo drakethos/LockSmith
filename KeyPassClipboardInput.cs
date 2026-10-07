@@ -12,11 +12,11 @@ public static class KeyPassClipboardInput
 {
     public static void Tick(Player player)
     {
-        if (!LockSmithConfig.EnableKeyPasses || !LockSmithConfig.EnableKeyMode)
+        if (!LockSmithConfig.EnableKeyPasses || !LockSmithConfig.EnableManagedAccess)
             return;
         if (!player || player != Player.m_localPlayer)
             return;
-        if (KeyPassMenu.IsOpen)
+        if (KeyPassMenu.IsOpen || PieceAccessMenu.IsOpen)
             return;
         if (IsTextUiBlocking())
             return;
