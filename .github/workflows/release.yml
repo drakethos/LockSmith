@@ -224,6 +224,8 @@ jobs:
           body: |
             ## LockSmith v${{ steps.ver.outputs.version }}
 
+            > **DrakeMods is moving to Hexium.** 0.5.0 is the final LockSmith release on Thunderstore. Future updates: [DrakeMods on Hexium](https://valheim.hexium.gg/?q=DrakeMods).
+
             Thunderstore zip attached. CI also publishes to **Thunderstore** then **Hexium**.
 
             ### Install

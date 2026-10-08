@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0
+
+**Final Thunderstore release.** DrakeMods is moving to [Hexium](https://valheim.hexium.gg/?q=DrakeMods): future LockSmith updates are posted there, and this Thunderstore listing gets only limited support and will be deprecated. Requires **DrakeModsLibs 0.10.0+**.
+
+Stable cut of the 0.5.0 betas (see below):
+
+- **One Lock menu, no key needed.** AltPlace+E (Shift+E by default) on a chest or door opens a menu with every option you have access to, replacing the old key combos and "press again" warnings with buttons and Yes/No popups.
+- **Join is a menu button**, plus **Add nearby player**, Copy/Paste guests, and Leave access.
+- **One player in the Lock menu at a time** per door/chest, to stop conflicting multiplayer changes.
+- **The Locksmith key is temporarily removed** while it's rebuilt; LockSmith runs in simple mode.
+- Fix: ProtectiveWards ward checks no longer fail in game.
+
 ## 0.5.0-beta.2
 
 Hexium beta. Requires **DrakeModsLibs 0.10.0+** (0.5.0-beta.1 calls the old `ArtItemLoader`, which Libs 0.10.0 removed, so update both together).
