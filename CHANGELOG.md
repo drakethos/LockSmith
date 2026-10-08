@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased (version not set yet)
+## 0.5.0-beta.2
+
+Hexium beta. Requires **DrakeModsLibs 0.10.0+** (0.5.0-beta.1 calls the old `ArtItemLoader`, which Libs 0.10.0 removed, so update both together).
 
 - **The Locksmith key is temporarily removed** while it's rebuilt with Drakes Asset Forge. LockSmith always runs in simple mode (AltPlace+E); the `UseKey` setting is kept so synced configs line up, but has no effect for now. Keys already in inventories disappear until it returns.
 - No longer uses DrakeModsLibs' old `ArtItemLoader` (removed in Libs 0.10.0), and the key art (`keys.bundle`, `masterkey*`) is no longer packaged.
+- Fix: with ProtectiveWards installed, ward access checks called Valheim's private `PrivateArea.IsPermitted` directly, which fails in the real game; it's now called by reflection.
 
 ## 0.5.0-beta.1
 

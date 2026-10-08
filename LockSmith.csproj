@@ -139,7 +139,7 @@
     <Error Condition="!Exists('packages\JotunnLib.2.30.0\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JotunnLib.2.30.0\build\JotunnLib.props'))" />
   </Target>
   <Target Name="CopyArtItemsToOutput" AfterTargets="Build">
-    <MakeDir Directories="$(TargetDir)Assets\Items\keys" />
+    <MakeDir Directories="$(TargetDir)Assets\Items\keys" Condition="'$(ShipKeyArt)' == 'true'" />
     <Copy SourceFiles="@(ArtItemKeys)"
           DestinationFolder="$(TargetDir)Assets\Items\keys"
           SkipUnchangedFiles="true"
@@ -150,7 +150,7 @@
           Condition="'$(ShipKeyArt)' == 'true' and Exists('Assets\masterkey_icon.png')" />
   </Target>
   <Target Name="PackageMod" AfterTargets="CopyArtItemsToOutput" DependsOnTargets="ResolveThunderstorePaths;WriteThunderstoreManifest" Condition="'$(SkipPackageMod)' != 'true'">
-    <MakeDir Directories="$(ThunderstoreFolder)\Assets\Items\keys" />
+    <MakeDir Directories="$(ThunderstoreFolder)\Assets\Items\keys" Condition="'$(ShipKeyArt)' == 'true'" />
     <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="$(ThunderstoreFolder)" />
     <Copy SourceFiles="$(TargetDir)README.md" DestinationFiles="$(ThunderstoreFolder)\README.md" Condition="Exists('$(TargetDir)README.md')" />
     <Copy SourceFiles="$(TargetDir)CHANGELOG.md" DestinationFiles="$(ThunderstoreFolder)\CHANGELOG.md" Condition="Exists('$(TargetDir)CHANGELOG.md')" />

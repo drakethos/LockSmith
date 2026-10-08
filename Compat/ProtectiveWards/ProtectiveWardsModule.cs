@@ -32,6 +32,9 @@ internal sealed class ProtectiveWardsModule : IWardCompatModule
     private bool _typesOk;
     private bool _patchesApplied;
 
+    /// <summary>PrivateArea.IsPermitted is private in the real game; a direct call compiles against stubs but throws.</summary>
+    private static readonly MethodInfo? IsPermittedMethod = AccessTools.Method(typeof(PrivateArea), "IsPermitted", new[] { typeof(long) });
+
     private static MethodInfo? _pwDoorBlock;
     private static MethodInfo? _pwContainerBlock;
     private static bool _loggedDoorAllow;
@@ -136,7 +139,7 @@ internal sealed class ProtectiveWardsModule : IWardCompatModule
             }
 
             // Direct permitted / creator via vanilla when connected-mode invoke failed.
-            if (area.IsPermitted(playerId))
+            if (IsPermittedMethod?.Invoke(area, new object[] { playerId }) is true)
                 return WardCoverageKind.Allowed;
 
             var piece = area.GetComponent<Piece>();
