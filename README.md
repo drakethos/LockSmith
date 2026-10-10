@@ -37,7 +37,7 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
-**0.6.0-beta.1** — Hexium beta. Key removed; Shift+E Lock menu only; nearby players by name for owners. Requires DrakeModsLibs **0.10.0+**.
+**0.6.0-beta.1** — Hexium beta. New Lock window with Piece / Ward / Groups tabs, a hold-Shift+E wheel, per-person permissions, saved groups, copy and paste, key removed. Requires DrakeModsLibs **1.0.0-beta.1**.
 
 **0.5.0** — **Final Thunderstore release** (updates continue on [Hexium](https://valheim.hexium.gg/?q=DrakeMods)). One Lock menu (Shift+E) instead of key combos, no key needed, one player in the menu at a time, Join as a menu button, Add nearby player, Yes/No popups. The Locksmith key is removed; the Lock menu replaces it. Requires DrakeModsLibs **0.10.0+**.
 
@@ -57,27 +57,27 @@ BepInEx/plugins/DrakeMods-LockSmith/
 > No access? You won't see it, and Shift+E does the normal thing.
 > If a door or chest shows **[Join open]**, press **Shift+E** → **Join access**. Plain E always does the normal open.
 
-### The Lock menu
+### The Lock window
 
-The menu shows what's going on (Public / Private, Join open, guest names) and only the buttons you can use right now:
+Shift+E opens one window with sub-tabs. **Hold** Shift+E for the wheel instead (see below).
 
-| Button | Who |
-| --- | --- |
-| Join access | Anyone, while the piece shows [Join open] |
-| Enable LockSmith | Ward member, first time on a piece |
-| Make public / Make private | Ward member, or a guest on that piece |
-| Make personal / Make team | Private-chest owner (`EnablePersonalPause`) |
-| Open Join / Close Join | Ward member, or private-chest owner |
-| Add *name* (nearby player) | Ward member or owner, if `EnableAddNearby` is on |
-| Leave access | Guest on that piece |
-| Remove LockSmith… | Ward member, or private-chest owner |
+| Tab | What it does | Who sees it |
+| --- | --- | --- |
+| **Piece** | Public and Join switches, everyone on the piece as a chip (click a name for what they can do, × removes them), nearby players with an Add button, Copy / Paste people, Leave access, Remove LockSmith | Anyone with access; the controls you get depend on your role |
+| **Ward** | Ward on/off, who may switch it, people on the ward with their role, remove one person | Only while you stand in a ward you have a role in |
+| **Groups** | Saved groups: add one to this chest or door (online or not), add people to it, save the people here or nearby, set what the group's people may do | Ward members and the owner |
 
+The cog in the header holds settings for this device only (nearby list on/off, wheel on/off).
 
-### Sharing a door or chest with someone
+**People and permissions.** A plain guest can open and use the piece and leave it. Click a person's name to also let them *let others on* (add people, open Join, add nearby players) and/or *switch public / private*. A group carries the same two settings and hands them out when you add it.
 
-1. **Shift+E** on the door → **Enable LockSmith** → **Open Join**.
-2. Your friend walks up and presses **Shift+E** → **Join access**. They're on the guest list and can now open it without being on your ward. (Or, if they're standing next to you, use **Add *name*** in your menu.)
-3. Back in the menu → **Close Join** when everyone's in.
+**The wheel.** Hold Shift+E (about a quarter of a second) on a chest or door. Aim the mouse at a slice and let go of E to choose it: Join, Public/Private, Ward, people on the piece, Menu. Let go in the middle to cancel. A quick tap opens the window.
+
+**Copy and paste.** Copy the people on one piece and paste them onto another, from the Piece tab or with Ctrl+C / Ctrl+V while looking at a piece you manage. The clipboard lasts for the play session.
+
+**Groups file.** `config/LockSmith/groups.txt`, one group per line: `squad (add, toggle): Mira=7231, Tovald=881`. The names after `=` are player ids, which is what lets you add people who are offline. Edit it by hand if you like.
+
+**Ward off.** If a ward is switched off, the menu still opens with just the switch to turn it back on. A guest switching the ward off blocks Join until a team member or the owner turns it on again.
 
 ### One at a time
 

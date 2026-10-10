@@ -77,7 +77,7 @@ public static class ContainerAccessPatches
             GroupAccessState.SyncPrivacyFromZdo(__instance);
 
             // AltPlace+E opens the Lock menu when this player has something to do here.
-            if (alt && !hold && PieceAccessMenu.TryOpenLockMenu(__instance, character))
+            if (alt && !hold && LockWheel.TryBegin(__instance, character))
             {
                 __result = true;
                 return false;

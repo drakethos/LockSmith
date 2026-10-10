@@ -61,6 +61,8 @@ namespace LockSmith
             {
                 PieceMenuLock.Tick();
                 UI.PieceAccessMenu.Tick();
+                UI.LockWheel.Tick();
+                UI.ClipboardKeys.Tick();
             }
             catch (Exception ex)
             {

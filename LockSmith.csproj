@@ -82,6 +82,12 @@
     <Compile Include="Access\PieceRpc.cs" />
     <Compile Include="Access\PublicPieceRegistration.cs" />
     <Compile Include="Access\WardAccess.cs" />
+    <Compile Include="Access\WardService.cs" />
+    <Compile Include="Access\PrivateAreaAccess.cs" />
+    <Compile Include="Access\GroupStore.cs" />
+    <Compile Include="Access\GuestClipboard.cs" />
+    <Compile Include="Access\GuestPerms.cs" />
+    <Compile Include="Patches\PrivateAreaPatches.cs" />
     <Compile Include="API\LockSmithCompatApi.cs" />
     <Compile Include="Compat\CompatibilityManager.cs" />
     <Compile Include="Compat\IWardCompatModule.cs" />
@@ -100,6 +106,10 @@
     <Compile Include="Patches\GameHookTargets.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\AccessFeedback.cs" />
+    <Compile Include="UI\ClipboardKeys.cs" />
+    <Compile Include="UI\LockMenuView.cs" />
+    <Compile Include="UI\LockWheel.cs" />
+    <Compile Include="UI\LockSections.cs" />
     <Compile Include="UI\PieceAccessMenu.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -140,5 +150,14 @@
     <Delete Files="$(_R2Art)\Assets\drake.manifest" Condition="'$(_R2Art)' != '' and Exists('$(_R2Art)\Assets\drake.manifest')" />
     <Delete Files="$(_GaleArt)\Assets\drake" Condition="'$(_GaleArt)' != '' and Exists('$(_GaleArt)\Assets\drake')" />
     <Delete Files="$(_GaleArt)\Assets\drake.manifest" Condition="'$(_GaleArt)' != '' and Exists('$(_GaleArt)\Assets\drake.manifest')" />
+  </Target>
+  <!-- Test deploy: copy the built DLL into the Gale drakeTest profile (overwrites, no backups). -->
+  <Target Name="DeployToGaleDrakeTest" AfterTargets="Build" Condition="'$(GaleModPath)' != '' and '$(ProfileName)' != '' and '$(SkipGaleDeploy)' != 'true'">
+    <PropertyGroup>
+      <_GaleLockSmithDir>$(GaleModPath)\$(ProfileName)\BepInEx\plugins\DrakeMods-LockSmith</_GaleLockSmithDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_GaleLockSmithDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_GaleLockSmithDir)" SkipUnchangedFiles="false" />
+    <Message Importance="high" Text="Deployed LockSmith -&gt; $(_GaleLockSmithDir)" />
   </Target>
 </Project>

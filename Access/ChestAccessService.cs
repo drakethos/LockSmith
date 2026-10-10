@@ -89,7 +89,7 @@ public static class ChestAccessService
 
         // Guests (or other permitted without ward) may unlock/lock on designated pieces.
         var guestToggle = !allowed
-            && LockSmithConfig.EnableGuestPublicToggle
+            && GuestPerms.HasPerm(nview, playerId, GuestPerm.Toggle)
             && LockSmithConfig.EnablePieceGuests
             && PieceAccessState.IsManaged(nview)
             && PieceGuestAccess.IsGuest(nview, playerId);

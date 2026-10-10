@@ -2,12 +2,17 @@
 
 ## 0.6.0-beta.1
 
-Hexium beta (no Thunderstore release). The Locksmith key is gone; the Lock menu is the only tool.
+Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.1** (the new UI Toolkit). The Locksmith key is gone; the Lock menu is the only tool.
 
-- **Key removed.** Key items, key assets, key recipe, key passes (Ctrl+C/V, copy/paste buttons) and the key settings (`UseKey`, `RequireKeyForSetup`, `EnableKeyPasses`, `EnableKeyExtras`, key name/description/recipe) are deleted. Old config values for them are simply ignored. `EnableKeyMode` still migrates into `EnableManagedAccess`.
-- **Shift+E only** (AltPlace+E): opens the Lock menu for anyone with access. Plain E is vanilla.
-- **Nearby players by name** for the owner, via `Access/NearbyPlayers.cs` (5m, `EnableAddNearby`).
-- **Hover and access helpers renamed** from "no key" to "Lock menu" names. No behaviour change on the Lock menu itself.
+- **New Lock window**, built on the same look as the other DrakeMods: header with a cog (per-device settings), sub-tabs **Piece / Ward / Groups**, Public and Join as switches, a chip for everyone on the piece, nearby players with an Add button, and inline "are you sure?" instead of popups.
+- **Wheel.** Hold Shift+E (AltPlace + E) on a chest or door: Join, Public/Private, Ward, people on the piece and Menu. Aim the mouse, let go of E to choose; let go in the middle to cancel. A quick tap still opens the window. Turn it off in the cog.
+- **Per-person permissions.** Click a name: a plain guest can only use the piece; you can allow **Let others on** (add people, open Join, add nearby) and/or **Switch public / private**. Groups carry the same two settings and grant them when added.
+- **Groups.** Named groups saved on your computer in `config/LockSmith/groups.txt`, with player ids, so you can add a whole group to a chest or door even when they're offline. Save the people on a piece or nearby, add to an existing group, delete.
+- **Copy and paste people** between pieces: buttons on the Piece tab, and Ctrl+C / Ctrl+V while looking at a piece you manage.
+- **Remove one person** from a piece (or the ward) at a time.
+- **Ward tab** (only inside a ward): switch the ward on/off, choose who may switch it (owner, owner and team, everyone), set people as team or guest, and give named people the right to remove people below their level. A guest who switches the ward off blocks Join until a team member or the owner turns it back on. If the ward is off, the menu still opens with just the switch to turn it back on.
+- **Key removed.** Key items, art, recipe, key passes and the key settings (`UseKey`, `RequireKeyForSetup`, `EnableKeyPasses`, `EnableKeyExtras`, key name/description/recipe) are gone. Old values are ignored. `EnableKeyMode` still migrates into `EnableManagedAccess`.
+- **Fixes:** the ward code reads private game members through reflection (it would otherwise break the menu), and the synced-entry check matches the new settings.
 
 ## 0.5.0
 

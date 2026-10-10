@@ -47,7 +47,7 @@ public static class DoorAccessPatches
         {
             PieceAccessState.SyncGuardStoneFromZdo(__instance);
 
-            if (alt && !hold && PieceAccessMenu.TryOpenLockMenu(__instance, character))
+            if (alt && !hold && LockWheel.TryBegin(__instance, character))
             {
                 __result = true;
                 return false;

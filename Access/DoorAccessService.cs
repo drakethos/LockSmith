@@ -81,7 +81,7 @@ public static class DoorAccessService
             : WardAccess.HasWardAccessForPlayer(pos, playerId);
 
         var guestToggle = !allowed
-            && LockSmithConfig.EnableGuestPublicToggle
+            && GuestPerms.HasPerm(nview, playerId, GuestPerm.Toggle)
             && LockSmithConfig.EnablePieceGuests
             && PieceAccessState.IsManaged(nview)
             && PieceGuestAccess.IsGuest(nview, playerId);

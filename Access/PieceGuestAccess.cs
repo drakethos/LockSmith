@@ -234,6 +234,8 @@ public static class PieceGuestAccess
 
         var guests = GetGuests(nview);
         var removed = guests.RemoveAll(g => g.PlayerId == playerId) > 0;
+        if (removed)
+            GuestPerms.Clear(nview, playerId);
         if (!removed)
             return false;
 
@@ -298,6 +300,14 @@ public static class PieceGuestAccess
         nview.Unregister(GameHookTargets.RpcOptInSelf);
         nview.Unregister(GameHookTargets.RpcOptOutSelf);
         nview.Unregister(GameHookTargets.RpcMergeGuests);
+        nview.Unregister(GameHookTargets.RpcRemoveGuest);
+        GuestPerms.RegisterRpc(nview);
+
+        nview.Register<long, long>(GameHookTargets.RpcRemoveGuest, (long sender, long targetId, long playerId) =>
+        {
+            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcRemoveGuest, sender, playerId))
+                ApplyRemoveGuest(nview, targetId, playerId);
+        });
 
         nview.Register<int, long>(GameHookTargets.RpcSetOptInReady, (long sender, int flag, long playerId) =>
         {
@@ -371,7 +381,7 @@ public static class PieceGuestAccess
         if (nview == null || !nview.IsValid() || !nview.IsOwner())
             return;
 
-        if (playerId == 0L || !CanManageOptIn(nview, playerId))
+        if (playerId == 0L || !GuestPerms.CanAdd(nview, playerId))
         {
             LockSmith.Log?.LogWarning($"Rejected guest merge for player {playerId} on {nview.name}.");
             return;
@@ -467,12 +477,23 @@ public static class PieceGuestAccess
             return false;
 
         nextReady = !IsOptInReady(nview);
+        if (nextReady && WardService.JoinBlockedHere(nview.transform.position))
+        {
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "A guest turned the ward off. Join stays closed until a team member turns it on.");
+            return false;
+        }
         RequestSetOptIn(nview, nextReady, playerId);
         return true;
     }
 
     public static void RequestOptInSelf(ZNetView nview, long playerId, string playerName)
     {
+        if (nview != null && nview.IsValid() && WardService.JoinBlockedHere(nview.transform.position))
+        {
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "A guest turned the ward off. Join stays closed until a team member turns it on.");
+            return;
+        }
+
         PieceRpc.Request(
             nview,
             GameHookTargets.RpcOptInSelf,
@@ -506,7 +527,7 @@ public static class PieceGuestAccess
         if (!LockSmithConfig.EnableOptInAccess || playerId == 0L)
             return;
 
-        if (!CanManageOptIn(nview, playerId))
+        if (!GuestPerms.CanAdd(nview, playerId))
         {
             LockSmith.Log?.LogWarning($"Rejected opt-in toggle for player {playerId} on {nview.name}.");
             return;
@@ -572,6 +593,37 @@ public static class PieceGuestAccess
         {
             LockSmith.Log?.LogInfo(
                 $"Opt-out: removed player {playerId} from {nview.name} (guests={GetGuests(nview).Count}).");
+        }
+    }
+
+    /// <summary>Remove one named guest. Ward members and the owner only (see <see cref="CanManageGuests"/>).</summary>
+    public static void RequestRemoveGuest(ZNetView nview, long targetId, long playerId, Action? onConfirmed = null)
+    {
+        if (nview == null || !nview.IsValid() || targetId == 0L)
+            return;
+
+        PieceRpc.Request(
+            nview,
+            GameHookTargets.RpcRemoveGuest,
+            new object[] { targetId, playerId },
+            view => ApplyRemoveGuest(view, targetId, playerId),
+            view => !IsGuest(view, targetId),
+            onConfirmed,
+            ShowSyncFailed);
+    }
+
+    public static void ApplyRemoveGuest(ZNetView nview, long targetId, long playerId)
+    {
+        if (nview == null || !nview.IsValid() || !nview.IsOwner() || targetId == 0L)
+            return;
+
+        if (!CanManageGuests(nview, playerId))
+            return;
+
+        if (RemoveGuest(nview, targetId))
+        {
+            LockSmith.Log?.LogInfo(
+                $"Removed guest {targetId} from {nview.name} by {playerId} (guests={GetGuests(nview).Count}).");
         }
     }
 

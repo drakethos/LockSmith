@@ -123,7 +123,8 @@ jobs:
           CI_SKIP_POST_BUILD: "true"
         run: |
           set -euo pipefail
-          git clone --depth 1 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
+          # Compile against the Libs release LockSmith is pinned to (the new window needs its UI Toolkit, which is not on main yet).
+          git clone --depth 1 --branch v1.0.0-beta.1 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
           nuget restore ci_libs/DrakeModsLibsSrc/DrakeModsLibs.csproj -PackagesDirectory ci_libs/DrakeModsLibsSrc/packages
           CI_ROOT="$(pwd)/ci_valheim"
           MANAGED="$CI_ROOT/valheim_Data/Managed"

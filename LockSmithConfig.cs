@@ -12,7 +12,7 @@ namespace LockSmith;
 public static class LockSmithConfig
 {
     /// <summary>Admin lock + feature entries. Bump when adding synced binds.</summary>
-    public const int ExpectedSyncedEntryCount = 25;
+    public const int ExpectedSyncedEntryCount = 17;
 
     private const string SectionAdmin = "01 Admin";
     private const string SectionFeatures = "02 Features";
@@ -46,6 +46,8 @@ public static class LockSmithConfig
     private static ConfigEntry<bool> _publicPieceNameSuffix = null!;
     private static ConfigEntry<string> _publicPieceHoverText = null!;
     private static ConfigEntry<string> _teamLabelColor = null!;
+    private static ConfigEntry<bool> _showNearbyList = null!;
+    private static ConfigEntry<bool> _useWheel = null!;
 
     public static bool LockSyncedConfig => _lockSyncedConfig.Value;
     public static bool EnableChests => _enableChests.Value;
@@ -85,6 +87,24 @@ public static class LockSmithConfig
 
     /// <summary>Local-only hex color for Team / Guests labels (e.g. #FF00FF).</summary>
     public static string TeamLabelColorHex => NormalizeHexColor(_teamLabelColor.Value);
+
+    /// <summary>Local (this device): show the nearby-player list on the Piece tab.</summary>
+    public static bool ShowNearbyList => _showNearbyList == null || _showNearbyList.Value;
+
+    /// <summary>Local (this device): hold the Lock key for the wheel; a tap still opens the window.</summary>
+    public static bool UseWheel => _useWheel == null || _useWheel.Value;
+
+    public static void SetUseWheel(bool on)
+    {
+        if (_useWheel != null)
+            _useWheel.Value = on;
+    }
+
+    public static void SetShowNearbyList(bool on)
+    {
+        if (_showNearbyList != null)
+            _showNearbyList.Value = on;
+    }
 
     public static void Bind(ConfigFile config, ManualLogSource log)
     {
@@ -232,6 +252,18 @@ public static class LockSmithConfig
             "#FF00FF",
             new ConfigDescription(
                 "Local color for [Team] / Guests labels (hex like #FF00FF). Not synced."));
+
+        _showNearbyList = config.Bind(
+            SectionDisplay,
+            "ShowNearbyList",
+            true,
+            new ConfigDescription("Local: show players within 5m on the Lock window Piece tab. Not synced."));
+
+        _useWheel = config.Bind(
+            SectionDisplay,
+            "UseWheel",
+            true,
+            new ConfigDescription("Local: hold the Lock key (AltPlace + E) on a chest or door for the wheel. A quick tap still opens the window. Not synced."));
 
         Sync.AddLockingConfigEntry(_lockSyncedConfig);
         Sync.FinalizeBinding(log, ExpectedSyncedEntryCount, () => LockSyncedConfig);

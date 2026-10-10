@@ -38,6 +38,19 @@ public static class GameHookTargets
     /// <summary>ZNetView RPC: player removes themselves from the guest list.</summary>
     public const string RpcOptOutSelf = "RPC_LockSmithOptOutSelf";
 
+    /// <summary>ZNetView RPC: a ward member or owner removes one named guest (target id, requester id).</summary>
+    public const string RpcRemoveGuest = "RPC_LockSmithRemoveGuest";
+
+    /// <summary>ZNetView RPC: set what a guest may do on this piece (batch of id|flags, requester id).</summary>
+    public const string RpcSetGuestPerms = "RPC_LockSmithSetGuestPerms";
+
+    /// <summary>ZNetView RPCs on a ward (vanilla PrivateArea): remove one person, set role, switch on/off, set switch level, grant remove.</summary>
+    public const string RpcWardRemove = "RPC_LockSmithWardRemove";
+    public const string RpcWardSetRole = "RPC_LockSmithWardSetRole";
+    public const string RpcWardSetEnabled = "RPC_LockSmithWardSetEnabled";
+    public const string RpcWardSetSwitch = "RPC_LockSmithWardSetSwitch";
+    public const string RpcWardSetRemover = "RPC_LockSmithWardSetRemover";
+
     /// <summary>ZNetView RPC: merge guest wire string onto piece (paste from a saved list).</summary>
     public const string RpcMergeGuests = "RPC_LockSmithMergeGuests";
 
