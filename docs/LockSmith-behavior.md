@@ -1,29 +1,28 @@
 # LockSmith — behavior
 
-Status: **0.4.0** — requires DrakeModsLibs 0.9.4+; Hammer Public piece mode; RequireActiveWard; AccessFeedback Valheim 1.0 fix; key passes; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
+Status: **0.6.0-beta.1** (key removed; was 0.4.0 when the phases below were written) — requires DrakeModsLibs 0.9.4+; Hammer Public piece mode; RequireActiveWard; AccessFeedback Valheim 1.0 fix; key passes; designate + permitted Alt+E; ward public/private; Personal/Team; piece guests.
 
 Version targets / backlog: see [`drakeVision.md`](drakeVision.md).
 
 ## One line
 
-**AltPlace+E** (no key needed) or key + **E** opens the **Lock menu** on a chest/door, for players with access only. Every action is a button there; nothing toggles silently.
+**AltPlace+E** opens the **Lock menu** on a chest/door, for players with access only. Every action is a button there; nothing toggles silently.
 
 ## Lock menu (Unreleased)
 
-- `UI/PieceAccessMenu.cs`. It builds context-sensitive buttons and calls the existing services (`ChestAccessService` / `DoorAccessService.RequestSetPublic`, `GroupChestService.RequestSetTeamMode`, `PieceGuestAccess.TryRequestJoinToggle` / `RequestOptOutSelf`, `PieceClearService.RequestClear`, `KeyPassService.TryPullFromPiece` / `TryPasteOntoPiece`).
-- Key + E always opens the menu. If there's nothing to show, it gives one reason (Needs an active ward / Ward members only / Only the owner).
-- AltPlace + E (no key) opens it only when there is a button for that player. Otherwise vanilla runs. Owner tools need no key unless `RequireKeyForSetup` is on. Hover hints use `PieceAccessMenu.HasNoKeyMenu`, so strangers never see one.
-- `UseKey` off: `GetEquippedLocksmithKey` returns null (all key paths go quiet), `ContentRegistration.SyncKeyRecipe` disables the recipe at runtime, and `RequireKeyForSetup` reads as off.
+- `UI/PieceAccessMenu.cs`. It builds context-sensitive buttons and calls the existing services (`ChestAccessService` / `DoorAccessService.RequestSetPublic`, `GroupChestService.RequestSetTeamMode`, `PieceGuestAccess.TryRequestJoinToggle` / `RequestOptOutSelf`, `PieceClearService.RequestClear`,).
+- AltPlace + E opens it only when there is a button for that player. Otherwise vanilla runs. Owner tools need no key. Hover hints use `PieceAccessMenu.HasLockMenu`, so strangers never see one.
 - One at a time: `Access/PieceMenuLock.cs`. The menu asks the ZDO owner for a lease (`locksmith_menu_holder` / `_name` / `_until`, network ticks, 10s). On yes the owner does `ForceSendZDO` + `SetOwner(requester)` like `Container.RPC_RequestOpen`, so the holder's `PieceRpc` actions apply locally. The holder renews every 3s while the menu or Yes/No is open and releases on close. Join (E), Ctrl+V/menu paste and owner-side `ApplyOptInSelf` refuse while another player holds it. Opening the chest/door is not gated.
-- Copy/Paste: the key holds names when it's in hand, otherwise a session clipboard (`KeyPassService.CopyToSession` / `PasteFromSession`).
 - Plain E (no key) = vanilla open. While Join is open for a non-guest it only shows the `[AltPlace+E] Join access` reminder; joining is the menu's **Join access** button.
-- Hover hints come from `PieceAccessMenu.NoKeyHint`: the Join hint when that's the only option, the Lock menu hint when there are more, nothing otherwise.
-- `EnableAddNearby`: an owner button that merges the closest non-guest player (5m, `KeyPassService.FindNearestPlayer`) onto the guest list.
-- The menu re-renders every 0.25s while open (state plus pending RPCs). A button greys out while its `PieceRpc` request is pending. It closes beyond 6m, when the piece unloads, or when a key-opened menu loses the key.
+- Hover hints come from `PieceAccessMenu.LockMenuHint`: the Join hint when that's the only option, the Lock menu hint when there are more, nothing otherwise.
+- `EnableAddNearby`: an owner button that merges the closest non-guest player (5m, `NearbyPlayers.FindNearest`) onto the guest list.
+- The menu re-renders every 0.25s while open (state plus pending RPCs). A button greys out while its `PieceRpc` request is pending. It closes beyond 6m, when the piece unloads, or when the player walks away.
 - Yes/No (`DrakeConfirmPanel`): Remove LockSmith and Leave access, both always.
 - The sections below describe the state model. Wherever they mention modifier chords, read that as a menu button now.
 
-## Intended
+## Intended (historical phases)
+
+The phases below were written when the key existed. Read "key + E" as "AltPlace+E" now; the key is gone in 0.6.0-beta.1.
 
 ### Designate (0.3.5)
 
@@ -76,17 +75,13 @@ Same as chests for `Door` + `EnableDoors`.
 
 Quest keys, access menu, etc.
 
-## Assets
-
-`Assets/Items/keys/` ArtItem pack: `masterkey.json` + `keys.bundle` (`MasterKey` prefab) + `masterkey.png`. Optional `Assets/masterkey_icon.png`.
-
 ## Fragile patch sites
 
 | Target | Why |
 | --- | --- |
 | `Container.CheckAccess` | Team mode allow creator + member list |
-| `Container.Interact` | Key → ward toggle or team UX (`alt` for members) |
-| `Container.GetHoverText` | Key hover for both surfaces |
+| `Container.Interact` | AltPlace+E → Lock menu or Join (`alt` for members) |
+| `Container.GetHoverText` | Hover hint for both surfaces |
 | `Container.TakeAll` | Ward public bypass |
 | `Container.Awake` | RPCs + ZDO sync |
 | `Door.Interact` / `GetHoverText` / `Awake` | Phase 2 doors |

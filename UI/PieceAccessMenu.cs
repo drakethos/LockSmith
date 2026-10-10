@@ -8,7 +8,7 @@ using UnityEngine;
 namespace LockSmith.UI;
 
 /// <summary>
-/// The one Lock menu for a chest or door: AltPlace + E (no key needed), or E while holding the key.
+/// The one Lock menu for a chest or door, opened with AltPlace + E.
 /// Buttons are context-sensitive and only shown to players with access; strangers get no menu.
 /// Every action calls the existing access services.
 /// Re-renders while open so RPC confirms (or failures) show up without reopening.
@@ -23,7 +23,6 @@ public static class PieceAccessMenu
 
     static Container? _chest;
     static Door? _door;
-    static bool _withKey;
     static string _lastSignature = string.Empty;
     static float _nextRefresh;
 
@@ -34,64 +33,28 @@ public static class PieceAccessMenu
 
     public static bool IsOpen => Menu.IsOpen || Confirm.IsOpen;
 
-    /// <summary>Key in hand. Always consumes the interact (shows a reason when there is nothing to do).</summary>
-    public static bool TryOpenWithKey(Container container, Humanoid user)
-    {
-        if (!LockSmithConfig.EnableManagedAccess)
-            return Deny(user, LockSmithLocalization.MsgDisabledToken);
-        if (PublicPieceRegistration.IsPublicPiece(container))
-            return Deny(user, LockSmithLocalization.MsgPublicPrefabToken);
+    /// <summary>AltPlace + E. Returns false (vanilla runs) when this player has nothing to do here.</summary>
+    public static bool TryOpenLockMenu(Container container, Humanoid user) =>
+        IsLockMenuTarget(container) && TryOpen(container, null, user, reportEmpty: false);
 
-        if (GroupAccessState.IsPrivateFamilyChest(container))
-        {
-            if (!GroupChestService.IsEligible(container))
-                return Deny(user, LockSmithLocalization.MsgDisabledToken);
-        }
-        else
-        {
-            if (!LockSmithConfig.EnableChests)
-                return Deny(user, LockSmithLocalization.MsgDisabledToken);
-            if (!PieceAccessState.IsEligibleChest(container))
-                return Deny(user, LockSmithLocalization.MsgWrongTargetToken);
-        }
-
-        return TryOpen(container, null, user, withKey: true, reportEmpty: true);
-    }
-
-    public static bool TryOpenWithKey(Door door, Humanoid user)
-    {
-        if (!LockSmithConfig.EnableDoors || !LockSmithConfig.EnableManagedAccess)
-            return Deny(user, LockSmithLocalization.MsgDisabledToken);
-        if (PublicPieceRegistration.IsPublicPiece(door))
-            return Deny(user, LockSmithLocalization.MsgPublicPrefabToken);
-        if (!PieceAccessState.IsEligibleDoor(door))
-            return Deny(user, LockSmithLocalization.MsgWrongTargetToken);
-
-        return TryOpen(null, door, user, withKey: true, reportEmpty: true);
-    }
-
-    /// <summary>No key, AltPlace + E. Returns false (vanilla runs) when this player has nothing to do here.</summary>
-    public static bool TryOpenNoKey(Container container, Humanoid user) =>
-        IsNoKeyTarget(container) && TryOpen(container, null, user, withKey: false, reportEmpty: false);
-
-    public static bool TryOpenNoKey(Door door, Humanoid user) =>
-        IsNoKeyTarget(door) && TryOpen(null, door, user, withKey: false, reportEmpty: false);
+    public static bool TryOpenLockMenu(Door door, Humanoid user) =>
+        IsLockMenuTarget(door) && TryOpen(null, door, user, reportEmpty: false);
 
     /// <summary>
-    /// Hover check: would AltPlace+E (no key) open a menu with buttons for the local player?
+    /// Hover check: would AltPlace+E open a menu with buttons for the local player?
     /// Strangers get false, so they never see the hint.
     /// </summary>
-    public static bool HasNoKeyMenu(Container container) => NoKeyActionCount(container, null) > 0;
+    public static bool HasLockMenu(Container container) => LockMenuActionCount(container, null) > 0;
 
-    public static bool HasNoKeyMenu(Door door) => NoKeyActionCount(null, door) > 0;
+    public static bool HasLockMenu(Door door) => LockMenuActionCount(null, door) > 0;
 
     /// <summary>
     /// Hover hint for the local player: "[AltPlace+E] Join access" when joining is all they can do,
     /// "[AltPlace+E] Lock menu" when they have more, empty for strangers with nothing to do.
     /// </summary>
-    public static string NoKeyHint(Container container) => Hint(NoKeyActions(container, null));
+    public static string LockMenuHint(Container container) => Hint(LockMenuActions(container, null));
 
-    public static string NoKeyHint(Door door) => Hint(NoKeyActions(null, door));
+    public static string LockMenuHint(Door door) => Hint(LockMenuActions(null, door));
 
     static string Hint(List<DrakeMenuAction>? actions)
     {
@@ -99,14 +62,14 @@ public static class PieceAccessMenu
             return string.Empty;
         if (actions.Count == 1 && actions[0].Label == L(LockSmithLocalization.HoverJoinAccessToken))
             return AccessHoverDisplay.JoinHint();
-        return AccessHoverDisplay.MenuHint(withKey: false);
+        return AccessHoverDisplay.MenuHint();
     }
 
-    static int NoKeyActionCount(Container? chest, Door? door) => NoKeyActions(chest, door)?.Count ?? 0;
+    static int LockMenuActionCount(Container? chest, Door? door) => LockMenuActions(chest, door)?.Count ?? 0;
 
-    static List<DrakeMenuAction>? NoKeyActions(Container? chest, Door? door)
+    static List<DrakeMenuAction>? LockMenuActions(Container? chest, Door? door)
     {
-        if (chest != null ? !IsNoKeyTarget(chest) : door == null || !IsNoKeyTarget(door))
+        if (chest != null ? !IsLockMenuTarget(chest) : door == null || !IsLockMenuTarget(door))
             return null;
 
         var local = Player.m_localPlayer;
@@ -114,10 +77,10 @@ public static class PieceAccessMenu
             return null;
         if (!target.PrivateFamily && !WardAccess.AllowsToolOnPiece(target.Pos, isPrivateFamilyChest: false))
             return null;
-        return BuildActions(target, local, withKey: false);
+        return BuildActions(target, local);
     }
 
-    static bool IsNoKeyTarget(Container container)
+    static bool IsLockMenuTarget(Container container)
     {
         if (container == null || PublicPieceRegistration.IsPublicPiece(container))
             return false;
@@ -126,7 +89,7 @@ public static class PieceAccessMenu
         return LockSmithConfig.EnableChests && PieceAccessState.IsEligibleChest(container);
     }
 
-    static bool IsNoKeyTarget(Door door) =>
+    static bool IsLockMenuTarget(Door door) =>
         door != null
         && LockSmithConfig.EnableDoors
         && !PublicPieceRegistration.IsPublicPiece(door)
@@ -158,8 +121,7 @@ public static class PieceAccessMenu
 
         var local = Player.m_localPlayer;
         if (!TryResolve(out var target) || local == null
-            || Vector3.Distance(local.transform.position, target.Pos) > MaxDistance
-            || (_withKey && !ChestAccessService.IsHoldingLocksmithKey(local)))
+            || Vector3.Distance(local.transform.position, target.Pos) > MaxDistance)
         {
             Close();
             return;
@@ -188,7 +150,7 @@ public static class PieceAccessMenu
         _leasePlayer = 0L;
     }
 
-    static bool TryOpen(Container? container, Door? door, Humanoid user, bool withKey, bool reportEmpty)
+    static bool TryOpen(Container? container, Door? door, Humanoid user, bool reportEmpty)
     {
         var player = user as Player;
         if (player == null)
@@ -199,7 +161,6 @@ public static class PieceAccessMenu
 
         _chest = container;
         _door = door;
-        _withKey = withKey;
         if (!TryResolve(out var target))
             return false;
 
@@ -210,7 +171,7 @@ public static class PieceAccessMenu
             return reportEmpty && Deny(user, LockSmithLocalization.MsgNeedActiveWardToken);
         }
 
-        var actions = BuildActions(target, player, _withKey);
+        var actions = BuildActions(target, player);
         if (actions.Count == 0)
         {
             _chest = null;
@@ -248,7 +209,7 @@ public static class PieceAccessMenu
 
     static void Render(Target target, Player player, bool force)
     {
-        var actions = BuildActions(target, player, _withKey);
+        var actions = BuildActions(target, player);
         var subtitle = BuildSubtitle(target, player);
 
         var sig = new StringBuilder(subtitle);
@@ -280,20 +241,14 @@ public static class PieceAccessMenu
             showCancel: true);
     }
 
-    /// <summary>
-    /// Owner tools (Enable, Join, Personal/Team, Paste, Remove) need no key unless the server
-    /// turns on <see cref="LockSmithConfig.RequireKeyForSetup"/>.
-    /// </summary>
-    static bool OwnerTools(bool withKey) =>
-        LockSmithConfig.EnableManagedAccess && (withKey || !LockSmithConfig.RequireKeyForSetup);
-
-    static List<DrakeMenuAction> BuildActions(Target t, Player player, bool withKey)
+    static List<DrakeMenuAction> BuildActions(Target t, Player player)
     {
         var actions = new List<DrakeMenuAction>();
         var playerId = player.GetPlayerID();
         var nview = t.Nview;
         var isGuest = PieceGuestAccess.IsGuest(nview, playerId);
-        var ownerTools = OwnerTools(withKey);
+        // Owner tools (Enable, Join, Personal/Team, Remove) are open to anyone with access once managed access is on.
+        var ownerTools = LockSmithConfig.EnableManagedAccess;
 
         if (t.PrivateFamily)
         {
@@ -323,12 +278,11 @@ public static class PieceAccessMenu
                 if (team)
                     AddNearby(actions, nview, player);
 
-                AddCopyPaste(actions, t, player, withKey, canManage: true);
                 actions.Add(ClearAction(t, player));
             }
             else if (!creator && isGuest && team)
             {
-                // Guests only: Leave. Copy/Paste are owner tools.
+                // Guests only: Leave.
                 actions.Add(LeaveAction(t, player));
             }
             else if (!creator && team && LockSmithConfig.EnableOptInAccess && PieceGuestAccess.IsOptInReady(nview))
@@ -387,10 +341,6 @@ public static class PieceAccessMenu
             AddNearby(actions, nview, player);
         }
 
-        // Copy/Paste are for ward members only; a guest just gets public/private and Leave.
-        if (wardMember)
-            AddCopyPaste(actions, t, player, withKey, canManage: ownerTools);
-
         if (isGuest && !wardMember)
             actions.Add(LeaveAction(t, player));
 
@@ -423,7 +373,7 @@ public static class PieceAccessMenu
         if (!LockSmithConfig.EnableAddNearby)
             return;
 
-        var nearest = KeyPassService.FindNearestPlayer(player, p => !PieceGuestAccess.IsGuest(nview, p.GetPlayerID()));
+        var nearest = NearbyPlayers.FindNearest(player, p => !PieceGuestAccess.IsGuest(nview, p.GetPlayerID()));
         if (nearest == null)
         {
             actions.Add(new DrakeMenuAction("Add nearby: no one", () => { }, enabled: false));
@@ -441,39 +391,6 @@ public static class PieceAccessMenu
                 player.GetPlayerID(),
                 () => AccessFeedback.ShowRaw(Player.m_localPlayer, "Added " + guest.DisplayName));
         }));
-    }
-
-    /// <summary>With the key in hand the names go on the key; otherwise a session clipboard holds them.</summary>
-    static void AddCopyPaste(List<DrakeMenuAction> actions, Target t, Player player, bool withKey, bool canManage)
-    {
-        if (!LockSmithConfig.EnableKeyPasses)
-            return;
-
-        var key = withKey ? ChestAccessService.GetEquippedLocksmithKey(player) : null;
-        var hasGuests = PieceGuestAccess.GetGuests(t.Nview).Count > 0;
-
-        if (key != null)
-        {
-            if (hasGuests)
-                actions.Add(new DrakeMenuAction("Copy guests to key", () => KeyPassService.TryPullFromPiece(key, t.Nview)));
-
-            if (canManage && KeyPassService.HasPassPayload(key))
-            {
-                actions.Add(Action("Paste guests from key", t.Nview, GameHookTargets.RpcMergeGuests,
-                    () => KeyPassService.TryPasteOntoPiece(key, t.Nview)));
-            }
-
-            return;
-        }
-
-        if (hasGuests)
-            actions.Add(new DrakeMenuAction("Copy guests", () => KeyPassService.CopyToSession(t.Nview)));
-
-        if (canManage && KeyPassService.HasSessionNames)
-        {
-            actions.Add(Action("Paste guests (" + KeyPassService.SessionNameCount + ")", t.Nview,
-                GameHookTargets.RpcMergeGuests, () => KeyPassService.PasteFromSession(t.Nview)));
-        }
     }
 
     /// <summary>Always asks first; the text says whether you can come back.</summary>

@@ -1,9 +1,0 @@
-﻿{
-  "id": "masterkey",
-  "sourceId": "masterkey",
-  "donor": "LeatherScraps",
-  "displayName": "Locksmith Key",
-  "description": "A heavy iron key for LockSmith chests and doors.",
-  "artPrefab": "MasterKey",
-  "scale": 1.0
-}

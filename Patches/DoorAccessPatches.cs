@@ -30,7 +30,7 @@ public static class DoorAccessPatches
     }
 
     /// <summary>
-    /// Prefix hijack: key in hand → Lock menu, never vanilla open.
+    /// Prefix: AltPlace+E opens the Lock menu and skips vanilla open.
     /// </summary>
     [HarmonyPrefix]
     [HarmonyPatch(GameHookTargets.DoorInteract)]
@@ -47,25 +47,7 @@ public static class DoorAccessPatches
         {
             PieceAccessState.SyncGuardStoneFromZdo(__instance);
 
-            if (ChestAccessService.IsHoldingLocksmithKey(character))
-            {
-                try
-                {
-                    if (!hold)
-                        PieceAccessMenu.TryOpenWithKey(__instance, character);
-
-                    __result = true;
-                    return false;
-                }
-                catch (System.Exception ex)
-                {
-                    // Never swallow Use while broken — let vanilla run so place/open aren't soft-locked.
-                    LockSmith.Log?.LogError($"LockSmith door key interact failed: {ex}");
-                    return true;
-                }
-            }
-
-            if (alt && !hold && PieceAccessMenu.TryOpenNoKey(__instance, character))
+            if (alt && !hold && PieceAccessMenu.TryOpenLockMenu(__instance, character))
             {
                 __result = true;
                 return false;
@@ -134,20 +116,6 @@ public static class DoorAccessPatches
         {
             PieceAccessState.SyncGuardStoneFromZdo(__instance);
 
-            if (PieceGuestService.TryBuildGuestKeyHover(__instance, out var guestKeyHover))
-            {
-                __result = guestKeyHover;
-                __state = true;
-                return false;
-            }
-
-            if (DoorAccessService.TryBuildKeyModeHover(__instance, out var hover))
-            {
-                __result = hover;
-                __state = true;
-                return false;
-            }
-
         if (PieceGuestService.TryBuildGuestAccessHover(__instance, out var guestHover))
         {
             __result = guestHover;
@@ -184,15 +152,12 @@ public static class DoorAccessPatches
 
         try
         {
-            if (ChestAccessService.IsHoldingLocksmithKey(Player.m_localPlayer))
-                return;
-
             var suffix = DoorAccessService.GetPublicStatusSuffix(__instance);
             if (!string.IsNullOrEmpty(suffix))
                 __result += suffix;
 
             // Vanilla hover: Join / Lock menu hint only for players with options (strangers see nothing).
-            var hint = PieceAccessMenu.NoKeyHint(__instance);
+            var hint = PieceAccessMenu.LockMenuHint(__instance);
             if (hint.Length > 0)
                 __result += "\n" + hint;
         }

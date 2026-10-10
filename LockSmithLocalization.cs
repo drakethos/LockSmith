@@ -6,8 +6,6 @@ namespace LockSmith;
 /// <summary>English tokens for hover lines and center messages (Valheim-native feedback).</summary>
 public static class LockSmithLocalization
 {
-    public const string KeyNameToken = "item_locksmith_key";
-    public const string KeyDescToken = "item_locksmith_key_desc";
     public const string PiecePublicToken = "locksmith_piece_public";
     public const string PiecePrivateToken = "locksmith_piece_private";
     public const string PieceUnmanagedToken = "locksmith_piece_unmanaged";
@@ -54,29 +52,12 @@ public static class LockSmithLocalization
     public const string MsgPublicPrefabToken = "locksmith_msg_public_prefab";
     public const string PieceCategoryPublicToken = "locksmith_category_public";
 
-    public const string DefaultKeyDescription =
-        "Optional. Hold it and press <color=#ffff00><b>E</b></color> on a chest or door to open the Lock menu (Shift+E works without it). Copied guest names are saved on the key.";
-
-    /// <summary>Pre-0.5 default, still saved in older config files. Swapped for the new default.</summary>
-    const string LegacyKeyDescription =
-        "Equip to designate a chest/door. After that, <color=#ffff00><b>Alt+E</b></color> toggles public/private if you have access. Key required for Team / Join setup. <color=#ffff00><b>Shift+Right-click</b></color> the key: Relabel, grab/pull names, clear, or clone.";
-
     public static void Register()
     {
         var localization = LocalizationManager.Instance.GetLocalization();
 
-        var name = string.IsNullOrWhiteSpace(LockSmithConfig.KeyName)
-            ? "Locksmith Key"
-            : LockSmithConfig.KeyName.Trim();
-        var desc = string.IsNullOrWhiteSpace(LockSmithConfig.KeyDescription)
-                   || LockSmithConfig.KeyDescription.Trim() == LegacyKeyDescription
-            ? DefaultKeyDescription
-            : LockSmithConfig.KeyDescription.Trim();
-
         localization.AddTranslation("English", new Dictionary<string, string>
         {
-            { KeyNameToken, name },
-            { KeyDescToken, desc },
             { InventoryTabTitleToken, "Lock" },
             { InventoryHintPhraseToken, "configure lock tool" },
             { PiecePublicToken, "[Public]" },

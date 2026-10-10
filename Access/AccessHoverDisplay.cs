@@ -6,14 +6,11 @@ namespace LockSmith.Access;
 public static class AccessHoverDisplay
 {
     /// <summary>
-    /// Key mode: creator, ward members, or guests on that piece may see names after the count.
+    /// Creator, ward members, or guests on that piece may see names after the count.
     /// Everyone else always gets <c>Guests - [N]</c> / <c>Team - [N]</c> only.
     /// </summary>
     public static bool CanRevealGuestNames(Vector3 piecePosition, bool isPieceCreator, ZNetView? nview = null)
     {
-        if (!ChestAccessService.IsHoldingLocksmithKey(Player.m_localPlayer))
-            return false;
-
         if (isPieceCreator)
             return true;
 
@@ -58,7 +55,7 @@ public static class AccessHoverDisplay
     }
 
     /// <summary>
-    /// Key-mode line keeps the count and appends names:
+    /// The count line keeps the count and appends names:
     /// <c>Guests - [2] Alice, Bob</c>.
     /// </summary>
     public static string AccessNamesLabel(bool team, int count, string names)
@@ -78,13 +75,10 @@ public static class AccessHoverDisplay
             ? LockSmithLocalization.T(LockSmithLocalization.PieceTeamToken)
             : LockSmithLocalization.T(LockSmithLocalization.PieceGuestsTagToken);
 
-    /// <summary>The one action hint: <c>[E] Lock menu</c> with the key, <c>[AltPlace+E] Lock menu</c> without.</summary>
-    public static string MenuHint(bool withKey)
+    /// <summary>The one action hint: <c>[AltPlace+E] Lock menu</c>.</summary>
+    public static string MenuHint()
     {
-        var keys = withKey
-            ? "[<color=yellow><b>$KEY_Use</b></color>]"
-            : "[<color=yellow><b>$KEY_AltPlace</b></color>+<color=yellow><b>$KEY_Use</b></color>]";
-        return Localization.instance.Localize(keys) + " "
+        return Localization.instance.Localize("[<color=yellow><b>$KEY_AltPlace</b></color>+<color=yellow><b>$KEY_Use</b></color>]") + " "
                + LockSmithLocalization.T(LockSmithLocalization.HoverLockMenuToken);
     }
 

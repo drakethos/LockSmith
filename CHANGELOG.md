@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0-beta.1
+
+Hexium beta (no Thunderstore release). The Locksmith key is gone; the Lock menu is the only tool.
+
+- **Key removed.** Key items, key assets, key recipe, key passes (Ctrl+C/V, copy/paste buttons) and the key settings (`UseKey`, `RequireKeyForSetup`, `EnableKeyPasses`, `EnableKeyExtras`, key name/description/recipe) are deleted. Old config values for them are simply ignored. `EnableKeyMode` still migrates into `EnableManagedAccess`.
+- **Shift+E only** (AltPlace+E): opens the Lock menu for anyone with access. Plain E is vanilla.
+- **Nearby players by name** for the owner, via `Access/NearbyPlayers.cs` (5m, `EnableAddNearby`).
+- **Hover and access helpers renamed** from "no key" to "Lock menu" names. No behaviour change on the Lock menu itself.
+
 ## 0.5.0
 
 **Final Thunderstore release.** DrakeMods is moving to [Hexium](https://valheim.hexium.gg/?q=DrakeMods): future LockSmith updates are posted there, and this Thunderstore listing gets only limited support and will be deprecated. Requires **DrakeModsLibs 0.10.0+**.

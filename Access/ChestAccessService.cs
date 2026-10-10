@@ -1,9 +1,4 @@
-using System.Reflection;
 using System.Text;
-using DrakeModsLibs.API;
-using DrakeModsLibs.Data;
-using HarmonyLib;
-using LockSmith.UI;
 using UnityEngine;
 
 namespace LockSmith.Access;
@@ -11,9 +6,6 @@ namespace LockSmith.Access;
 /// <summary>Phase 1 chest public/private logic. Patches call into here.</summary>
 public static class ChestAccessService
 {
-    private static FieldInfo? _rightItemField;
-    private static FieldInfo? _leftItemField;
-    private static bool _fieldsResolved;
 
     public static bool ShouldBypassWardCheck(Container container)
     {
@@ -34,115 +26,10 @@ public static class ChestAccessService
         return PieceGuestService.ShouldBypassWardForGuest(container);
     }
 
-    public static bool IsHoldingLocksmithKey(Humanoid? user) =>
-        GetEquippedLocksmithKey(user) != null;
 
-    /// <summary>
-    /// Equipped key in hand. Do not use <see cref="Humanoid.GetCurrentWeapon"/> — it ignores Tools.
-    /// Reads protected <c>m_rightItem</c> / <c>m_leftItem</c> via reflection.
-    /// </summary>
-    public static ItemDrop.ItemData? GetEquippedLocksmithKey(Humanoid? user)
-    {
-        // UseKey off: a key in hand is just a prop, so every key path (interact, hover, Ctrl+C/V) stays out.
-        if (user == null || !LockSmithConfig.UseKey)
-            return null;
 
-        EnsureFields();
 
-        try
-        {
-            var right = _rightItemField?.GetValue(user) as ItemDrop.ItemData;
-            if (IsLocksmithKey(right))
-                return right;
 
-            var left = _leftItemField?.GetValue(user) as ItemDrop.ItemData;
-            if (IsLocksmithKey(left))
-                return left;
-        }
-        catch (System.Exception ex)
-        {
-            LockSmith.Log?.LogDebug($"GetEquippedLocksmithKey failed: {ex.Message}");
-        }
-
-        return null;
-    }
-
-    private static void EnsureFields()
-    {
-        if (_fieldsResolved)
-            return;
-
-        _fieldsResolved = true;
-        _rightItemField = AccessTools.Field(typeof(Humanoid), GameHookTargets.HumanoidRightItemField);
-        _leftItemField = AccessTools.Field(typeof(Humanoid), GameHookTargets.HumanoidLeftItemField);
-        if (_rightItemField == null || _leftItemField == null)
-            LockSmith.Log?.LogError(
-                $"LockSmith could not resolve Humanoid hand fields " +
-                $"({GameHookTargets.HumanoidRightItemField}/{GameHookTargets.HumanoidLeftItemField}).");
-    }
-
-    public static bool IsLocksmithKey(ItemDrop.ItemData? item)
-    {
-        if (item?.m_shared == null)
-            return false;
-
-        var shared = item.m_shared.m_name ?? string.Empty;
-        if (shared == "$" + LockSmithLocalization.KeyNameToken
-            || shared == LockSmithLocalization.KeyNameToken)
-            return true;
-
-        if (item.m_dropPrefab != null && IsKeyPrefabName(item.m_dropPrefab.name))
-            return true;
-
-        return IsKeyPrefabName(shared);
-    }
-
-    /// <summary>
-    /// Prefab / migrate stamp for the Locksmith key type (not per-player).
-    /// Soft <c>NoRename</c> + <c>NoCraftedByEdit</c> (admin/VIP TagBypass may still see Rename’s
-    /// inventory tab via Libs <c>IsRenameInventorySuppressed</c>); hard <c>HardNoDescription</c>
-    /// (nobody edits description — does not hide the Rename tab). Relabel still uses
-    /// <see cref="CustomizeLibsAPI.SetCustomName"/> directly.
-    /// No-ops when tags are already correct.
-    /// </summary>
-    public static void EnsureRenameHandOff(ItemDrop.ItemData? item)
-    {
-        if (!IsLocksmithKey(item) || item == null)
-            return;
-
-        try
-        {
-            var hasSoftRename = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.NoRename);
-            var hasSoftCrafted = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.NoCraftedByEdit);
-            var hasHardDesc = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.HardNoDescription);
-            var hasSoftDesc = CustomizeLibsAPI.HasTag(item, DrakeCustomDataKeys.NoDescription);
-            if (hasSoftRename && hasSoftCrafted && hasHardDesc && !hasSoftDesc)
-                return;
-
-            CustomizeLibsAPI.SetTag(item, DrakeCustomDataKeys.NoRename);
-            CustomizeLibsAPI.SetTag(item, DrakeCustomDataKeys.NoCraftedByEdit);
-            CustomizeLibsAPI.HardBlockDescription(item);
-            if (hasSoftDesc)
-                CustomizeLibsAPI.ClearTag(item, DrakeCustomDataKeys.NoDescription);
-        }
-        catch (System.Exception ex)
-        {
-            LockSmith.Log?.LogDebug($"EnsureRenameHandOff failed: {ex.Message}");
-        }
-    }
-
-    private static bool IsKeyPrefabName(string? name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return false;
-
-        if (ContentRegistration.IsKeyPrefab(name))
-            return true;
-
-        var n = name!;
-        return n.IndexOf("masterkey", System.StringComparison.OrdinalIgnoreCase) >= 0
-               || n.IndexOf("locksmith", System.StringComparison.OrdinalIgnoreCase) >= 0;
-    }
 
     public static void RequestSetPublic(ZNetView nview, bool isPublic, long playerId)
     {
@@ -227,73 +114,6 @@ public static class ChestAccessService
             $"on {container.name} (readback={PieceAccessState.IsPublic(nview)}).");
     }
 
-    /// <summary>
-    /// Full hover replacement while key is equipped. Caller must skip vanilla GetHoverText.
-    /// </summary>
-    public static bool TryBuildKeyModeHover(Container container, out string hoverText)
-    {
-        hoverText = string.Empty;
-
-        if (!LockSmithConfig.EnableChests || !LockSmithConfig.EnableManagedAccess)
-            return false;
-
-        if (!IsHoldingLocksmithKey(Player.m_localPlayer))
-            return false;
-
-        if (PublicPieceRegistration.IsPublicPiece(container))
-        {
-            hoverText = AccessHoverDisplay.LocalizedPieceName(container) + "\n" +
-                        AccessHoverDisplay.PublicPieceHoverLabel();
-            return true;
-        }
-
-        if (!PieceAccessState.IsEligibleChest(container))
-        {
-            hoverText = AccessHoverDisplay.LocalizedPieceName(container) + "\n" +
-                        LockSmithLocalization.T(LockSmithLocalization.MsgWrongTargetToken);
-            return true;
-        }
-
-        var pos = PieceAccessState.GetPosition(container);
-        var nview = PieceAccessState.GetNetView(container);
-        var managed = !PieceAccessState.NeedsDesignate(nview);
-        var isPublic = PieceAccessState.IsPublic(nview);
-        var status = LockSmithLocalization.T(
-            isPublic ? LockSmithLocalization.PiecePublicToken : LockSmithLocalization.PiecePrivateToken);
-
-        var sb = new StringBuilder();
-        sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
-        if (managed)
-            sb.Append(' ').Append(status);
-        else
-            sb.Append(' ').Append(LockSmithLocalization.T(LockSmithLocalization.PieceUnmanagedToken));
-
-        if (!WardAccess.AllowsToolOnPiece(pos, isPrivateFamilyChest: false))
-        {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgNeedActiveWardToken));
-            hoverText = sb.ToString();
-            return true;
-        }
-
-        if (WardAccess.HasLocalWardAccess(pos))
-        {
-            if (managed)
-                PieceGuestService.AppendKeyHoverExtras(sb, container);
-            sb.Append('\n').Append(AccessHoverDisplay.MenuHint(withKey: true));
-        }
-        else if (PieceAccessMenu.HasNoKeyMenu(container))
-        {
-            // Not on the ward but Join is open / already a guest: the menu has something for them.
-            sb.Append('\n').Append(AccessHoverDisplay.MenuHint(withKey: true));
-        }
-        else
-        {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgDeniedToken));
-        }
-
-        hoverText = sb.ToString();
-        return true;
-    }
 
     public static string GetPublicStatusSuffix(Container container)
     {

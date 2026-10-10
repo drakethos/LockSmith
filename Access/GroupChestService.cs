@@ -94,7 +94,7 @@ public static class GroupChestService
         var playerId = local.GetPlayerID();
         var isCreator = GroupAccessState.IsCreator(container, playerId);
         var hasAccess = GroupAccessState.HasTeamAccess(container, playerId);
-        var useKey = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
+        var useHint = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>]");
 
         var sb = new StringBuilder();
         sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
@@ -104,7 +104,6 @@ public static class GroupChestService
         if (reveal)
             PieceGuestAccess.TryRefreshGuestNames(nview);
 
-        // Simple mode (no key): no member line; the list lives in the Lock menu.
         var summary = reveal ? PieceGuestAccess.FormatGuestSummary(nview, revealNames: true, team: true) : string.Empty;
         if (!string.IsNullOrEmpty(summary))
             sb.Append('\n').Append(summary);
@@ -114,9 +113,9 @@ public static class GroupChestService
 
         if (hasAccess)
         {
-            sb.Append('\n').Append(useKey).Append(' ')
+            sb.Append('\n').Append(useHint).Append(' ')
                 .Append(Localization.instance.Localize("$piece_container_open"));
-            var hint = PieceAccessMenu.NoKeyHint(container);
+            var hint = PieceAccessMenu.LockMenuHint(container);
             if (hint.Length > 0)
                 sb.Append('\n').Append(hint);
         }
@@ -196,60 +195,6 @@ public static class GroupChestService
         return true;
     }
 
-    public static bool TryBuildKeyModeHover(Container container, out string hoverText)
-    {
-        hoverText = string.Empty;
-
-        if (!IsEligible(container))
-            return false;
-
-        if (!ChestAccessService.IsHoldingLocksmithKey(Player.m_localPlayer))
-            return false;
-
-        var nview = GroupAccessState.GetNetView(container);
-        var team = GroupAccessState.IsTeamMode(nview);
-        if (!LockSmithConfig.EnablePersonalPause)
-        {
-            GroupAccessState.EnsureTeamModeWhenPauseDisabled(nview);
-            team = true;
-        }
-
-        var sb = new StringBuilder();
-        sb.Append(AccessHoverDisplay.LocalizedPieceName(container));
-
-        var local = Player.m_localPlayer;
-        var isOwner = local != null && GroupAccessState.IsCreator(container, local.GetPlayerID());
-        var pos = GroupAccessState.GetPosition(container);
-
-        if (team)
-        {
-            var reveal = AccessHoverDisplay.CanRevealGuestNames(pos, isOwner, nview);
-            if (reveal)
-                PieceGuestAccess.TryRefreshGuestNames(nview);
-            sb.Append('\n').Append(PieceGuestAccess.FormatGuestSummary(nview, reveal, team: true));
-        }
-        else
-        {
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PiecePersonalToken));
-            // Roster stays on the ZDO while personal — show it so owners know who comes back on Make team.
-            if (isOwner && PieceGuestAccess.GetGuests(nview).Count > 0)
-            {
-                PieceGuestAccess.TryRefreshGuestNames(nview);
-                sb.Append('\n').Append(PieceGuestAccess.FormatGuestSummary(nview, revealNames: true, team: true));
-            }
-        }
-
-        if (team && PieceGuestAccess.IsOptInReady(nview))
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.PieceOptInReadyToken));
-
-        if (isOwner || (team && local != null && PieceGuestAccess.IsGuest(nview, local.GetPlayerID())))
-            sb.Append('\n').Append(AccessHoverDisplay.MenuHint(withKey: true));
-        else
-            sb.Append('\n').Append(LockSmithLocalization.T(LockSmithLocalization.MsgGroupOwnerOnlyToken));
-
-        hoverText = sb.ToString();
-        return true;
-    }
 
     public static string GetTeamStatusSuffix(Container container)
     {

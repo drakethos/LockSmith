@@ -58,7 +58,7 @@ public static class ContainerAccessPatches
     }
 
     /// <summary>
-    /// Prefix hijack: key in hand → Lock menu, never vanilla Open.
+    /// Prefix: AltPlace+E opens the Lock menu and skips vanilla Open.
     /// </summary>
     [HarmonyPrefix]
     [HarmonyPatch(GameHookTargets.ContainerInteract)]
@@ -76,32 +76,14 @@ public static class ContainerAccessPatches
             PieceAccessState.SyncGuardStoneFromZdo(__instance);
             GroupAccessState.SyncPrivacyFromZdo(__instance);
 
-            if (ChestAccessService.IsHoldingLocksmithKey(character))
-            {
-                try
-                {
-                    if (!hold)
-                        PieceAccessMenu.TryOpenWithKey(__instance, character);
-
-                    __result = true;
-                    return false;
-                }
-                catch (System.Exception ex)
-                {
-                    // Never swallow Use while broken — let vanilla run so place/open aren't soft-locked.
-                    LockSmith.Log?.LogError($"LockSmith chest key interact failed: {ex}");
-                    return true;
-                }
-            }
-
-            // No key: AltPlace+E opens the Lock menu when this player has something to do here.
-            if (alt && !hold && PieceAccessMenu.TryOpenNoKey(__instance, character))
+            // AltPlace+E opens the Lock menu when this player has something to do here.
+            if (alt && !hold && PieceAccessMenu.TryOpenLockMenu(__instance, character))
             {
                 __result = true;
                 return false;
             }
 
-            // Join (E) without key.
+            // Join (E).
             if (GroupChestService.TryHandleOptInInteract(__instance, character, hold, alt)
                 || PieceGuestService.TryHandleOptInInteract(__instance, character, hold, alt))
             {
@@ -207,27 +189,6 @@ public static class ContainerAccessPatches
             PieceAccessState.SyncGuardStoneFromZdo(__instance);
             GroupAccessState.SyncPrivacyFromZdo(__instance);
 
-            if (PieceGuestService.TryBuildGuestKeyHover(__instance, out var guestKeyHover))
-            {
-                __result = guestKeyHover;
-                __state = true;
-                return false;
-            }
-
-            if (GroupChestService.TryBuildKeyModeHover(__instance, out var groupHover))
-            {
-                __result = groupHover;
-                __state = true;
-                return false;
-            }
-
-            if (ChestAccessService.TryBuildKeyModeHover(__instance, out var hover))
-            {
-                __result = hover;
-                __state = true;
-                return false;
-            }
-
             // Replace vanilla ward "No access" for team/guest players who can open.
             if (GroupChestService.TryBuildAccessHover(__instance, out var teamHover))
             {
@@ -271,15 +232,12 @@ public static class ContainerAccessPatches
 
         try
         {
-            if (ChestAccessService.IsHoldingLocksmithKey(Player.m_localPlayer))
-                return;
-
             var publicSuffix = ChestAccessService.GetPublicStatusSuffix(__instance);
             if (!string.IsNullOrEmpty(publicSuffix))
                 __result += publicSuffix;
 
             // Vanilla hover: Join / Lock menu hint only for players with options (strangers see nothing).
-            var hint = PieceAccessMenu.NoKeyHint(__instance);
+            var hint = PieceAccessMenu.LockMenuHint(__instance);
             if (hint.Length > 0)
                 __result += "\n" + hint;
         }

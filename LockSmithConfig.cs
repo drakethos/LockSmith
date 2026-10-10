@@ -11,18 +11,16 @@ namespace LockSmith;
 /// <summary>Synced gameplay config. Count must match <see cref="ExpectedSyncedEntryCount"/>.</summary>
 public static class LockSmithConfig
 {
-    /// <summary>Admin lock + feature/key entries. Bump when adding synced binds.</summary>
+    /// <summary>Admin lock + feature entries. Bump when adding synced binds.</summary>
     public const int ExpectedSyncedEntryCount = 25;
 
     private const string SectionAdmin = "01 Admin";
     private const string SectionFeatures = "02 Features";
-    private const string SectionKey = "03 Key";
     private const string SectionPieceMode = "05 PieceMode";
     private const string SectionDisplay = "04 Display";
 
     private const string DisplayAdmin = "Admin";
     private const string DisplayFeatures = "Features";
-    private const string DisplayKey = "Key (advanced)";
     private const string DisplayDisplay = "Display";
 
     private static readonly DrakeConfigSync Sync = DrakeConfigSync.Create(
@@ -41,20 +39,12 @@ public static class LockSmithConfig
     private static ConfigEntry<bool> _enableDesignate = null!;
     private static ConfigEntry<bool> _enableManagedAccess = null!;
     private static ConfigEntry<bool> _enablePieceMode = null!;
-    private static ConfigEntry<bool> _enableKeyPasses = null!;
-    private static ConfigEntry<bool> _enableKeyExtras = null!;
-    private static ConfigEntry<bool> _requireKeyForSetup = null!;
-    private static ConfigEntry<bool> _useKey = null!;
     private static ConfigEntry<bool> _enableAddNearby = null!;
     private static ConfigEntry<bool> _requireActiveWard = null!;
     private static ConfigEntry<string> _publicPieceAllowList = null!;
     private static ConfigEntry<string> _publicPieceDenyList = null!;
     private static ConfigEntry<bool> _publicPieceNameSuffix = null!;
     private static ConfigEntry<string> _publicPieceHoverText = null!;
-    private static ConfigEntry<string> _keyName = null!;
-    private static ConfigEntry<string> _keyDescription = null!;
-    private static ConfigEntry<string> _keyCraftingStation = null!;
-    private static ConfigEntry<string> _keyMaterials = null!;
     private static ConfigEntry<string> _teamLabelColor = null!;
 
     public static bool LockSyncedConfig => _lockSyncedConfig.Value;
@@ -69,15 +59,8 @@ public static class LockSmithConfig
     public static bool EnableDesignate => _enableDesignate.Value;
     public static bool EnableManagedAccess => _enableManagedAccess.Value;
     public static bool EnablePieceMode => _enablePieceMode.Value;
-    public static bool EnableKeyPasses => _enableKeyPasses.Value;
-    public static bool EnableKeyExtras => _enableKeyExtras.Value;
-    /// <summary>On only when the key is in play; off means the menu is the whole tool.</summary>
-    public static bool RequireKeyForSetup => UseKey && _requireKeyForSetup.Value;
     /// <summary>
-    /// Always false for now: the key is temporarily removed while it's rebuilt with Drakes Asset Forge.
-    /// The UseKey setting stays bound (so synced configs line up) but is not read.
     /// </summary>
-    public static bool UseKey => false;
     public static bool EnableAddNearby => _enableAddNearby.Value;
     /// <summary>Comma-separated donor prefab names force-included in public clones (restart required).</summary>
     public static string PublicPieceAllowList => _publicPieceAllowList.Value;
@@ -99,10 +82,6 @@ public static class LockSmithConfig
     /// (including already-managed pieces). Personal/Team private-family chests are exempt.
     /// </summary>
     public static bool RequireActiveWard => _requireActiveWard.Value;
-    public static string KeyName => _keyName.Value;
-    public static string KeyDescription => _keyDescription.Value;
-    public static string KeyCraftingStation => _keyCraftingStation.Value;
-    public static string KeyMaterials => _keyMaterials.Value;
 
     /// <summary>Local-only hex color for Team / Guests labels (e.g. #FF00FF).</summary>
     public static string TeamLabelColorHex => NormalizeHexColor(_teamLabelColor.Value);
@@ -198,45 +177,13 @@ public static class LockSmithConfig
             false,
             "When true, discovers ward-locked chests/doors (vanilla + mods) and registers Hammer Public tab clones that are always open (no key / no ZDO). Restart required after changing.");
 
-        _enableKeyPasses = Sync.BindSynced(
-            config,
-            SectionFeatures,
-            DisplayFeatures,
-            "EnableKeyPasses",
-            true,
-            "Copy guests / Paste guests buttons in the Lock menu. Without the key, copied names last for the play session; with the key in hand they are saved on the key and Ctrl+C / Ctrl+V work.");
-
-        _enableKeyExtras = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "EnableKeyExtras",
-            false,
-            "Advanced: extra tools in the key's inventory menu (Shift+Right-click): Relabel, Grab nearby person, Clear names, Clone key. Needs UseKey. Names on a key never grant access by themselves.");
-
-        _useKey = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "UseKey",
-            true,
-            "(No effect for now: the key is temporarily removed and LockSmith runs in simple mode.) Advanced mode. The key is a physical item that gives finer control: holding it and pressing E opens the Lock menu, its hover shows guest names, copied guests are saved on the key (Ctrl+C / Ctrl+V), and RequireKeyForSetup / EnableKeyExtras apply. Off = simple mode: the key is never added to the game, hovers stay minimal, and everything goes through AltPlace+E. Restart required; keys already in inventories disappear while it is off.");
-
         _enableAddNearby = Sync.BindSynced(
             config,
             SectionFeatures,
             DisplayFeatures,
             "EnableAddNearby",
             true,
-            "Lock menu button that adds the closest player (within 5m) straight onto the guest list, so owners don't need Join for someone standing right there. Works with or without the key.");
-
-        _requireKeyForSetup = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "RequireKeyForSetup",
-            false,
-            "Advanced: owners must hold the key for Enable LockSmith / Join / Personal-Team / Paste / Remove. Make public/private and Leave still work without it. Needs UseKey. Off (default) = everything works from AltPlace+E.");
+            "Lock menu button that adds the closest player (within 5m) straight onto the guest list, so owners don't need Join for someone standing right there.  Works from AltPlace+E.");
 
         _requireActiveWard = Sync.BindSynced(
             config,
@@ -277,38 +224,6 @@ public static class LockSmithConfig
             "PublicPieceHoverText",
             "[Public]",
             "Hover line on placed Public hammer doors and chests. Plain text, no color. Default [Public]. Empty uses [Public].");
-
-        _keyName = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "KeyName",
-            "Locksmith Key",
-            "Display name for the craftable key.");
-
-        _keyDescription = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "KeyDescription",
-            LockSmithLocalization.DefaultKeyDescription,
-            "Tooltip description for the craftable key.");
-
-        _keyCraftingStation = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "KeyCraftingStation",
-            "",
-            "Crafting station prefab name. Empty = craft anywhere.");
-
-        _keyMaterials = Sync.BindSynced(
-            config,
-            SectionKey,
-            DisplayKey,
-            "KeyMaterials",
-            "Wood:1",
-            "Recipe requirements as Prefab:Amount pairs, separated by commas.");
 
         // Local display / binds only — not DrakeConfigSync.
         _teamLabelColor = config.Bind(

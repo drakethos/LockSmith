@@ -36,11 +36,7 @@ namespace LockSmith
 
             LockSmithConfig.Bind(Config, Logger);
 
-            UI.KeyPassMenu.RegisterTab();
 
-            // The key is temporarily removed while it's rebuilt with Drakes Asset Forge: LockSmithConfig.UseKey
-            // is always false, so the key item is never registered and everything goes through AltPlace+E.
-            Logger.LogInfo("Locksmith key is temporarily removed — simple mode (AltPlace+E).");
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabs;
             _harmony.PatchAll();
@@ -65,7 +61,6 @@ namespace LockSmith
             {
                 PieceMenuLock.Tick();
                 UI.PieceAccessMenu.Tick();
-                ContentRegistration.SyncKeyRecipe();
             }
             catch (Exception ex)
             {
@@ -80,9 +75,6 @@ namespace LockSmith
             try
             {
                 LockSmithLocalization.Register();
-                // Key is temporarily removed (UseKey is always false); kept for when it returns.
-                if (LockSmithConfig.UseKey)
-                    ContentRegistration.FinalizeOfficialKeyFromKeysPack();
                 PublicPieceRegistration.TryRegisterAll("OnVanillaPrefabsAvailable");
             }
             catch (Exception ex)

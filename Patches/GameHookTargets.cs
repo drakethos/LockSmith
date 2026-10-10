@@ -19,8 +19,6 @@ public static class GameHookTargets
     public const string DoorInteract = "Interact";
     public const string DoorGetHoverText = "GetHoverText";
 
-    public const string HumanoidRightItemField = "m_rightItem";
-    public const string HumanoidLeftItemField = "m_leftItem";
 
     /// <summary>ZNetView RPC registered on each Container. Must stay unique.</summary>
     public const string RpcSetChestPublic = "RPC_LockSmithSetChestPublic";
@@ -40,7 +38,7 @@ public static class GameHookTargets
     /// <summary>ZNetView RPC: player removes themselves from the guest list.</summary>
     public const string RpcOptOutSelf = "RPC_LockSmithOptOutSelf";
 
-    /// <summary>ZNetView RPC: merge guest wire string onto piece (key Ctrl+V paste).</summary>
+    /// <summary>ZNetView RPC: merge guest wire string onto piece (paste from a saved list).</summary>
     public const string RpcMergeGuests = "RPC_LockSmithMergeGuests";
 
     /// <summary>ZNetView RPC: strip all LockSmith state from a piece.</summary>
@@ -64,8 +62,8 @@ public static class GameHookTargets
     public const string ZdoPublicFlag = "locksmith_public";
 
     /// <summary>
-    /// ZDO int: 0 = normal piece, 1 = LockSmith-designated (key was used once).
-    /// Designated pieces allow permitted players to Alt+E public/private without holding the key.
+    /// ZDO int: 0 = normal piece, 1 = LockSmith-designated (set on first use).
+    /// Designated pieces let permitted players use Alt+E to change public/private.
     /// </summary>
     public const string ZdoManagedFlag = "locksmith_managed";
 
