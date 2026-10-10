@@ -181,15 +181,9 @@ jobs:
           PKG_DIR="DrakeMods-LockSmith-${VERSION}"
           ZIP_NAME="DrakeMods-LockSmith-${VERSION}.zip"
 
-          # Mirror PackageMod: only runtime assets (no .bak / forge leftovers).
-          mkdir -p "$PKG_DIR/Assets/Items/keys"
+          # Mirror PackageMod: the DLL and the docs (the key and its art are gone).
+          mkdir -p "$PKG_DIR"
           cp bin/Release/LockSmith.dll "$PKG_DIR/"
-          cp Assets/Items/keys/keys.bundle "$PKG_DIR/Assets/Items/keys/"
-          cp Assets/Items/keys/masterkey.json "$PKG_DIR/Assets/Items/keys/"
-          cp Assets/Items/keys/masterkey.png "$PKG_DIR/Assets/Items/keys/"
-          if [ -f Assets/masterkey_icon.png ]; then
-            cp Assets/masterkey_icon.png "$PKG_DIR/Assets/"
-          fi
           cp README.md                      "$PKG_DIR/"
           cp icon.png                       "$PKG_DIR/"
           cp CHANGELOG.md                   "$PKG_DIR/"
