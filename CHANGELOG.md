@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0-beta.2
+
+Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.3**.
+
+- **Smart tabs:** sibling group roots stay visible (Shop, Mail, Lock). Children only expand for the active group — Shop → Buy/Layout (teal child chrome); Lock → Ward/Groups when LockSmith is enabled on the piece. Keeps the row from stacking every mod’s tabs at once.
+- **Ward / Groups** stay hidden until **Enable LockSmith** on that piece (when designate mode is on).
+
 ## 0.6.0-beta.1
 
 Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.1** (the new UI Toolkit). The Locksmith key is gone; the Lock menu is the only tool.

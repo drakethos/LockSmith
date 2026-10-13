@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DrakeModsLibs.Integration;
 using DrakeModsLibs.UI;
 using DrakeModsLibs.UI.Toolkit;
 using LockSmith.Access;
@@ -62,9 +63,14 @@ public enum LockTab
     Piece,
     Ward,
     Groups,
+    /// <summary>A tab another mod added (see <see cref="DrakeModsLibs.Integration.PieceMenuTabs"/>).</summary>
+    Extra,
 }
 
-/// <summary>Which tabs exist and which one is lit. Ward only shows inside a ward; Groups for people who can manage the guest list.</summary>
+/// <summary>
+/// Which tabs exist and which one is lit. Smart groups: roots always; Ward/Groups only while on Lock
+/// (and when ShowWard / ShowGroups are true — Ward membership / guest manage + LockSmith enabled).
+/// </summary>
 public sealed class LockTabs
 {
     public bool ShowWard;
@@ -73,6 +79,10 @@ public sealed class LockTabs
     public bool OnlyWard;
     public LockTab Active;
     public Action<LockTab> Select = _ => { };
+    /// <summary>Tabs other mods registered for this chest, and which of them is lit when <see cref="Active"/> is Extra.</summary>
+    public List<PieceMenuTab> Extras = new();
+    public string? ActiveExtraId;
+    public Action<PieceMenuTab> SelectExtra = _ => { };
 }
 
 public sealed class LockWardPerson
@@ -204,26 +214,101 @@ public sealed class LockMenuView
         _window.HideTabs();
 
         _tabRow.Clear();
-        var count = 1 + (tabs.ShowWard ? 1 : 0) + (tabs.ShowGroups ? 1 : 0);
+        var activeGroup = ActiveGroup(tabs);
+        var visibleExtras = VisibleExtras(tabs, activeGroup);
+        var inLock = activeGroup == PieceMenuTabs.LockSmithGroup;
+        var showWard = inLock && tabs.ShowWard;
+        var showGroups = inLock && tabs.ShowGroups;
+        var count = 1 + (showWard ? 1 : 0) + (showGroups ? 1 : 0) + visibleExtras.Count;
         _tabRow.Show(count > 1 && !tabs.OnlyWard);
+        _window.Card.style.width = WidthFor(visibleExtras, tabs.Extras.Count > 0, showWard, showGroups, tabs.OnlyWard);
+        // Smart tabs: always show group roots; expand children only for the active group (teal child chrome).
         if (!tabs.OnlyWard)
-            AddTab(tabs, LockTab.Piece, "Piece");
-        if (tabs.ShowWard)
-            AddTab(tabs, LockTab.Ward, "Ward");
-        if (tabs.ShowGroups)
-            AddTab(tabs, LockTab.Groups, "Groups");
+        {
+            foreach (var extra in visibleExtras)
+            {
+                var captured = extra;
+                var isChild = !extra.IsRoot;
+                var active = tabs.Active == LockTab.Extra && tabs.ActiveExtraId == extra.Id;
+                var kind = isChild
+                    ? (active ? UkButtonKind.ChildSelected : UkButtonKind.Child)
+                    : (active ? UkButtonKind.Selected : UkButtonKind.Ghost);
+                var button = UkControls.MakeButton(extra.Title, () => tabs.SelectExtra(captured), kind);
+                button.style.height = 40;
+                button.style.marginRight = 6;
+                _tabRow.Add(button);
+            }
+        }
+        if (!tabs.OnlyWard)
+            AddTab(tabs, LockTab.Piece, tabs.Extras.Count > 0 ? "Lock" : "Piece", child: false);
+        if (showWard)
+            AddTab(tabs, LockTab.Ward, "Ward", child: true);
+        if (showGroups)
+            AddTab(tabs, LockTab.Groups, "Groups", child: true);
 
         _window.Body.Clear();
         _window.Footer.Clear();
     }
 
-    void AddTab(LockTabs tabs, LockTab tab, string label)
+    const float BaseWidth = 520f;
+    const float MaxWidth = 900f;
+
+    /// <summary>Which smart-tab group is open: an extra's <see cref="PieceMenuTab.Group"/>, or LockSmith's own tabs.</summary>
+    static string ActiveGroup(LockTabs tabs)
     {
-        var button = UkControls.MakeButton(label, () => tabs.Select(tab), UkButtonKind.Ghost);
+        if (tabs.Active == LockTab.Extra && !string.IsNullOrEmpty(tabs.ActiveExtraId))
+        {
+            var extra = tabs.Extras.Find(e => e.Id == tabs.ActiveExtraId);
+            if (extra != null)
+                return extra.Group;
+        }
+
+        return PieceMenuTabs.LockSmithGroup;
+    }
+
+    /// <summary>Roots always; children only while their group is active.</summary>
+    static List<PieceMenuTab> VisibleExtras(LockTabs tabs, string activeGroup)
+    {
+        var visible = new List<PieceMenuTab>();
+        foreach (var extra in tabs.Extras)
+        {
+            if (extra.IsRoot || extra.Group == activeGroup)
+                visible.Add(extra);
+        }
+
+        return visible;
+    }
+
+    /// <summary>
+    /// Wide enough for the visible tab row in one line. Estimated from label length at the tab font
+    /// (16 px heading, 18 px padding each side).
+    /// </summary>
+    static float WidthFor(List<PieceMenuTab> visibleExtras, bool hasExtras, bool showWard, bool showGroups, bool onlyWard)
+    {
+        if (onlyWard)
+            return BaseWidth;
+        var labels = new List<string>();
+        labels.AddRange(visibleExtras.ConvertAll(e => e.Title));
+        labels.Add(hasExtras ? "Lock" : "Piece");
+        if (showWard)
+            labels.Add("Ward");
+        if (showGroups)
+            labels.Add("Groups");
+        var row = 44f;
+        foreach (var label in labels)
+            row += 40f + 11f * label.Length + 6f;
+        return Mathf.Clamp(row, BaseWidth, MaxWidth);
+    }
+
+    void AddTab(LockTabs tabs, LockTab tab, string label, bool child)
+    {
+        var active = tabs.Active == tab;
+        var kind = child
+            ? (active ? UkButtonKind.ChildSelected : UkButtonKind.Child)
+            : (active ? UkButtonKind.Selected : UkButtonKind.Ghost);
+        var button = UkControls.MakeButton(label, () => tabs.Select(tab), kind);
         button.style.height = 40;
         button.style.marginRight = 6;
-        if (tabs.Active == tab)
-            UkControls.SetKind(button, UkButtonKind.Selected);
         _tabRow.Add(button);
     }
 
@@ -584,6 +669,24 @@ public sealed class LockMenuView
     }
 
     // ---- Groups tab -------------------------------------------------------------------------------
+
+    /// <summary>A tab another mod added: it fills the body, the window supplies the frame, tabs and Close.</summary>
+    public void OpenExtra(string title, string? subtitle, PieceMenuTab tab, Container piece, bool canManage, Action rebuild, LockTabs tabs, Action? onClosed)
+    {
+        Frame(title, subtitle, tabs, onClosed);
+        var body = new VisualElement().Column();
+        try
+        {
+            tab.Build(new PieceMenuTabContext(piece, body, canManage, rebuild));
+        }
+        catch (Exception ex)
+        {
+            LockSmith.Log?.LogError($"Lock menu tab '{tab.Id}' failed: {ex}");
+            body.Add(UkControls.Text("This tab could not be drawn.", 14, UkTheme.TextMuted));
+        }
+
+        Finish(body, null);
+    }
 
     public void OpenGroups(string title, string? subtitle, LockGroupsModel model, LockTabs tabs, Action? onClosed)
     {

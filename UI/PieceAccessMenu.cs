@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DrakeModsLibs.Integration;
 using DrakeModsLibs.UI;
 using LockSmith.Access;
 using UnityEngine;
@@ -31,6 +32,7 @@ public static class PieceAccessMenu
     static long _leasePlayer;
     static float _nextRenew;
     static LockTab _tab = LockTab.Piece;
+    static string? _extraId;
     static PrivateArea? _wardArea;
 
     public static bool IsOpen => Menu.IsOpen || Confirm.IsOpen;
@@ -285,6 +287,13 @@ public static class PieceAccessMenu
                 _leasePlayer = player.GetPlayerID();
                 _nextRenew = Time.time + PieceMenuLock.RenewSeconds;
                 _tab = startTab;
+                _extraId = null;
+                // Other mods' tabs lead the shared menu: open on the first one unless a specific tab was asked for.
+                if (startTab == LockTab.Piece && !wardOff && _chest != null && PieceMenuTabs.For(_chest) is { Count: > 0 } leading)
+                {
+                    _tab = LockTab.Extra;
+                    _extraId = leading[0].Id;
+                }
                 Reopen();
             },
             onDenied: () =>
@@ -312,9 +321,14 @@ public static class PieceAccessMenu
             _tab = LockTab.Piece;
         if (_tab == LockTab.Groups && !tabs.ShowGroups)
             _tab = LockTab.Piece;
+        if (_tab == LockTab.Extra && !tabs.Extras.Exists(e => e.Id == _extraId))
+            _tab = LockTab.Piece;
         tabs.Active = _tab;
+        tabs.ActiveExtraId = _extraId;
 
         var sig = new StringBuilder(_tab.ToString());
+        if (_tab == LockTab.Extra)
+            sig.Append(_extraId);
         Action closed = () =>
         {
             ReleaseLease();
@@ -322,6 +336,7 @@ public static class PieceAccessMenu
             _door = null;
             _lastSignature = string.Empty;
             _tab = LockTab.Piece;
+            _extraId = null;
             _wardArea = null;
         };
 
@@ -337,6 +352,15 @@ public static class PieceAccessMenu
             if (!Changed(sig, force))
                 return;
             Menu.OpenWard(wardOff ? "Ward is off" : "Ward", wardOff ? target.Name : LockSections.WardSubtitle(_wardArea!), model, tabs, closed);
+            return;
+        }
+
+        if (_tab == LockTab.Extra && target.Chest != null && tabs.Extras.Find(e => e.Id == _extraId) is { } extra)
+        {
+            if (!Changed(sig, force))
+                return;
+            var canManage = PieceGuestAccess.CanManageGuests(target.Nview, player.GetPlayerID());
+            Menu.OpenExtra(target.Name, extra.Title, extra, target.Chest, canManage, Reopen, tabs, closed);
             return;
         }
 
@@ -379,12 +403,18 @@ public static class PieceAccessMenu
         return true;
     }
 
-    /// <summary>Piece is always there. Ward only inside a ward you have a role in. Groups for people who can manage the guest list.</summary>
+    /// <summary>Piece is always there. Ward/Groups only after Enable LockSmith on this piece (and when the player can use them).</summary>
     static LockTabs BuildTabs(Target t, Player player)
     {
-        var tabs = new LockTabs { Select = SelectTab };
+        var tabs = new LockTabs { Select = SelectTab, SelectExtra = SelectExtra };
+        if (t.Chest != null)
+            tabs.Extras = PieceMenuTabs.For(t.Chest);
         try
         {
+            // Keep the Lock tab lean until designation: Ward and Groups appear only once LockSmith is on.
+            if (!PieceAccessState.IsManaged(t.Nview))
+                return tabs;
+
             var playerId = player.GetPlayerID();
             var wards = WardService.WardsFor(player.transform.position, playerId);
             tabs.ShowWard = wards.Count > 0;
@@ -399,6 +429,14 @@ public static class PieceAccessMenu
         }
 
         return tabs;
+    }
+
+    static void SelectExtra(PieceMenuTab tab)
+    {
+        _tab = LockTab.Extra;
+        _extraId = tab.Id;
+        _lastSignature = string.Empty;
+        Reopen();
     }
 
     static void SelectTab(LockTab tab)
@@ -482,6 +520,7 @@ public static class PieceAccessMenu
                 {
                     RequestSetPublic(t, PieceAccessState.IsPublic(nview), playerId);
                     AccessFeedback.Show(player, LockSmithLocalization.MsgManagedToken);
+                    Reopen(); // Ward / Groups tabs appear once LockSmith is on.
                 }));
             }
 
