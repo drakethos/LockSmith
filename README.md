@@ -37,7 +37,7 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
-**0.6.0-beta.2** — Hexium beta. Smart tabs (Lock children only while on Lock; Ward/Groups after Enable LockSmith). Requires DrakeModsLibs **1.0.0-beta.3**.
+**0.6.0-beta.3** — Hexium beta. Smart tabs (Lock children only while on Lock; Ward/Groups after Enable LockSmith). Requires DrakeModsLibs **1.0.0-beta.3**.
 
 **0.5.0** — **Final Thunderstore release** (updates continue on [Hexium](https://valheim.hexium.gg/?q=DrakeMods)). One Lock menu (Shift+E) instead of key combos, no key needed, one player in the menu at a time, Join as a menu button, Add nearby player, Yes/No popups. The Locksmith key is removed; the Lock menu replaces it. Requires DrakeModsLibs **0.10.0+**.
 

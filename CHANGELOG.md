@@ -1,11 +1,18 @@
 # Changelog
 
+## 0.6.0-beta.3
+
+Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.3**.
+
+- Same as 0.6.0-beta.2 (smart tabs). Release workflow now compiles against Libs **v1.0.0-beta.3** (beta.2’s CI still pinned beta.1 and failed to build).
+
 ## 0.6.0-beta.2
 
 Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.3**.
 
 - **Smart tabs:** sibling group roots stay visible (Shop, Mail, Lock). Children only expand for the active group — Shop → Buy/Layout (teal child chrome); Lock → Ward/Groups when LockSmith is enabled on the piece. Keeps the row from stacking every mod’s tabs at once.
 - **Ward / Groups** stay hidden until **Enable LockSmith** on that piece (when designate mode is on).
+- *(CI failed: workflow still cloned Libs v1.0.0-beta.1 — use 0.6.0-beta.3.)*
 
 ## 0.6.0-beta.1
 
