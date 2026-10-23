@@ -123,8 +123,8 @@ jobs:
           CI_SKIP_POST_BUILD: "true"
         run: |
           set -euo pipefail
-          # Compile against the Libs release LockSmith is pinned to (the new window needs its UI Toolkit, which is not on main yet).
-          git clone --depth 1 --branch v1.0.0-beta.3 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
+          # Compile against the Libs release LockSmith is pinned to (must match the DrakeModsLibs version in mod.package.props).
+          git clone --depth 1 --branch v1.0.0 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
           nuget restore ci_libs/DrakeModsLibsSrc/DrakeModsLibs.csproj -PackagesDirectory ci_libs/DrakeModsLibsSrc/packages
           CI_ROOT="$(pwd)/ci_valheim"
           MANAGED="$CI_ROOT/valheim_Data/Managed"
@@ -219,9 +219,9 @@ jobs:
           body: |
             ## LockSmith v${{ steps.ver.outputs.version }}
 
-            > **DrakeMods is moving to Hexium.** 0.5.0 is the final LockSmith release on Thunderstore. Future updates: [DrakeMods on Hexium](https://valheim.hexium.gg/?q=DrakeMods).
+            > DrakeMods is on [Hexium](https://valheim.hexium.gg/?q=DrakeMods). 0.5.0 was the final LockSmith release on Thunderstore.
 
-            Thunderstore zip attached. CI also publishes to **Thunderstore** then **Hexium**.
+            Zip attached. CI publishes to **Hexium**.
 
             ### Install
             Drop the zip into **r2modman**, **Thunderstore Mod Manager**, or **Gale** via "Import local mod", or extract into:
@@ -271,7 +271,8 @@ jobs:
 
   publish-thunderstore:
     needs: build-and-release
-    if: needs.build-and-release.outputs.is_prerelease != 'true'
+    # DrakeMods is Hexium-only since 2026-10 (0.5.0 was the final Thunderstore release): skipped for every release.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Download Thunderstore zip

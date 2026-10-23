@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0
+
+Release of the 0.6.0 betas, Hexium only. Requires **DrakeModsLibs 1.0.0**.
+
+- **New Lock window** with Piece / Ward / Groups tabs, Public and Join switches, people chips and nearby players; a **wheel** on hold Shift+E (quick tap opens the window).
+- **Per-person permissions** (let others on, switch public / private), **Groups** saved in `config/LockSmith/groups.txt`, copy / paste people, remove one person at a time.
+- **Ward tab:** switch the ward on/off, who may switch it, team or guest roles, removal rights.
+- **Smart tabs:** group roots always visible, children only for the active group (Shop → Buy/Layout, Lock → Ward/Groups).
+- The Locksmith key is gone; the Lock menu is the only tool (`EnableKeyMode` still migrates into `EnableManagedAccess`).
+- Automated tests (DrakesTestLab suite in `Tests/`, test hooks in Debug builds only); not part of the release.
+
 ## 0.6.0-beta.3
 
 Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.3**.
