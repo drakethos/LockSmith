@@ -1,0 +1,151 @@
+{
+  "name": "L-12 guest public toggle needs the Toggle permission",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "AltPlace+E opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Join access"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob joins"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": false,
+      "label": "a plain guest cannot make it public"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.grantPerm",
+      "args": {
+        "target": "chest",
+        "who": "Bob",
+        "perms": "toggle"
+      },
+      "expect": "Toggle",
+      "label": "Alice gives Bob the Toggle permission"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "now Bob may make it public"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": false
+      },
+      "expect": false,
+      "label": "and private again"
+    },
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/EnableGuestPublicToggle": "false"
+      }
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "label": "observed with EnableGuestPublicToggle off (informational)"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

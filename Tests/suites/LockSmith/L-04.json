@@ -1,0 +1,55 @@
+{
+  "name": "L-04 RequireActiveWard: no ward, no managing",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": false,
+      "label": "outside a ward the chest cannot be made public"
+    },
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/RequireActiveWard": "false"
+      }
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "label": "observed with RequireActiveWard off (informational)"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

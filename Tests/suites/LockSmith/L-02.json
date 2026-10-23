@@ -1,0 +1,147 @@
+{
+  "name": "L-02 make public lets anyone open, private locks again",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.isEligible",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "a player-built chest in a ward can be managed"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice makes it public"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "chest",
+      "contains": "ublic",
+      "label": "the hover says it is public"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": true,
+      "label": "Bob can open a public chest"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": false
+      },
+      "expect": true,
+      "label": "Bob cannot make it private (still public)"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": false
+      },
+      "expect": false,
+      "label": "Alice makes it private again"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "Bob is locked out again"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

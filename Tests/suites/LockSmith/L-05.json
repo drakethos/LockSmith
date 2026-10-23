@@ -1,0 +1,174 @@
+{
+  "name": "L-05 Join: owner opens Join, a player joins, gets in, is removed",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice opens Join"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "AltPlace+E opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Join access"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob joins with AltPlace+E"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": true,
+      "label": "a guest can open the chest"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "hook",
+      "name": "lock.canManageGuests",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "a guest cannot manage the guest list"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.guests",
+      "args": {
+        "target": "chest"
+      },
+      "contains": "Bob",
+      "label": "Bob is listed"
+    },
+    {
+      "do": "hook",
+      "name": "lock.removeGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Alice removes Bob"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "removed guests are locked out"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}
