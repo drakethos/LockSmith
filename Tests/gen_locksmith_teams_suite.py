@@ -117,6 +117,8 @@ T('LT-04', 'a team-shared door', [
     L('setTeamAccess', True, target='door', on=True),
     *on_team('Carol', 'red'),
     *door_moves('Carol (red) opens the door'),
+    {'do': 'interact', 'target': 'door'}, wait(0.6),
+    check('zdo', 'Carol closes it again', target='door', key='state', default='0', expect='0'),
     *on_team('Bob', 'blue'),
     *door_moves('Bob (blue) cannot', expect=False),
 ])

@@ -105,6 +105,23 @@
       "label": "Carol (red) opens the door"
     },
     {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "expect": "0",
+      "label": "Carol closes it again"
+    },
+    {
       "do": "playAs",
       "who": "Bob"
     },
