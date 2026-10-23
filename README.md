@@ -16,12 +16,13 @@
 > Lock down your base with LockSmith, then make the gear inside it look the part. ReskinIt runs on the same DrakeModsLibs you already have installed.
 > 👉 **[DrakesReskinIt on Hexium](https://valheim.hexium.gg/mods/DrakeMods/DrakesReskinIt)**
 
-Share chests and doors behind your ward without putting people on the ward. Open a door or chest to the public, or give guest access to individual players. Also covers Personal/Team private chests for shared stashes.
+Share chests and doors behind your ward without putting people on the ward. Open a door or chest to the public, or give guest access to individual players. Also covers Personal/Group private chests for shared stashes, and server teams (with DrakesServerTeams).
 
 Ward-friendly access for Valheim bases:
 
 - **Public / private** on normal chests and doors (inside wards)
-- **Personal / Team** on private-family chests (shared stash, no ward required)
+- **Personal / Group** on private-family chests (shared stash, no ward required)
+- **Team access** with DrakesServerTeams (optional): open a ward, chest or door to your server team
 - **Guests** on ward pieces via a Join list, works similar to ward opt-in
 - **Easy to clear** without rebuild
 
@@ -87,9 +88,20 @@ Only one player can have the Lock menu open on a door or chest. Anyone else tryi
 
 **Shift+E** → **Leave access** → Yes. The popup tells you whether you can come back (only while Join is open).
 
-### Private chests — Personal / Team
+### Private chests — Personal / Group
 
-Private chests work the same way. The owner gets Make personal/team (when `EnablePersonalPause` is on) and Open/Close Join. Team members can open it, and use **Shift+E** → Leave access.
+Private chests work the same way. The owner gets Make personal/group (when `EnablePersonalPause` is on) and Open/Close Join. Group members can open it, and use **Shift+E** → Leave access.
+
+### Server teams (optional, needs DrakesServerTeams)
+
+With DrakesServerTeams on the server, every ward, chest and door remembers the team it was built under. The server writes and checks that, not the players.
+
+- **Chests and doors:** the builder uses **Shift+E** → **Share with my team**. Everyone on that team can open it, even behind the ward. **Stop team sharing** undoes it.
+- **Wards:** the Lock menu's **Ward** tab has **Open to <team>**. Everyone on the ward's team then counts as permitted on the ward (building, doors and chests under it).
+- Only the builder can switch it. A piece stays on the team it was built under if the builder changes team.
+- The hover text shows **[Team: Red]** while it is shared.
+
+In LockSmith's own wording, the per-chest list is now a **Group** and a ward's non-guest people are **Members**, so "Team" always means the server team.
 
 ### Public hammer pieces (piece mode)
 
@@ -104,8 +116,10 @@ Private chests work the same way. The owner gets Make personal/team (when `Enabl
 | --- | --- | --- |
 | `EnableChests` | on | Ward public/private chests |
 | `EnableDoors` | on | Ward public/private doors/gates |
-| `EnableGroupChests` | on | Team sharing on private-family chests |
-| `EnablePersonalPause` | off | Personal↔Team pause switch (keeps names); off = team-only |
+| `EnableGroupChests` | on | Group sharing on private-family chests |
+| `EnablePersonalPause` | off | Personal↔Group pause switch (keeps names); off = group-only |
+| `EnableTeamAccess` | on | Needs DrakesServerTeams. Builders can share wards, chests and doors with their team |
+| `TeamAccessByDefault` | off | Needs DrakesServerTeams. Pieces are shared with their team until the builder turns it off |
 | `EnablePieceGuests` | on | Guest ACL on ward chests/doors |
 | `EnableOptInAccess` | on | Ward-style Join open / E to opt in |
 | `EnableManagedAccess` | on | Master switch for the Lock menu on placed doors/chests (was `EnableKeyMode`; value carries over) |
@@ -118,7 +132,7 @@ Private chests work the same way. The owner gets Make personal/team (when `Enabl
 | `EnableAddNearby` | on | Lock menu button to add the closest player (5m) to the guest list |
 | `EnableDesignate` | on | A piece must be enabled (Lock menu → **Enable LockSmith**) before other options show |
 | `RequireActiveWard` | on | No manage/toggle on normal chests/doors unless inside an enabled ward (private chests exempt) |
-| `TeamLabelColor` | `#FF00FF` | Local only — color for Team/Guests labels |
+| `TeamLabelColor` | `#FF00FF` | Local only — color for [Group]/Guests labels (key name kept so configs carry over) |
 
 
 ## Compatibility API

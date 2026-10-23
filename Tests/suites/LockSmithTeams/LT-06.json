@@ -1,0 +1,127 @@
+{
+  "name": "LT-06 TeamAccessByDefault opens pieces to their team without a switch",
+  "description": "",
+  "steps": [
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/TeamAccessByDefault": "true"
+      }
+    },
+    {
+      "do": "hook",
+      "name": "teams.usePieceTeams",
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Alice is on red"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "ward"
+      },
+      "expect": "red",
+      "label": "the server stamps the ward red"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "teams.pieceTeam",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the chest is red"
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Carol is on red"
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasTeamAccess",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Carol has team access on the chest"
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasTeamAccess",
+      "args": {
+        "target": "ward"
+      },
+      "expect": true,
+      "label": "and on the ward"
+    },
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/TeamAccessByDefault": "false"
+      }
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasTeamAccess",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "off again with the default off"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    },
+    {
+      "check": "noErrors",
+      "source": "DrakesServerTeams"
+    }
+  ]
+}

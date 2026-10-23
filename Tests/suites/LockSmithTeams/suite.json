@@ -1,0 +1,66 @@
+{
+  "name": "LockSmithTeams",
+  "description": "LockSmith team access with DrakesServerTeams: team-shared chests (wood and private), doors and wards, builder-only switch, TeamAccessByDefault, forged stamps, a builder changing team, and the feature switch. Pieces are built as Alice (red); Carol (red) and Bob (blue) are simulated with play-as.",
+  "requireMods": [
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "minVersion": "0.6.0"
+    },
+    {
+      "guid": "com.drakemods.serverteams",
+      "minVersion": "0.1.0"
+    }
+  ],
+  "configOverrides": [
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableDoors",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableManagedAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "RequireActiveWard",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableTeamAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "TeamAccessByDefault",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakemods.serverteams",
+      "section": "1 Assignment",
+      "key": "AssignmentMode",
+      "value": "AdminOnly"
+    }
+  ],
+  "setup": {
+    "timeOfDay": 0.5,
+    "freezeTime": 1,
+    "god": 1,
+    "noBuild": "off",
+    "hideUnlockPopups": 1
+  },
+  "resetBetweenTests": true
+}

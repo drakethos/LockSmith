@@ -1,0 +1,146 @@
+{
+  "name": "LT-03 a team-shared private chest lets the team in",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "teams.usePieceTeams",
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Alice is on red"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_private",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "teams.pieceTeam",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the chest is red"
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Carol is on red"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "Carol cannot open Alice's private chest yet"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setTeamAccess",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Carol is on red"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": true,
+      "label": "after sharing, Carol opens it"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    },
+    {
+      "check": "noErrors",
+      "source": "DrakesServerTeams"
+    }
+  ]
+}

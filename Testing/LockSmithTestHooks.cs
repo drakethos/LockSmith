@@ -217,4 +217,33 @@ internal static class LockSmithTestHooks
             ? ChestAccessService.ShouldBypassWardCheck(chest) || PieceGuestService.ShouldBypassWardForGuest(chest)
             : DoorAccessService.ShouldBypassWardCheck(door!) || PieceGuestService.ShouldBypassWardForGuest(door!);
     }
+
+    /// <summary>A tagged ward, chest or door (args "target"), else the nearest chest or door.</summary>
+    static ZNetView AnyView(GameObject? target)
+    {
+        if (target == null)
+            return Piece(null).view;
+        return target.GetComponentInParent<ZNetView>() ?? target.GetComponentInChildren<ZNetView>()
+               ?? throw new InvalidOperationException("the piece has no network view");
+    }
+
+    /// <summary>Team access on / off, as the builder does in the Lock menu or Ward tab. Returns the state afterwards.</summary>
+    [TestHook("lock.setTeamAccess")]
+    static bool SetTeamAccess(Dictionary<string, object?> args, GameObject? target = null)
+    {
+        var view = AnyView(target);
+        TeamAccess.RequestSet(view, B(args, "on", true), Me);
+        return TeamAccess.IsOn(view);
+    }
+
+    [TestHook("lock.isTeamAccess")]
+    static bool IsTeamAccess(GameObject? target = null) => TeamAccess.IsOn(AnyView(target));
+
+    /// <summary>May the current player switch team access (builder, piece has a team, Teams installed)?</summary>
+    [TestHook("lock.canSetTeamAccess")]
+    static bool CanSetTeamAccess(GameObject? target = null) => TeamAccess.CanSet(AnyView(target), Me);
+
+    /// <summary>Does the current player get in through team access?</summary>
+    [TestHook("lock.hasTeamAccess")]
+    static bool HasTeamAccess(GameObject? target = null) => TeamAccess.HasAccess(AnyView(target), Me);
 }

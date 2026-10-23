@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Team access** (optional, needs DrakesServerTeams): the builder can share a ward, chest or door with the server team it was built under (Lock menu **Share with my team**, Ward tab **Open to <team>**). The team is written and checked by the Teams server. Hover shows **[Team: …]**. New synced settings `EnableTeamAccess` (on) and `TeamAccessByDefault` (off). Soft dependency by reflection: LockSmith runs the same without Teams.
+- **Wording:** the per-chest Personal/Team list is now **Personal/Group**, and a ward's non-guest people are **Members** ("Make member", "Owner and members"), so "Team" means the server team. Token ids and the `TeamLabelColor` key are unchanged.
+- Test Lab: `LockSmithTeams` suite (9 tests, needs DrakesServerTeams) and `lock.*TeamAccess` hooks.
+
 ## 0.6.0
 
 Release of the 0.6.0 betas, Hexium only. Requires **DrakeModsLibs 1.0.0**.

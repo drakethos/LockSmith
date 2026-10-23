@@ -1,0 +1,143 @@
+{
+  "name": "LT-09 EnableTeamAccess off turns team access off everywhere",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "teams.usePieceTeams",
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Alice is on red"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "ward"
+      },
+      "expect": "red",
+      "label": "the server stamps the ward red"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "teams.pieceTeam",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the chest is red"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setTeamAccess",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/EnableTeamAccess": "false"
+      }
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Carol is on red"
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasTeamAccess",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "no team access with the feature off"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "Carol is kept out by the ward again"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/EnableTeamAccess": "true"
+      }
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    },
+    {
+      "check": "noErrors",
+      "source": "DrakesServerTeams"
+    }
+  ]
+}

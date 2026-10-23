@@ -1,0 +1,154 @@
+{
+  "name": "LT-07 a forged team stamp gives no access once the server checks it",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "teams.usePieceTeams",
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Alice is on red"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "ward"
+      },
+      "expect": "red",
+      "label": "the server stamps the ward red"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "teams.pieceTeam",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the chest is red"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setTeamAccess",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "blue"
+      },
+      "expect": "blue",
+      "label": "Bob is on blue"
+    },
+    {
+      "do": "hook",
+      "name": "teams.forgeStamp",
+      "args": {
+        "target": "chest",
+        "team": "blue"
+      },
+      "expect": "blue",
+      "label": "a modified client stamps Alice's chest blue"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the server puts red back"
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasTeamAccess",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "Bob has no team access"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "Bob cannot open it"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    },
+    {
+      "check": "noErrors",
+      "source": "DrakesServerTeams"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "name": "LT-04 a team-shared door",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "teams.usePieceTeams",
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Alice is on red"
+    },
+    {
+      "do": "place",
+      "prefab": "wood_door",
+      "dz": 2.5,
+      "as": "door"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "ward"
+      },
+      "expect": "red",
+      "label": "the server stamps the ward red"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "teams.pieceTeam",
+      "args": {
+        "target": "door"
+      },
+      "expect": "red",
+      "label": "the door is red"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setTeamAccess",
+      "args": {
+        "target": "door",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Carol is on red"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "notContains": "0",
+      "label": "Carol (red) opens the door"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "blue"
+      },
+      "expect": "blue",
+      "label": "Bob is on blue"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "expect": "0",
+      "label": "Bob (blue) cannot"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    },
+    {
+      "check": "noErrors",
+      "source": "DrakesServerTeams"
+    }
+  ]
+}

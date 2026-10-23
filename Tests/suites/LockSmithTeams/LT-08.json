@@ -1,0 +1,128 @@
+{
+  "name": "LT-08 a builder who changes team keeps the piece on the old team",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "teams.usePieceTeams",
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Alice is on red"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "ward"
+      },
+      "expect": "red",
+      "label": "the server stamps the ward red"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "teams.pieceTeam",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the chest is red"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setTeamAccess",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "blue"
+      },
+      "expect": "blue",
+      "label": "Alice is on blue"
+    },
+    {
+      "do": "hook",
+      "name": "teams.checkPiece",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "red",
+      "label": "the chest stays red"
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "teams.assign",
+      "args": {
+        "team": "red"
+      },
+      "expect": "red",
+      "label": "Carol is on red"
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasTeamAccess",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "red Carol still has team access"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    },
+    {
+      "check": "noErrors",
+      "source": "DrakesServerTeams"
+    }
+  ]
+}
