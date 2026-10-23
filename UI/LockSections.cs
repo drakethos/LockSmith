@@ -48,7 +48,7 @@ public static class LockSections
         };
 
         if (!on && WardService.GuestTurnedOff(nview))
-            model.Note = "A guest turned the ward off. Join stays closed until a team member or the owner turns it on.";
+            model.Note = "A guest turned the ward off. Join stays closed until a member or the owner turns it on.";
 
         foreach (var member in WardService.Members(area))
         {
@@ -56,7 +56,7 @@ public static class LockSections
             var person = new LockWardPerson
             {
                 Name = target.Name,
-                Role = target.Level == WardLevel.Guest ? "Guest" : "Team",
+                Role = target.Level == WardLevel.Guest ? "Guest" : "Member",
                 CanRemove = iAmOwner || (WardService.IsRemover(nview, me) && myLevel > target.Level),
                 Remove = () => WardService.RequestRemove(nview, target.Id, me, reopen),
             };
@@ -64,7 +64,7 @@ public static class LockSections
             if (iAmOwner)
             {
                 var toGuest = target.Level == WardLevel.Team;
-                person.RoleLabel = toGuest ? "Make guest" : "Make team";
+                person.RoleLabel = toGuest ? "Make guest" : "Make member";
                 person.ToggleRole = () =>
                 {
                     WardService.RequestSetRole(nview, target.Id, toGuest ? WardLevel.Guest : WardLevel.Team, me);

@@ -781,7 +781,7 @@ public static class PieceAccessMenu
 
         if (t.PrivateFamily)
         {
-            parts.Add(GroupAccessState.IsTeamMode(nview) ? "Team" : "Personal");
+            parts.Add(GroupAccessState.IsTeamMode(nview) ? "Shared" : "Personal");
         }
         else if (!PieceAccessState.IsManaged(nview))
         {

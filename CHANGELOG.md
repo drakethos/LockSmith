@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Text only: "Team" is now "Shared" / "Member".** The Personal/Team chest mode reads Personal/**Shared**, and the ward role reads **Member** (next to Guest), so "Team" can mean the server team from DrakesServerTeams. ZDO keys, saved data, config keys (including `TeamLabelColor`) and RPC names are unchanged; nothing to migrate.
+
 ## 0.6.0-beta.3
 
 Hexium beta (no Thunderstore release). Requires **DrakeModsLibs 1.0.0-beta.3**.

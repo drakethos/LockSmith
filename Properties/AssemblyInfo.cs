@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("LockSmith")]
-[assembly: AssemblyDescription("Designate chests and doors with a Locksmith key. Public/private wards, Personal/Team chests, guests.")]
+[assembly: AssemblyDescription("Designate chests and doors with a Locksmith key. Public/private wards, Personal/Shared chests, guests.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DrakeMods")]
 [assembly: AssemblyProduct("LockSmith")]

@@ -53,7 +53,7 @@ public static class LockSmithConfig
     public static bool EnableChests => _enableChests.Value;
     public static bool EnableDoors => _enableDoors.Value;
     public static bool EnableGroupChests => _enableGroupChests.Value;
-    /// <summary>When true, creator can pause team sharing (Personal) without clearing names. Off = team-only add people.</summary>
+    /// <summary>When true, creator can pause sharing (Personal) without clearing names. Off = shared-only add people.</summary>
     public static bool EnablePersonalPause => _enablePersonalPause.Value;
     public static bool EnablePieceGuests => _enablePieceGuests.Value;
     public static bool EnableOptInAccess => _enableOptInAccess.Value;
@@ -81,11 +81,11 @@ public static class LockSmithConfig
     }
     /// <summary>
     /// When true, LockSmith cannot manage or toggle normal chests/doors unless inside an enabled ward
-    /// (including already-managed pieces). Personal/Team private-family chests are exempt.
+    /// (including already-managed pieces). Personal/Shared private-family chests are exempt.
     /// </summary>
     public static bool RequireActiveWard => _requireActiveWard.Value;
 
-    /// <summary>Local-only hex color for Team / Guests labels (e.g. #FF00FF).</summary>
+    /// <summary>Local-only hex color for Shared / Guests labels (e.g. #FF00FF).</summary>
     public static string TeamLabelColorHex => NormalizeHexColor(_teamLabelColor.Value);
 
     /// <summary>Local (this device): show the nearby-player list on the Piece tab.</summary>
@@ -138,7 +138,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableGroupChests",
             true,
-            "Team sharing on private-family chests (Join list / guests).");
+            "Shared mode on private-family chests (Join list / guests).");
 
         _enablePersonalPause = Sync.BindSynced(
             config,
@@ -146,7 +146,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnablePersonalPause",
             false,
-            "When true, private-chest owners get Make personal / Make team in the Lock menu: a pause switch that keeps the names but locks friends out while Personal. When false (default), chests stay team-shared.");
+            "When true, private-chest owners get Make personal / Make shared in the Lock menu: a pause switch that keeps the names but locks friends out while Personal. When false (default), chests stay shared.");
 
         _enablePieceGuests = Sync.BindSynced(
             config,
@@ -186,7 +186,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "EnableManagedAccess",
             true,
-            "Master switch for managed (dynamic) access on placed doors and chests: the Lock menu, public/private, Join and guests, Team chests. Off = LockSmith leaves placed pieces alone (use EnablePieceMode for always-public Hammer pieces). Was EnableKeyMode; the old value carries over.");
+            "Master switch for managed (dynamic) access on placed doors and chests: the Lock menu, public/private, Join and guests, Shared chests. Off = LockSmith leaves placed pieces alone (use EnablePieceMode for always-public Hammer pieces). Was EnableKeyMode; the old value carries over.");
         MigrateRenamedBool(config, SectionFeatures, "EnableKeyMode", _enableManagedAccess);
 
         _enablePieceMode = Sync.BindSynced(
@@ -211,7 +211,7 @@ public static class LockSmithConfig
             DisplayFeatures,
             "RequireActiveWard",
             true,
-            "When true (default), LockSmith cannot manage or toggle normal chests/doors unless they are inside an enabled ward — including already-managed pieces. Personal/Team private-family chests are exempt. Doors always need the ward up.");
+            "When true (default), LockSmith cannot manage or toggle normal chests/doors unless they are inside an enabled ward — including already-managed pieces. Personal/Shared private-family chests are exempt. Doors always need the ward up.");
 
         _publicPieceAllowList = Sync.BindSynced(
             config,
@@ -251,7 +251,7 @@ public static class LockSmithConfig
             "TeamLabelColor",
             "#FF00FF",
             new ConfigDescription(
-                "Local color for [Team] / Guests labels (hex like #FF00FF). Not synced."));
+                "Local color for [Shared] / Guests labels (hex like #FF00FF). Not synced."));
 
         _showNearbyList = config.Bind(
             SectionDisplay,

@@ -621,7 +621,7 @@ public sealed class LockMenuView
         }
 
         var who = SectionCard("Who can switch it");
-        var seg = new UkSegmented("Owner only", "Owner and team", "Everyone on the ward");
+        var seg = new UkSegmented("Owner only", "Owner and members", "Everyone on the ward");
         seg.SetIndex(Mathf.Clamp(3 - model.SwitchMin, 0, 2));
         seg.Changed = i => { if (model.CanSetSwitchMin) model.SetSwitchMin(3 - i); };
         seg.Root.SetEnabled(model.CanSetSwitchMin);

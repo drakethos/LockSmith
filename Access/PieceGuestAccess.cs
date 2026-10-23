@@ -479,7 +479,7 @@ public static class PieceGuestAccess
         nextReady = !IsOptInReady(nview);
         if (nextReady && WardService.JoinBlockedHere(nview.transform.position))
         {
-            AccessFeedback.ShowRaw(Player.m_localPlayer, "A guest turned the ward off. Join stays closed until a team member turns it on.");
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "A guest turned the ward off. Join stays closed until a member turns it on.");
             return false;
         }
         RequestSetOptIn(nview, nextReady, playerId);
@@ -490,7 +490,7 @@ public static class PieceGuestAccess
     {
         if (nview != null && nview.IsValid() && WardService.JoinBlockedHere(nview.transform.position))
         {
-            AccessFeedback.ShowRaw(Player.m_localPlayer, "A guest turned the ward off. Join stays closed until a team member turns it on.");
+            AccessFeedback.ShowRaw(Player.m_localPlayer, "A guest turned the ward off. Join stays closed until a member turns it on.");
             return;
         }
 
