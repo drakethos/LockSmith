@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1
+
+Hexium only. Requires **DrakeModsLibs 1.0.0**.
+
+- **Fixed:** the per-person permission switches in the Lock window (**Let others on**, **Switch public / private**) did nothing: the window refreshed its buttons a few times a second and lost track of which person a name chip belonged to, so the change was never sent. They save straight away again.
+- Deeper automated tests for the Lock window and Public hammer pieces (DrakesTestLab suites in `Tests/`); not part of the release.
+
 ## 0.6.0
 
 Release of the 0.6.0 betas, Hexium only. Requires **DrakeModsLibs 1.0.0**.
