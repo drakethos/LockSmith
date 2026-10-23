@@ -22,6 +22,7 @@ Ward-friendly access for Valheim bases:
 
 - **Public / private** on normal chests and doors (inside wards)
 - **Personal / Shared** on private-family chests (shared stash, no ward required)
+- **Team** switch on managed chests and doors: players on the same server team as the builder get in (needs the optional DrakesServerTeams mod)
 - **Guests** on ward pieces via a Join list, works similar to ward opt-in
 - **Easy to clear** without rebuild
 

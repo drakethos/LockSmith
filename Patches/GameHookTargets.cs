@@ -29,6 +29,9 @@ public static class GameHookTargets
     /// <summary>ZNetView RPC: set Personal(0) / Team(1) on a private-family chest.</summary>
     public const string RpcSetGroupMode = "RPC_LockSmithSetGroupMode";
 
+    /// <summary>ZNetView RPC: owner/ward member sets Team access (0/1).</summary>
+    public const string RpcSetAllowTeam = "RPC_LockSmithSetAllowTeam";
+
     /// <summary>ZNetView RPC: creator/ward toggles opt-in ready (0/1).</summary>
     public const string RpcSetOptInReady = "RPC_LockSmithSetOptInReady";
 
@@ -88,4 +91,7 @@ public static class GameHookTargets
 
     /// <summary>ZDO int: 0 closed, 1 opt-in ready (ward-style join).</summary>
     public const string ZdoOptInReady = "locksmith_optin";
+
+    /// <summary>ZDO int: 1 = players on the same server team as the builder (DrakesServerTeams) may use this piece.</summary>
+    public const string ZdoAllowTeam = "locksmith_allow_team";
 }

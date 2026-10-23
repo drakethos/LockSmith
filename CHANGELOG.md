@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Team access (needs DrakesServerTeams, optional).** On a managed chest or door, owners and ward members get a **Team** switch on the Piece tab. While it is on, players on the same server team as whoever built the piece get in like a guest, with nobody added to a list. Off by default per piece. Only shown when DrakesServerTeams is installed; LockSmith does not depend on it (soft link by reflection in `Compat/ServerTeams`). Uses the team stamped on the piece when it was placed, so no player ids are shared. Pieces built before Teams was installed, or by someone with no team, never match. New ZDO key `locksmith_allow_team`, new RPC `RPC_LockSmithSetAllowTeam`.
+
 - **Text only: "Team" is now "Shared" / "Member".** The Personal/Team chest mode reads Personal/**Shared**, and the ward role reads **Member** (next to Guest), so "Team" can mean the server team from DrakesServerTeams. ZDO keys, saved data, config keys (including `TeamLabelColor`) and RPC names are unchanged; nothing to migrate.
 
 ## 0.6.0-beta.3

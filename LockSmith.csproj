@@ -77,6 +77,8 @@
     <Compile Include="Access\PieceAccessState.cs" />
     <Compile Include="Access\PieceClearService.cs" />
     <Compile Include="Access\PieceGuestAccess.cs" />
+    <Compile Include="Access\TeamAccess.cs" />
+    <Compile Include="Compat\ServerTeams\ServerTeamsBridge.cs" />
     <Compile Include="Access\PieceGuestService.cs" />
     <Compile Include="Access\PieceMenuLock.cs" />
     <Compile Include="Access\PieceRpc.cs" />

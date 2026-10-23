@@ -550,6 +550,14 @@ public static class PieceAccessMenu
             LockMenuKinds.Tag(actions[actions.Count - 1], LockMenuKind.Public);
         }
 
+        // Server team (DrakesServerTeams): only offered while that mod is installed.
+        if (!isPublic && ownerTools && wardMember && TeamAccess.Available)
+        {
+            var teamOn = TeamAccess.IsOn(nview);
+            actions.Add(Action("Team", nview, GameHookTargets.RpcSetAllowTeam, () => TeamAccess.RequestSet(nview, !teamOn, playerId)));
+            LockMenuKinds.Tag(actions[actions.Count - 1], LockMenuKind.Team, flags: teamOn ? 1 : 0);
+        }
+
         if (!isPublic && PieceGuestService.GuestsEnabled && ((ownerTools && wardMember) || guestAdd))
         {
             actions.Add(LockMenuKinds.Tag(JoinAction(nview, player), LockMenuKind.Join));

@@ -35,7 +35,7 @@ public static class PieceGuestService
             return false;
 
         var nview = PieceAccessState.GetNetView(container);
-        return PieceGuestAccess.IsGuest(nview, local.GetPlayerID());
+        return PieceGuestAccess.IsGuest(nview, local.GetPlayerID()) || TeamAccess.AllowsLocal(nview);
     }
 
     public static bool ShouldBypassWardForGuest(Door door)
@@ -48,7 +48,7 @@ public static class PieceGuestService
             return false;
 
         var nview = PieceAccessState.GetNetView(door);
-        return PieceGuestAccess.IsGuest(nview, local.GetPlayerID());
+        return PieceGuestAccess.IsGuest(nview, local.GetPlayerID()) || TeamAccess.AllowsLocal(nview);
     }
 
     /// <summary>

@@ -302,6 +302,7 @@ public static class PieceGuestAccess
         nview.Unregister(GameHookTargets.RpcMergeGuests);
         nview.Unregister(GameHookTargets.RpcRemoveGuest);
         GuestPerms.RegisterRpc(nview);
+        TeamAccess.RegisterRpc(nview);
 
         nview.Register<long, long>(GameHookTargets.RpcRemoveGuest, (long sender, long targetId, long playerId) =>
         {

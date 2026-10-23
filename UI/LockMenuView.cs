@@ -17,6 +17,8 @@ public enum LockMenuKind
     Nearby,
     Join,
     Public,
+    /// <summary>Server-team access switch (DrakesServerTeams). Tag Flags: 1 = on.</summary>
+    Team,
     Leave,
     Clear,
     Copy,
@@ -334,7 +336,7 @@ public sealed class LockMenuView
         var chips = new List<DrakeMenuAction>();
         var nearby = new List<DrakeMenuAction>();
         var buttons = new List<DrakeMenuAction>();
-        DrakeMenuAction? join = null, pub = null, leave = null, clear = null, copy = null, paste = null;
+        DrakeMenuAction? join = null, pub = null, team = null, leave = null, clear = null, copy = null, paste = null;
         foreach (var action in actions)
         {
             switch (LockMenuKinds.TagOf(action).Kind)
@@ -343,6 +345,7 @@ public sealed class LockMenuView
                 case LockMenuKind.Nearby: nearby.Add(action); break;
                 case LockMenuKind.Join: join = action; break;
                 case LockMenuKind.Public: pub = action; break;
+                case LockMenuKind.Team: team = action; break;
                 case LockMenuKind.Leave: leave = action; break;
                 case LockMenuKind.Clear: clear = action; break;
                 case LockMenuKind.Copy: copy = action; break;
@@ -354,7 +357,7 @@ public sealed class LockMenuView
         var body = new VisualElement().Column();
 
         // Access: public + join, as switches.
-        if (pub != null || join != null)
+        if (pub != null || join != null || team != null)
         {
             var access = SectionCard("Access");
             if (pub != null)
@@ -375,6 +378,19 @@ public sealed class LockMenuView
                 var action = join;
                 sw.Changed = _ => Run(action);
                 sw.Root.style.marginTop = pub != null ? 8 : 0;
+                access.Add(sw.Root);
+            }
+
+            if (team != null)
+            {
+                var name = Access.TeamAccess.LocalTeamName();
+                var sw = new UkSwitch("Team",
+                    name != null ? "Everyone on your server team (" + name + ") can use it." : "Everyone on the same server team as whoever built it can use it.");
+                sw.SetValue(LockMenuKinds.TagOf(team).Flags == 1, notify: false);
+                sw.SetEnabled(team.Enabled);
+                var action = team;
+                sw.Changed = _ => Run(action);
+                sw.Root.style.marginTop = pub != null || join != null ? 8 : 0;
                 access.Add(sw.Root);
             }
 
