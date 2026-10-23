@@ -1,0 +1,84 @@
+{
+  "name": "LP-01 a public chest clone opens for anyone, even inside a ward",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood_public",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "chest",
+      "contains": "public",
+      "label": "it says (public) and [Public]"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "label": "Bob opens it inside Alice ward"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "the Lock menu does not manage it"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

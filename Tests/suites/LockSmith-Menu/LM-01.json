@@ -1,0 +1,160 @@
+{
+  "name": "LM-01 EnableDesignate: a piece must be switched on before anything else shows",
+  "description": "",
+  "steps": [
+    {
+      "do": "setConfig",
+      "values": {
+        "02 Features/EnableDesignate": "true"
+      }
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.needsDesignate",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "a new chest is not LockSmith yet"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "AltPlace+E opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Enable LockSmith",
+      "exact": true,
+      "expect": true,
+      "label": "the menu offers Enable LockSmith"
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Public",
+      "exact": true,
+      "expect": false,
+      "label": "and nothing else yet (no Public switch)"
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Ward",
+      "exact": true,
+      "expect": false,
+      "label": "no Ward tab before it is enabled"
+    },
+    {
+      "do": "click",
+      "button": "Enable LockSmith"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.needsDesignate",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "switched on"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "the menu again",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Public",
+      "exact": true,
+      "expect": true,
+      "label": "now the Public switch shows"
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Join open",
+      "exact": true,
+      "expect": true,
+      "label": "and Join"
+    },
+    {
+      "do": "screenshot",
+      "name": "lock-menu-enabled"
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

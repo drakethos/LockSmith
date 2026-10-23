@@ -39,20 +39,26 @@ public sealed class LockMenuTag
 
 public static class LockMenuKinds
 {
-    static readonly Dictionary<DrakeMenuAction, LockMenuTag> Tags = new();
+    // Weak keys: a tag lives exactly as long as its action. The menu rebuilds its actions every refresh but only redraws when
+    // something changed, so the window can still show (and click) actions from an earlier pass; they must keep their tags.
+    static readonly System.Runtime.CompilerServices.ConditionalWeakTable<DrakeMenuAction, LockMenuTag> Tags = new();
 
     public static DrakeMenuAction Tag(DrakeMenuAction action, LockMenuKind kind, string? ask = null, string? confirmText = null, Action? commit = null,
         long personId = 0L, int flags = 0, Action<int>? setFlags = null)
     {
-        Tags[action] = new LockMenuTag
+        Tags.Remove(action);
+        Tags.Add(action, new LockMenuTag
         {
             Kind = kind, Ask = ask, ConfirmText = confirmText, Commit = commit,
             PersonId = personId, Flags = flags, SetFlags = setFlags,
-        };
+        });
         return action;
     }
 
-    public static void Forget() => Tags.Clear();
+    /// <summary>Kept for callers; tags now go away with their actions (clearing them here broke chips still on screen).</summary>
+    public static void Forget()
+    {
+    }
 
     public static LockMenuTag TagOf(DrakeMenuAction action) =>
         Tags.TryGetValue(action, out var tag) ? tag : new LockMenuTag { Kind = LockMenuKind.Button };

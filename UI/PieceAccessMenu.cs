@@ -448,7 +448,6 @@ public static class PieceAccessMenu
 
     static List<DrakeMenuAction> BuildPieceActions(Target t, Player player)
     {
-        LockMenuKinds.Forget();
         var actions = new List<DrakeMenuAction>();
         var playerId = player.GetPlayerID();
         var nview = t.Nview;

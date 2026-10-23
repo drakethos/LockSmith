@@ -1,0 +1,178 @@
+{
+  "name": "LM-06 the Ward tab: switch the ward off and on",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.wardEnabled",
+      "args": {
+        "target": "ward"
+      },
+      "expect": true,
+      "label": "the ward is on"
+    },
+    {
+      "do": "hook",
+      "name": "lock.wardRole",
+      "args": {
+        "target": "ward",
+        "who": "Alice"
+      },
+      "expect": "Owner",
+      "label": "Alice owns it"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Alice opens the menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Ward",
+      "label": "the Ward tab"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Ward on",
+      "exact": true,
+      "expect": true,
+      "label": "it has the Ward on switch"
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Who can switch it",
+      "exact": true,
+      "expect": true,
+      "label": "and who may switch it"
+    },
+    {
+      "do": "screenshot",
+      "name": "ward-tab"
+    },
+    {
+      "do": "click",
+      "button": "Ward on",
+      "label": "switch the ward off"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.wardEnabled",
+      "args": {
+        "target": "ward"
+      },
+      "expect": false,
+      "label": "the ward is off"
+    },
+    {
+      "do": "click",
+      "button": "Ward on",
+      "label": "and on again"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.wardEnabled",
+      "args": {
+        "target": "ward"
+      },
+      "expect": true,
+      "label": "on again"
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "label": "observed: a stranger in the ward gets a Lock menu? (informational)"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Ward",
+      "exact": true,
+      "expect": false,
+      "label": "a stranger never sees the Ward tab"
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

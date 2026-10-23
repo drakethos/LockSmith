@@ -1,0 +1,86 @@
+{
+  "name": "LockSmith-Menu",
+  "description": "The Lock menu driven like a player: Enable LockSmith, permissions per person, copy / paste people, leave, remove, the Ward tab, groups and one player at a time. Pieces are built as Alice; other players are play-as.",
+  "requireMods": [
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "minVersion": "0.6.0"
+    }
+  ],
+  "configOverrides": [
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableDoors",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableGroupChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnablePersonalPause",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnablePieceGuests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableOptInAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableGuestPublicToggle",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableDesignate",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableManagedAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "EnableAddNearby",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakesworkshop.locksmith",
+      "section": "02 Features",
+      "key": "RequireActiveWard",
+      "value": "true"
+    }
+  ],
+  "setup": {
+    "timeOfDay": 0.5,
+    "freezeTime": 1,
+    "god": 1,
+    "noBuild": "off",
+    "hideUnlockPopups": 1
+  },
+  "resetBetweenTests": true
+}

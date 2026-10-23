@@ -1,0 +1,65 @@
+{
+  "name": "LP-02 a public door clone opens for anyone",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "wood_door_public",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "door"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "notContains": "0",
+      "label": "the door opened for Bob"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "LP-03 a normal chest beside it stays locked",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "the normal chest stays shut for Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

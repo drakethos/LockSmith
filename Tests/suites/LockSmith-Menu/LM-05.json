@@ -1,0 +1,185 @@
+{
+  "name": "LM-05 Remove LockSmith puts the chest back to normal",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Join access"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob is a guest now"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasData",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "the chest carries LockSmith data"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Alice opens the menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Remove",
+      "label": "Remove"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "click",
+      "button": "Remove",
+      "label": "confirm Remove"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasData",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "no LockSmith data left"
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "not public any more"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "and Bob is no longer a guest"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

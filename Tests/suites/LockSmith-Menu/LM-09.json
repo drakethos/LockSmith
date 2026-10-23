@@ -1,0 +1,114 @@
+{
+  "name": "LM-09 one player in the menu at a time",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.holdMenuAs",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Bob has the Lock menu open on this chest"
+    },
+    {
+      "do": "hook",
+      "name": "lock.heldBy",
+      "args": {
+        "target": "chest"
+      },
+      "expect": "Bob",
+      "label": "the chest knows who holds it"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "label": "Alice tries the menu meanwhile"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.menuOpen",
+      "expect": false,
+      "label": "no menu opens for her"
+    },
+    {
+      "do": "check",
+      "check": "message",
+      "contains": "Bob is using this",
+      "label": "she is told who is using it"
+    },
+    {
+      "do": "hook",
+      "name": "lock.holdMenuAs",
+      "args": {
+        "target": "chest",
+        "who": ""
+      },
+      "expect": true,
+      "label": "Bob closes his menu"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "now Alice gets in"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

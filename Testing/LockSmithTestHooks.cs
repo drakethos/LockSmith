@@ -192,6 +192,10 @@ internal static class LockSmithTestHooks
         return ((GuestPerm)GuestPerms.FlagsOf(view, guest.PlayerId)).ToString();
     }
 
+    /// <summary>May the current player let others on (ward member / owner, or a guest given the Add permission)?</summary>
+    [TestHook("lock.canAdd")]
+    static bool CanAdd(GameObject? target = null) => GuestPerms.CanAdd(Piece(target).view, Me);
+
     /// <summary>May the current player manage the guest list?</summary>
     [TestHook("lock.canManageGuests")]
     static bool CanManageGuests(GameObject? target = null) => PieceGuestAccess.CanManageGuests(Piece(target).view, Me);
@@ -217,4 +221,118 @@ internal static class LockSmithTestHooks
             ? ChestAccessService.ShouldBypassWardCheck(chest) || PieceGuestService.ShouldBypassWardForGuest(chest)
             : DoorAccessService.ShouldBypassWardCheck(door!) || PieceGuestService.ShouldBypassWardForGuest(door!);
     }
+
+    // ---------- designate, clear, guests summary
+
+    /// <summary>Has LockSmith been switched on for this piece (Enable LockSmith, with EnableDesignate)?</summary>
+    [TestHook("lock.needsDesignate")]
+    static bool NeedsDesignate(GameObject? target = null) => PieceAccessState.NeedsDesignate(Piece(target).view);
+
+    /// <summary>Does the piece still carry any LockSmith data (after Remove LockSmith it should not)?</summary>
+    [TestHook("lock.hasData")]
+    static bool HasData(GameObject? target = null) => PieceClearService.HasLockSmithData(Piece(target).view);
+
+    /// <summary>The guests on the piece as "Name(perms)" separated by ", " (perms: None, Add, Toggle, "Add, Toggle").</summary>
+    [TestHook("lock.guestList")]
+    static string GuestList(GameObject? target = null)
+    {
+        var view = Piece(target).view;
+        return string.Join(", ", PieceGuestAccess.GetGuests(view).Select(g => $"{g.DisplayName}({(GuestPerm)GuestPerms.FlagsOf(view, g.PlayerId)})"));
+    }
+
+    // ---------- copy / paste people
+
+    /// <summary>How many people the session clipboard holds (Copy people).</summary>
+    [TestHook("lock.clipboard")]
+    static int Clipboard() => GuestClipboard.Count;
+
+    // ---------- one player in the menu at a time
+
+    /// <summary>Make another player hold the piece's Lock menu (who = Bob, Carol...; "" releases), as their open menu would.</summary>
+    [TestHook("lock.holdMenuAs")]
+    static bool HoldMenuAs(Dictionary<string, object?> args, GameObject? target = null)
+    {
+        var zdo = Piece(target).view.GetZDO();
+        var who = S(args, "who");
+        var id = who.ToLowerInvariant() switch { "alice" => 100001L, "bob" => 100002L, "carol" => 100003L, "amy" => 100004L, "" => 0L, _ => 200000L + Math.Abs(who.GetStableHashCode() % 100000) };
+        zdo.Set(GameHookTargets.ZdoMenuHolder, id);
+        zdo.Set(GameHookTargets.ZdoMenuHolderName, who);
+        zdo.Set(GameHookTargets.ZdoMenuUntil, id == 0 ? 0L : (ZNet.instance != null ? ZNet.instance.GetTime().Ticks : 0L) + TimeSpan.FromSeconds(10).Ticks);
+        return true;
+    }
+
+    /// <summary>Is the piece's menu held by someone other than the current player? Returns their name, or "".</summary>
+    [TestHook("lock.heldBy")]
+    static string HeldBy(GameObject? target = null) => PieceMenuLock.IsHeldByOther(Piece(target).view, Me, out var name) ? name : "";
+
+    // ---------- ward tab
+
+    static PrivateArea Ward(GameObject? target)
+    {
+        var area = (target != null ? target.GetComponentInChildren<PrivateArea>() ?? target.GetComponentInParent<PrivateArea>() : null)
+                   ?? UnityEngine.Object.FindObjectsOfType<PrivateArea>().OrderBy(a => Vector3.Distance(a.transform.position, P.transform.position)).FirstOrDefault();
+        return area ?? throw new InvalidOperationException("no ward nearby");
+    }
+
+    /// <summary>Someone's role on the ward: None, Guest, Team, Owner (who = me, Alice, Bob...).</summary>
+    [TestHook("lock.wardRole")]
+    static string WardRole(Dictionary<string, object?> args, GameObject? target = null)
+    {
+        var who = S(args, "who");
+        var id = who.Length == 0 || who.Equals("me", StringComparison.OrdinalIgnoreCase) ? Me
+            : who.ToLowerInvariant() switch { "alice" => 100001L, "bob" => 100002L, "carol" => 100003L, "amy" => 100004L, _ => 200000L + Math.Abs(who.GetStableHashCode() % 100000) };
+        return WardService.LevelOf(Ward(target), id).ToString();
+    }
+
+    /// <summary>Is the ward switched on?</summary>
+    [TestHook("lock.wardEnabled")]
+    static bool WardEnabled(GameObject? target = null) => PrivateAreaAccess.IsEnabled(Ward(target));
+
+    /// <summary>Who may switch the ward: the minimum role (Guest, Team, Owner).</summary>
+    [TestHook("lock.wardSwitch")]
+    static string WardSwitch(GameObject? target = null)
+    {
+        var area = Ward(target);
+        return ((WardLevel)WardService.SwitchMinimum(area.GetComponent<ZNetView>())).ToString();
+    }
+
+    // ---------- groups (config\LockSmith\groups.txt, per computer)
+
+    static string GroupsFile => System.IO.Path.Combine(BepInEx.Paths.ConfigPath, "LockSmith", "groups.txt");
+    static string? _groupsBackup;
+    static bool _groupsBacked;
+
+    /// <summary>Replace the groups file for a test (lines separated by "|"); the first call keeps the player's own file to put back with lock.restoreGroups.</summary>
+    [TestHook("lock.writeGroups")]
+    static int WriteGroups(Dictionary<string, object?> args)
+    {
+        if (!_groupsBacked)
+        {
+            _groupsBacked = true;
+            _groupsBackup = System.IO.File.Exists(GroupsFile) ? System.IO.File.ReadAllText(GroupsFile) : null;
+        }
+
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(GroupsFile)!);
+        System.IO.File.WriteAllText(GroupsFile, S(args, "text").Replace("|", Environment.NewLine));
+        return GroupStore.Load().Count;
+    }
+
+    /// <summary>Put the player's own groups file back (after lock.writeGroups).</summary>
+    [TestHook("lock.restoreGroups")]
+    static bool RestoreGroups()
+    {
+        if (!_groupsBacked)
+            return true;
+        if (_groupsBackup == null)
+            System.IO.File.Delete(GroupsFile);
+        else
+            System.IO.File.WriteAllText(GroupsFile, _groupsBackup);
+        _groupsBacked = false;
+        return true;
+    }
+
+    /// <summary>The groups as the mod reads them: "name(Add, Toggle): Mira=7231, Tovald" separated by " | ".</summary>
+    [TestHook("lock.groups")]
+    static string Groups() =>
+        string.Join(" | ", GroupStore.Load().Select(g => $"{g.Name}({(GuestPerm)g.Flags}): {string.Join(", ", g.Members.Select(m => m.Id != 0 ? $"{m.Name}={m.Id}" : m.Name))}"));
 }

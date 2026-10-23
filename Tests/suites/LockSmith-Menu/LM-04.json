@@ -1,0 +1,145 @@
+{
+  "name": "LM-04 a guest leaves through the menu (with its confirm)",
+  "description": "",
+  "steps": [
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Join access"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob is a guest now"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob opens the menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Leave",
+      "label": "Leave"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "screenshot",
+      "name": "leave-confirm"
+    },
+    {
+      "do": "click",
+      "button": "Leave",
+      "label": "confirm Leave"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "Bob is off the list"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

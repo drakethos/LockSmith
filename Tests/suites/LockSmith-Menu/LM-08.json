@@ -1,0 +1,204 @@
+{
+  "name": "LM-08 Groups: save the people on a chest as a new group",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.writeGroups",
+      "args": {
+        "text": "# test"
+      },
+      "expect": 0,
+      "label": "start with an empty groups file"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Join access"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob is a guest now"
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Carol opens the Lock menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Join access"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Carol is a guest now"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Alice opens the menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Groups",
+      "label": "the Groups tab"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "type",
+      "field": "Group name",
+      "text": "Crew"
+    },
+    {
+      "do": "click",
+      "button": "Save current guests"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.groups",
+      "contains": "Crew(None): Bob=100002, Carol=100003",
+      "label": "Crew saved with both ids (offline adds work later)"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    },
+    {
+      "do": "hook",
+      "name": "lock.restoreGroups",
+      "expect": true,
+      "label": "put the groups file back"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

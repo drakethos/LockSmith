@@ -1,0 +1,142 @@
+{
+  "name": "LM-07 Groups: add a saved group to a chest (people offline, with their permissions)",
+  "description": "",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.writeGroups",
+      "args": {
+        "text": "# test|Squad (add): Bob=100002, Carol=100003"
+      },
+      "expect": 1,
+      "label": "a groups file with one group"
+    },
+    {
+      "do": "hook",
+      "name": "lock.groups",
+      "contains": "Squad(Add): Bob=100002, Carol=100003",
+      "label": "the mod reads it"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "dx": 0,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "lock.openMenu",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Alice opens the menu",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "click",
+      "button": "Groups",
+      "label": "the Groups tab"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "Bob, Carol",
+      "label": "the group is listed (SQUAD with its people)"
+    },
+    {
+      "do": "screenshot",
+      "name": "groups-tab"
+    },
+    {
+      "do": "click",
+      "button": "Add to this chest",
+      "label": "Add to this chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.closeMenu"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.2
+    },
+    {
+      "do": "hook",
+      "name": "lock.guestList",
+      "args": {
+        "target": "chest"
+      },
+      "contains": "Bob(Add)",
+      "label": "Bob joined with Let others on"
+    },
+    {
+      "do": "hook",
+      "name": "lock.guestList",
+      "args": {
+        "target": "chest"
+      },
+      "contains": "Carol(Add)",
+      "label": "and Carol"
+    },
+    {
+      "do": "playAs",
+      "who": "Carol"
+    },
+    {
+      "do": "hook",
+      "name": "lock.canAdd",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Carol may let others on (the group carries it)"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    },
+    {
+      "do": "hook",
+      "name": "lock.restoreGroups",
+      "expect": true,
+      "label": "put the groups file back"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}
