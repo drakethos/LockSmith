@@ -12,6 +12,10 @@ public static class ChestAccessService
         if (!LockSmithConfig.EnableChests)
             return false;
 
+        // Owner opened it to their team and we are on the team it was built under.
+        if (TeamAccess.HasLocalAccess(PieceAccessState.GetNetView(container)))
+            return true;
+
         // Hammer public clones are always open — no locksmith_public ZDO.
         if (PublicPieceRegistration.IsPublicPiece(container))
             return true;

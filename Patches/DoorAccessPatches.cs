@@ -19,6 +19,7 @@ public static class DoorAccessPatches
         try
         {
             DoorAccessService.RegisterRpc(__instance);
+            TeamAccess.RegisterRpc(PieceAccessState.GetNetView(__instance));
         }
         catch (System.Exception ex)
         {
@@ -147,11 +148,12 @@ public static class DoorAccessPatches
     [HarmonyPatch(GameHookTargets.DoorGetHoverText)]
     private static void GetHoverTextPostfix(Door __instance, ref string __result, bool __state)
     {
-        if (__state)
-            return;
-
         try
         {
+            __result += TeamAccess.HoverSuffix(PieceAccessState.GetNetView(__instance));
+            if (__state)
+                return;
+
             var suffix = DoorAccessService.GetPublicStatusSuffix(__instance);
             if (!string.IsNullOrEmpty(suffix))
                 __result += suffix;

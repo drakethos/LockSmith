@@ -20,6 +20,7 @@ namespace LockSmith
     [BepInDependency(CompatibilityManager.SoftGuids.ProtectiveWards, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(CompatibilityManager.SoftGuids.ArcaneWard, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(CompatibilityManager.SoftGuids.DevCommands, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Compat.ServerTeams.ServerTeamsBridge.Guid, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     public partial class LockSmith : BaseUnityPlugin
     {
@@ -42,6 +43,7 @@ namespace LockSmith
             _harmony.PatchAll();
             // One-liner: scan optional ward/cheat mods and apply their soft patches.
             CompatibilityManager.Initialize(_harmony);
+            Compat.ServerTeams.ServerTeamsBridge.Initialize();
             Logger.LogInfo($"{ModName} {Version} Awake.");
         }
 

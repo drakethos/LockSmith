@@ -88,4 +88,9 @@ public static class GameHookTargets
 
     /// <summary>ZDO int: 0 closed, 1 opt-in ready (ward-style join).</summary>
     public const string ZdoOptInReady = "locksmith_optin";
+
+    /// <summary>ZDO int: team access on a ward / chest / door. -1 unset (TeamAccessByDefault), 0 off, 1 on.</summary>
+    public const string ZdoTeamAccess = "locksmith_team_access";
+
+    public const string RpcSetTeamAccess = "RPC_LockSmithSetTeamAccess";
 }

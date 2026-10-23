@@ -39,6 +39,10 @@ public static class LockSmithLocalization
     public const string HoverClearLockSmithToken = "locksmith_hover_clear";
     public const string HoverMakePersonalToken = "locksmith_hover_make_personal";
     public const string HoverMakeTeamToken = "locksmith_hover_make_team";
+    public const string HoverShareTeamToken = "locksmith_hover_share_team";
+    public const string HoverUnshareTeamToken = "locksmith_hover_unshare_team";
+    public const string MsgTeamSharedToken = "locksmith_msg_team_shared";
+    public const string MsgTeamUnsharedToken = "locksmith_msg_team_unshared";
     public const string HoverOpenOptInToken = "locksmith_hover_open_optin";
     public const string HoverCloseOptInToken = "locksmith_hover_close_optin";
     public const string HoverJoinAccessToken = "locksmith_hover_join_access";
@@ -64,25 +68,25 @@ public static class LockSmithLocalization
             { PiecePrivateToken, "[Private]" },
             { PieceUnmanagedToken, "[Not LockSmith]" },
             { PiecePersonalToken, "[Personal]" },
-            { PieceTeamToken, "Team" },
+            { PieceTeamToken, "Group" },
             { PieceGuestsTagToken, "Guests" },
             { PieceOptInReadyToken, "[Join open]" },
             { MsgNowPublicToken, "Now public" },
             { MsgNowPrivateToken, "Now private" },
             { MsgManagedToken, "LockSmith on" },
             { MsgNowPersonalToken, "Now personal" },
-            { MsgNowTeamToken, "Now team (shared)" },
+            { MsgNowTeamToken, "Now group (shared)" },
             { MsgDeniedToken, "Ward members only" },
             { MsgDisabledToken, "Turned off on this server" },
             { MsgWrongTargetToken, "Look at a chest or door" },
             { MsgGroupOwnerOnlyToken, "Only the owner can change this" },
-            { MsgGroupMemberToken, "[Team]" },
+            { MsgGroupMemberToken, "[Group]" },
             { MsgOptInOpenedToken, "Join open — others press E" },
             { MsgOptInClosedToken, "Join closed" },
             { MsgOptedInToken, "You have access" },
             { MsgOptedOutToken, "You left" },
             { MsgAlreadyOptedInToken, "You already have access" },
-            { MsgNoTeamAccessToken, "No team access" },
+            { MsgNoTeamAccessToken, "No group access" },
             { MsgClearedToken, "LockSmith removed" },
             { MsgNeedActiveWardToken, "Needs an active ward" },
             { MsgSyncFailedToken, "Didn't go through — try again" },
@@ -92,7 +96,11 @@ public static class LockSmithLocalization
             { HoverDesignateToken, "Enable LockSmith" },
             { HoverClearLockSmithToken, "Remove LockSmith" },
             { HoverMakePersonalToken, "Make personal" },
-            { HoverMakeTeamToken, "Make team" },
+            { HoverMakeTeamToken, "Make group" },
+            { HoverShareTeamToken, "Share with my team" },
+            { HoverUnshareTeamToken, "Stop team sharing" },
+            { MsgTeamSharedToken, "Your team can use this" },
+            { MsgTeamUnsharedToken, "Team sharing off" },
             { HoverOpenOptInToken, "Open Join" },
             { HoverCloseOptInToken, "Close Join" },
             { HoverJoinAccessToken, "Join access" },

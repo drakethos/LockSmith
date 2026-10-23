@@ -95,6 +95,9 @@ internal sealed class VanillaPrivateAreaModule : IWardCompatModule
 
             if (InvokeBool(_isPermitted, area, playerId))
                 return WardCoverageKind.Allowed;
+
+            if (Access.TeamAccess.HasAccess(area.GetComponent<ZNetView>(), playerId))
+                return WardCoverageKind.Allowed;
         }
 
         return insideAny ? WardCoverageKind.Denied : WardCoverageKind.Unrelated;

@@ -109,6 +109,11 @@ public sealed class LockWardModel
     public int SwitchMin;
     public bool CanSetSwitchMin;
     public Action<int> SetSwitchMin = _ => { };
+    /// <summary>Server teams: the ward's team, when it has one.</summary>
+    public string? TeamName;
+    public bool TeamOn;
+    public bool CanSetTeam;
+    public Action<bool> SetTeam = _ => { };
     public List<LockWardPerson> People = new();
 }
 
@@ -621,12 +626,23 @@ public sealed class LockMenuView
         }
 
         var who = SectionCard("Who can switch it");
-        var seg = new UkSegmented("Owner only", "Owner and team", "Everyone on the ward");
+        var seg = new UkSegmented("Owner only", "Owner and members", "Everyone on the ward");
         seg.SetIndex(Mathf.Clamp(3 - model.SwitchMin, 0, 2));
         seg.Changed = i => { if (model.CanSetSwitchMin) model.SetSwitchMin(3 - i); };
         seg.Root.SetEnabled(model.CanSetSwitchMin);
         who.Add(seg.Root);
         body.Add(who);
+
+        if (model.TeamName != null)
+        {
+            var team = SectionCard("Team");
+            var teamSw = new UkSwitch("Open to " + model.TeamName, "Everyone on " + model.TeamName + " counts as permitted on this ward.");
+            teamSw.SetValue(model.TeamOn, notify: false);
+            teamSw.SetEnabled(model.CanSetTeam, model.CanSetTeam ? null : "Only the ward's builder can change this.");
+            teamSw.Changed = on => model.SetTeam(on);
+            team.Add(teamSw.Root);
+            body.Add(team);
+        }
 
         var people = SectionCard("On this ward · " + (model.People.Count + 1));
         var ask = new VisualElement().Column();

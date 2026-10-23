@@ -453,8 +453,22 @@ public static class PieceAccessMenu
         var playerId = player.GetPlayerID();
         var nview = t.Nview;
         var isGuest = PieceGuestAccess.IsGuest(nview, playerId);
-        // Owner tools (Enable, Join, Personal/Team, Remove) are open to anyone with access once managed access is on.
+        // Owner tools (Enable, Join, Personal/Group, Remove) are open to anyone with access once managed access is on.
         var ownerTools = LockSmithConfig.EnableManagedAccess;
+
+        // Server teams: the builder can open the piece to the team it was built under. Works with or without the rest of LockSmith.
+        if (TeamAccess.CanSet(nview, playerId))
+        {
+            var shared = TeamAccess.IsOn(nview);
+            actions.Add(Action(
+                L(shared ? LockSmithLocalization.HoverUnshareTeamToken : LockSmithLocalization.HoverShareTeamToken),
+                nview, GameHookTargets.RpcSetTeamAccess,
+                () =>
+                {
+                    TeamAccess.RequestSet(nview, !shared, playerId);
+                    AccessFeedback.Show(player, shared ? LockSmithLocalization.MsgTeamUnsharedToken : LockSmithLocalization.MsgTeamSharedToken);
+                }));
+        }
 
         if (t.PrivateFamily)
         {
@@ -781,7 +795,7 @@ public static class PieceAccessMenu
 
         if (t.PrivateFamily)
         {
-            parts.Add(GroupAccessState.IsTeamMode(nview) ? "Team" : "Personal");
+            parts.Add(GroupAccessState.IsTeamMode(nview) ? "Group" : "Personal");
         }
         else if (!PieceAccessState.IsManaged(nview))
         {

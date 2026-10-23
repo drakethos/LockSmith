@@ -23,6 +23,7 @@ public static class ContainerAccessPatches
         {
             ChestAccessService.RegisterRpc(__instance);
             GroupChestService.RegisterRpc(__instance);
+            TeamAccess.RegisterRpc(PieceAccessState.GetNetView(__instance));
         }
         catch (System.Exception ex)
         {
@@ -39,6 +40,13 @@ public static class ContainerAccessPatches
     {
         try
         {
+            // Runs on the chest owner's peer for whoever asks to open it.
+            if (TeamAccess.HasAccess(GroupAccessState.GetNetView(__instance), playerID))
+            {
+                __result = true;
+                return false;
+            }
+
             if (!GroupChestService.TryResolveCheckAccess(__instance, playerID, out var allowed))
                 return true;
 
@@ -227,11 +235,12 @@ public static class ContainerAccessPatches
     [HarmonyPatch(GameHookTargets.ContainerGetHoverText)]
     private static void GetHoverTextPostfix(Container __instance, ref string __result, bool __state)
     {
-        if (__state)
-            return;
-
         try
         {
+            __result += TeamAccess.HoverSuffix(PieceAccessState.GetNetView(__instance));
+            if (__state)
+                return;
+
             var publicSuffix = ChestAccessService.GetPublicStatusSuffix(__instance);
             if (!string.IsNullOrEmpty(publicSuffix))
                 __result += publicSuffix;

@@ -84,6 +84,7 @@
     <Compile Include="Access\PublicPieceRegistration.cs" />
     <Compile Include="Access\WardAccess.cs" />
     <Compile Include="Access\WardService.cs" />
+    <Compile Include="Access\TeamAccess.cs" />
     <Compile Include="Access\PrivateAreaAccess.cs" />
     <Compile Include="Access\GroupStore.cs" />
     <Compile Include="Access\GuestClipboard.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Compat\WardCoverageKind.cs" />
     <Compile Include="Compat\DevCommands\DevCommandsModule.cs" />
     <Compile Include="Compat\Vanilla\VanillaPrivateAreaModule.cs" />
+    <Compile Include="Compat\ServerTeams\ServerTeamsBridge.cs" />
     <Compile Include="Compat\WardIsLove\WardIsLoveModule.cs" />
     <Compile Include="Compat\ProtectiveWards\ProtectiveWardsModule.cs" />
     <Compile Include="Compat\ArcaneWard\ArcaneWardModule.cs" />
