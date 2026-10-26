@@ -1,0 +1,241 @@
+{
+  "name": "RP-05 a plain guest cannot toggle public or add people; the permissions open each",
+  "description": "over the wire, vanilla ward",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice opens Join"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithOptInSelf",
+      "args": [
+        "@Bob",
+        "Bob"
+      ],
+      "types": [
+        "long",
+        "string"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Bob is a guest"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithSetChestPublic",
+      "args": [
+        1,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "a plain guest cannot make it public"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithMergeGuests",
+      "args": [
+        "100003|Carol",
+        "@Bob"
+      ],
+      "types": [
+        "string",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Carol"
+      },
+      "expect": false,
+      "label": "a plain guest cannot add Carol"
+    },
+    {
+      "do": "hook",
+      "name": "lock.grantPerm",
+      "args": {
+        "target": "chest",
+        "who": "Bob",
+        "perms": "toggle"
+      },
+      "expect": "Toggle",
+      "label": "Alice gives Bob the Toggle permission"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithSetChestPublic",
+      "args": [
+        1,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "with Toggle Bob makes it public"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithMergeGuests",
+      "args": [
+        "100003|Carol",
+        "@Bob"
+      ],
+      "types": [
+        "string",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Carol"
+      },
+      "expect": false,
+      "label": "Toggle alone still cannot add people"
+    },
+    {
+      "do": "hook",
+      "name": "lock.grantPerm",
+      "args": {
+        "target": "chest",
+        "who": "Bob",
+        "perms": "add"
+      },
+      "expect": "Add",
+      "label": "Alice gives Bob the Add permission"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithMergeGuests",
+      "args": [
+        "100003|Carol",
+        "@Bob"
+      ],
+      "types": [
+        "string",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Carol"
+      },
+      "expect": true,
+      "label": "with Add Bob puts Carol on the list"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

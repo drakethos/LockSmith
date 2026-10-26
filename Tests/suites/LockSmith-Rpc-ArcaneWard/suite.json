@@ -1,0 +1,101 @@
+{
+  "name": "LockSmith-Rpc-ArcaneWard",
+  "description": "LockSmith's routed RPCs from a virtual second player with the ArcaneWard: refused strangers, forged ids, ward members, Join, guest permissions, remove / clear, doors.",
+  "requireMods": [
+    {
+      "guid": "com.drakemods.locksmith",
+      "minVersion": "0.5.0"
+    },
+    {
+      "guid": "kg.ArcaneWard"
+    }
+  ],
+  "configOverrides": [
+    {
+      "guid": "com.drakemods.testlab",
+      "section": "TestControls",
+      "key": "AutoEnableDebugMode",
+      "value": "false"
+    },
+    {
+      "guid": "kg.ArcaneWard",
+      "section": "General",
+      "key": "DisabledProtection",
+      "value": "Push_Players"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableDoors",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableGroupChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnablePersonalPause",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnablePieceGuests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableOptInAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableGuestPublicToggle",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableDesignate",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableManagedAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableAddNearby",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "RequireActiveWard",
+      "value": "true"
+    }
+  ],
+  "setup": {
+    "timeOfDay": 0.5,
+    "freezeTime": 1,
+    "god": 0,
+    "noBuild": "off",
+    "hideUnlockPopups": 1
+  },
+  "resetBetweenTests": true
+}

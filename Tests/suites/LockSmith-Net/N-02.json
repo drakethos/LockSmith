@@ -1,0 +1,12 @@
+{
+  "name": "N-02 claiming to be the owner is caught",
+  "description": "Bjornita sends the RPC with MY player id. LockSmith maps her peer to her character and must reject the mismatch.",
+  "steps": [
+    "myWardedChest()",
+    { "do": "peerJoin", "name": "Bjornita" },
+    { "do": "peerRpc", "peer": "Bjornita", "target": "chest", "method": "RPC_LockSmithSetChestPublic", "args": [ 1, "@me" ], "types": [ "int", "long" ] },
+    { "do": "hook", "name": "lock.isPublic", "args": { "target": "chest" }, "expect": false, "label": "still private" },
+    { "do": "check", "check": "logContains", "text": "Rejected RPC_LockSmithSetChestPublic", "label": "IsAuthenticSender caught the forged id" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}

@@ -1,0 +1,220 @@
+{
+  "name": "RP-PW-06 strangers and guests cannot remove people or clear LockSmith",
+  "description": "over the wire, ProtectiveWards",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "peerJoin",
+      "name": "Carol",
+      "dx": 3,
+      "dz": 1,
+      "as": "carol"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Carol",
+      "label": "Carol is connected like a second client"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice opens Join"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithOptInSelf",
+      "args": [
+        "@Bob",
+        "Bob"
+      ],
+      "types": [
+        "long",
+        "string"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Bob is a guest"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Carol",
+      "target": "chest",
+      "method": "RPC_LockSmithRemoveGuest",
+      "args": [
+        "@Bob",
+        "@Carol"
+      ],
+      "types": [
+        "long",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Carol (a stranger) cannot remove Bob"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithRemoveGuest",
+      "args": [
+        "@Bob",
+        "@Bob"
+      ],
+      "types": [
+        "long",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasData",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "a guest removing people leaves the data alone (informational on the guest list)"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Carol",
+      "target": "chest",
+      "method": "RPC_LockSmithClear",
+      "args": [
+        "@Carol"
+      ],
+      "types": [
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasData",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Carol cannot clear LockSmith off the chest"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithClear",
+      "args": [
+        "@Bob"
+      ],
+      "types": [
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasData",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "a plain guest cannot clear it either"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.removeGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Alice (the owner) removes Bob"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

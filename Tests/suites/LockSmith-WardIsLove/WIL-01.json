@@ -1,0 +1,34 @@
+{
+  "name": "WIL-01 WardIsLove is active in LockSmith",
+  "description": "WardIsLove integration",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasCompat",
+      "args": {
+        "id": "WardIsLove"
+      },
+      "expect": true,
+      "label": "LockSmith activated its WardIsLove module"
+    },
+    {
+      "do": "hook",
+      "name": "lock.compatActive",
+      "label": "active ward modules (informational)"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

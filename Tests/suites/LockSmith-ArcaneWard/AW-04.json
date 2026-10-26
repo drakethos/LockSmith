@@ -1,0 +1,140 @@
+{
+  "name": "AW-04 make public lets a stranger past the ward, private locks again",
+  "description": "ArcaneWard integration",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "hook",
+      "name": "lock.spawnArcaneWard",
+      "as": "ward",
+      "args": {
+        "radius": 15,
+        "enabled": true,
+        "permitted": ""
+      }
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.isEligible",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "a player-built chest in the ward can be managed"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice makes it public"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": true,
+      "label": "Bob opens the public chest (ArcaneWard must not block it)"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": false
+      },
+      "expect": false,
+      "label": "Alice makes it private again"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "face",
+      "target": "chest"
+    },
+    {
+      "do": "interact",
+      "target": "chest"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "check",
+      "check": "uiVisible",
+      "name": "InventoryGui",
+      "expect": false,
+      "label": "Bob is locked out again"
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

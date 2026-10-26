@@ -1,0 +1,23 @@
+{
+  "name": "N-05 menu lease across clients, then Bjornita disconnects",
+  "description": "Bjornita takes the Lock-menu lease (the owner grants it and hands her the chest). Bob's request then goes to Bjornita's client, which refuses it because she holds the menu. Bjornita leaves: the chest returns to me; the lease she left behind is recorded.",
+  "steps": [
+    "myWardedChest()",
+    { "do": "peerJoin", "name": "Bjornita", "dx": 2 },
+    { "do": "peerJoin", "name": "Bob", "dx": -2 },
+    { "do": "peerRpc", "peer": "Bjornita", "target": "chest", "method": "RPC_LockSmithMenuRequest", "args": [ "@Bjornita", "Bjornita" ], "types": [ "long", "string" ] },
+    { "do": "check", "check": "peerReceived", "peer": "Bjornita", "method": "RPC_LockSmithMenuResponse", "types": [ "bool", "string" ], "args": [ true, "*" ], "label": "Bjornita was granted the menu" },
+    { "do": "check", "check": "zdoOwner", "target": "chest", "expect": "Bjornita", "label": "and owns the chest" },
+    { "do": "hook", "name": "lock.heldBy", "args": { "target": "chest" }, "contains": "Bjornita", "label": "I see Bjornita holding it" },
+
+    { "do": "peerRpc", "peer": "Bob", "target": "chest", "method": "RPC_LockSmithMenuRequest", "args": [ "@Bob", "Bob" ], "types": [ "long", "string" ] },
+    { "do": "check", "check": "peerReceived", "peer": "Bjornita", "method": "RPC_LockSmithMenuRequest", "types": [ "long", "string" ], "args": [ "@Bob", "Bob" ], "label": "Bob's request was routed to Bjornita (the owner)" },
+    { "do": "check", "check": "peerReceived", "peer": "Bob", "method": "RPC_LockSmithMenuResponse", "types": [ "bool", "string" ], "args": [ false, "Bjornita" ], "label": "Bjornita's client told Bob she is using it" },
+
+    { "do": "peerLeave", "name": "Bjornita" },
+    { "do": "wait", "seconds": 2.5 },
+    { "do": "check", "check": "zdoOwner", "target": "chest", "expect": "me", "label": "the chest came back after Bjornita left" },
+    { "do": "hook", "name": "lock.heldBy", "args": { "target": "chest" }, "label": "observed: lease holder right after Bjornita left (informational)" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}

@@ -1,0 +1,86 @@
+{
+  "name": "RP-AW-08 a ward member and the door",
+  "description": "over the wire, ArcaneWard",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "wood_door",
+      "dz": 2.5,
+      "as": "door"
+    },
+    {
+      "do": "hook",
+      "name": "lock.spawnArcaneWard",
+      "as": "ward",
+      "args": {
+        "radius": 15,
+        "enabled": true,
+        "permitted": "Bob"
+      }
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "door",
+      "method": "RPC_LockSmithSetDoorPublic",
+      "args": [
+        1,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "door"
+      },
+      "expect": true,
+      "label": "a ward member makes the door public"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

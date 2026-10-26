@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.2
+
+Hexium only. Requires **DrakeModsLibs 1.0.0**.
+
+- **Fixed:** on a chest or door built this session, another player's **Join**, **Leave**, add-people, permission and remove requests did nothing until the area reloaded (the game's "Failed to find rpc method"). LockSmith only bound them for pieces that already had a builder recorded when the piece woke up, which a new build does not. They are bound for every buildable piece now, and each request is checked when it arrives.
+- **Fixed:** the server believed whoever a routed request said it came from. A modified client could pose as another player (or the host) and LockSmith's owner-side checks would trust it. The server now drops requests whose sender is not the client they came from, and a request from a client whose character LockSmith cannot see is refused. New synced option **VerifyRpcSenders** (Features, on by default); turn it off only if another mod relays requests for other players.
+- Tested with WardIsLove, Arcane Ward and Protective Wards (each alone and all three together) and with a virtual second player sending the real requests (DrakesTestLab suites in `Tests/`); not part of the release.
+
 ## 0.6.1
 
 Hexium only. Requires **DrakeModsLibs 1.0.0**.

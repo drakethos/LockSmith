@@ -12,7 +12,7 @@ namespace LockSmith;
 public static class LockSmithConfig
 {
     /// <summary>Admin lock + feature entries. Bump when adding synced binds.</summary>
-    public const int ExpectedSyncedEntryCount = 17;
+    public const int ExpectedSyncedEntryCount = 18;
 
     private const string SectionAdmin = "01 Admin";
     private const string SectionFeatures = "02 Features";
@@ -41,6 +41,7 @@ public static class LockSmithConfig
     private static ConfigEntry<bool> _enablePieceMode = null!;
     private static ConfigEntry<bool> _enableAddNearby = null!;
     private static ConfigEntry<bool> _requireActiveWard = null!;
+    private static ConfigEntry<bool> _verifyRpcSenders = null!;
     private static ConfigEntry<string> _publicPieceAllowList = null!;
     private static ConfigEntry<string> _publicPieceDenyList = null!;
     private static ConfigEntry<bool> _publicPieceNameSuffix = null!;
@@ -84,6 +85,7 @@ public static class LockSmithConfig
     /// (including already-managed pieces). Personal/Team private-family chests are exempt.
     /// </summary>
     public static bool RequireActiveWard => _requireActiveWard.Value;
+    public static bool VerifyRpcSenders => _verifyRpcSenders == null || _verifyRpcSenders.Value;
 
     /// <summary>Local-only hex color for Team / Guests labels (e.g. #FF00FF).</summary>
     public static string TeamLabelColorHex => NormalizeHexColor(_teamLabelColor.Value);
@@ -212,6 +214,14 @@ public static class LockSmithConfig
             "RequireActiveWard",
             true,
             "When true (default), LockSmith cannot manage or toggle normal chests/doors unless they are inside an enabled ward — including already-managed pieces. Personal/Team private-family chests are exempt. Doors always need the ward up.");
+
+        _verifyRpcSenders = Sync.BindSynced(
+            config,
+            SectionFeatures,
+            DisplayFeatures,
+            "VerifyRpcSenders",
+            true,
+            "When true (default), the server drops routed RPCs whose sender id is not the client that sent them (a modified client posing as another player), and LockSmith refuses lock requests from a client whose character it cannot see. Turn off only if another mod relays RPCs for other players.");
 
         _publicPieceAllowList = Sync.BindSynced(
             config,

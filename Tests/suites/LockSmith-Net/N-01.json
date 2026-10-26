@@ -1,0 +1,12 @@
+{
+  "name": "N-01 a stranger's public toggle is refused",
+  "description": "Bjornita (no ward access) sends the make-public RPC with her own id. The owner (this game) must refuse it.",
+  "steps": [
+    "myWardedChest()",
+    { "do": "peerJoin", "name": "Bjornita" },
+    { "do": "peerRpc", "peer": "Bjornita", "target": "chest", "method": "RPC_LockSmithSetChestPublic", "args": [ 1, "@Bjornita" ], "types": [ "int", "long" ] },
+    { "do": "hook", "name": "lock.isPublic", "args": { "target": "chest" }, "expect": false, "label": "still private" },
+    { "do": "check", "check": "logContains", "text": "Rejected public toggle for player 100005", "label": "LockSmith logged the refusal" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}

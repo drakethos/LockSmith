@@ -1,0 +1,12 @@
+{
+  "name": "N-04 a client with no character claiming the owner's id",
+  "description": "Bjornita connects without a character (as during loading) and claims my id. IsAuthenticSender must refuse a sender it cannot tie to a character.",
+  "steps": [
+    "myWardedChest()",
+    { "do": "peerJoin", "name": "Bjornita", "puppet": false },
+    { "do": "peerRpc", "peer": "Bjornita", "target": "chest", "method": "RPC_LockSmithSetChestPublic", "args": [ 1, "@me" ], "types": [ "int", "long" ] },
+    { "do": "hook", "name": "lock.isPublic", "args": { "target": "chest" }, "expect": false, "label": "still private" },
+    { "do": "check", "check": "logContains", "text": "has no character here", "label": "refused: no character to check the claim against" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}

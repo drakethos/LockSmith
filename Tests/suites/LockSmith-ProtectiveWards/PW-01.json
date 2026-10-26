@@ -1,0 +1,34 @@
+{
+  "name": "PW-01 ProtectiveWards is active in LockSmith",
+  "description": "ProtectiveWards integration",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false
+    },
+    {
+      "do": "hook",
+      "name": "lock.hasCompat",
+      "args": {
+        "id": "ProtectiveWards"
+      },
+      "expect": true,
+      "label": "LockSmith activated its ProtectiveWards module"
+    },
+    {
+      "do": "hook",
+      "name": "lock.compatActive",
+      "label": "active ward modules (informational)"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

@@ -155,13 +155,25 @@ public static class PieceRpc
 
     /// <summary>
     /// Owner-side check that the routed sender is the player it claims to be.
-    /// Unresolvable senders (character not loaded here) pass — ward/guest checks still apply.
+    /// A remote sender we cannot tie to a character is refused (VerifyRpcSenders); the requester retries.
     /// </summary>
     public static bool IsAuthenticSender(ZNetView nview, string rpc, long sender, long claimedPlayerId)
     {
         var actual = ResolveSenderPlayerId(sender);
-        if (actual == 0L || actual == claimedPlayerId)
+        if (actual != 0L && actual == claimedPlayerId)
             return true;
+
+        if (actual == 0L)
+        {
+            // our own session without a local player (a dedicated server acting itself) is trusted
+            if (sender == ZDOMan.GetSessionID() || !LockSmithConfig.VerifyRpcSenders)
+                return true;
+
+            // a client we cannot tie to a character could claim anyone's id; it retries once its character is known
+            LockSmith.Log?.LogWarning(
+                $"Rejected {rpc} on {nview.name}: peer {sender} has no character here, cannot confirm it is player {claimedPlayerId}.");
+            return false;
+        }
 
         LockSmith.Log?.LogWarning(
             $"Rejected {rpc} on {nview.name}: peer {sender} is player {actual}, claimed {claimedPlayerId}.");
@@ -174,6 +186,16 @@ public static class PieceRpc
         {
             var local = Player.m_localPlayer;
             return local != null ? local.GetPlayerID() : 0L;
+        }
+
+        // On the server the peer itself names its character (also when it is not loaded here).
+        var peer = ZNet.instance != null && ZNet.instance.IsServer() ? ZNet.instance.GetPeer(sender) : null;
+        if (peer != null && !peer.m_characterID.IsNone())
+        {
+            var character = ZDOMan.instance?.GetZDO(peer.m_characterID);
+            var id = character != null ? character.GetLong(ZDOVars.s_playerID, 0L) : 0L;
+            if (id != 0L)
+                return id;
         }
 
         // A player's character ZDO is owned by that player's peer.

@@ -1,0 +1,12 @@
+{
+  "name": "N-03 a forged sender id is dropped",
+  "description": "Bjornita also forges the routed RPC's sender id to the host's (a modified client). Vanilla's server passes it on unchecked; LockSmith's server check (VerifyRpcSenders) drops it.",
+  "steps": [
+    "myWardedChest()",
+    { "do": "peerJoin", "name": "Bjornita" },
+    { "do": "peerRpc", "peer": "Bjornita", "target": "chest", "method": "RPC_LockSmithSetChestPublic", "args": [ 1, "@me" ], "types": [ "int", "long" ], "sender": "host" },
+    { "do": "hook", "name": "lock.isPublic", "args": { "target": "chest" }, "expect": false, "label": "still private" },
+    { "do": "check", "check": "logContains", "text": "Dropped a routed RPC from Bjornita", "label": "the server dropped the forged RPC" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}

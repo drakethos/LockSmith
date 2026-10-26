@@ -1,0 +1,85 @@
+{
+  "name": "PW-02 LockSmith sees the ward and who is let in",
+  "description": "ProtectiveWards integration",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "hook",
+      "name": "lock.debugModeIs",
+      "expect": false,
+      "label": "debug mode (admin override) is really off"
+    },
+    {
+      "do": "hook",
+      "name": "lock.insideWard",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "the chest is inside the enabled ProtectiveWards ward"
+    },
+    {
+      "do": "hook",
+      "name": "lock.wardAllows",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Alice (owner) has ward access"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "hook",
+      "name": "lock.wardAllows",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "Bob (stranger) has no ward access"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ Mutually exclusive ward mods are **not** LockSmith’s responsibility. Every reg
     BepInDependency.DependencyFlags.SoftDependency)]
 ```
 
-GUID: `com.drakesworkshop.locksmith`
+GUID: `com.drakemods.locksmith`
 
 ## Register a module
 

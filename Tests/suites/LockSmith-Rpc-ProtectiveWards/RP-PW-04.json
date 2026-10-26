@@ -1,0 +1,153 @@
+{
+  "name": "RP-PW-04 Join over the wire: closed, open, leave",
+  "description": "over the wire, ProtectiveWards",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithOptInSelf",
+      "args": [
+        "@Bob",
+        "Bob"
+      ],
+      "types": [
+        "long",
+        "string"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": false,
+      "label": "Join is closed: the request does nothing"
+    },
+    {
+      "do": "hook",
+      "name": "lock.openJoin",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice opens Join"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithOptInSelf",
+      "args": [
+        "@Bob",
+        "Bob"
+      ],
+      "types": [
+        "long",
+        "string"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": true,
+      "label": "Join is open: Bob is on the list"
+    },
+    {
+      "do": "hook",
+      "name": "lock.guests",
+      "args": {
+        "target": "chest"
+      },
+      "contains": "Bob",
+      "label": "Bob is listed"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithOptOutSelf",
+      "args": [
+        "@Bob"
+      ],
+      "types": [
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isGuest",
+      "args": {
+        "target": "chest",
+        "who": "Bob"
+      },
+      "expect": false,
+      "label": "Bob leaves again"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

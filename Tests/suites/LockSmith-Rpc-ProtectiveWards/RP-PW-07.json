@@ -1,0 +1,109 @@
+{
+  "name": "RP-PW-07 doors over the wire",
+  "description": "over the wire, ProtectiveWards",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "wood_door",
+      "dz": 2.5,
+      "as": "door"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "door",
+      "method": "RPC_LockSmithSetDoorPublic",
+      "args": [
+        1,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "door"
+      },
+      "expect": false,
+      "label": "a stranger cannot make the warded door public"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "door",
+      "method": "RPC_LockSmithSetDoorPublic",
+      "args": [
+        1,
+        "@Alice"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "door"
+      },
+      "expect": false,
+      "label": "and cannot do it in Alice's name"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

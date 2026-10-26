@@ -1,0 +1,112 @@
+{
+  "name": "RP-03 a ward member may manage over the wire",
+  "description": "over the wire, vanilla ward",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward",
+      "permitted": [
+        "Bob"
+      ]
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithSetChestPublic",
+      "args": [
+        1,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "a member of the vanilla ward makes the chest public"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithSetChestPublic",
+      "args": [
+        0,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "and private again"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

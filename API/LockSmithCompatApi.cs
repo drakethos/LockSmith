@@ -9,7 +9,7 @@ namespace LockSmith.API;
 /// without waiting for an upstream LockSmith release.
 /// </summary>
 /// <remarks>
-/// SoftDependency LockSmith (<c>com.drakesworkshop.locksmith</c>). Implement
+/// SoftDependency LockSmith (<c>com.drakemods.locksmith</c>). Implement
 /// <see cref="Compat.IWardCompatModule"/> (or <see cref="ICompatModule"/>), then call
 /// <see cref="Register"/> from your plugin Awake (or subscribe to <see cref="OnInitialized"/>).
 /// Prefer opening an issue / PR so built-in support can be considered — external modules are fine.
@@ -17,7 +17,7 @@ namespace LockSmith.API;
 public static class LockSmithCompatApi
 {
     /// <summary>LockSmith BepInEx GUID — use with SoftDependency on your plugin.</summary>
-    public const string LockSmithGuid = "com.drakesworkshop.locksmith";
+    public const string LockSmithGuid = "com.drakemods.locksmith";
 
     /// <summary>Suggested priority for third-party modules (runs after built-ins).</summary>
     public const int DefaultThirdPartyPriority = CompatPriority.ThirdParty;

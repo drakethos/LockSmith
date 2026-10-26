@@ -4,9 +4,9 @@
     <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
     <RootNamespace>LockSmith</RootNamespace>
     <AssemblyName>LockSmith</AssemblyName>
-    <Version>0.6.1</Version>
+    <Version>0.6.2</Version>
     <BepInPluginName>LockSmith</BepInPluginName>
-    <BepInGuid>com.drakesworkshop.locksmith</BepInGuid>
+    <BepInGuid>com.drakemods.locksmith</BepInGuid>
     <ModInfoClass>LockSmith</ModInfoClass>
     <Description>Share chests and doors behind your ward without adding people to it. One Lock menu (Shift+E): public/private, Join list, guests, Personal/Team chests.</Description>
     <WebsiteUrl>https://github.com/drakethos/LockSmith</WebsiteUrl>

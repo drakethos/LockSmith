@@ -48,7 +48,7 @@ public static class GuestPerms
         nview.Unregister(GameHookTargets.RpcSetGuestPerms);
         nview.Register<string, long>(GameHookTargets.RpcSetGuestPerms, (long sender, string raw, long actor) =>
         {
-            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetGuestPerms, sender, actor))
+            if (PieceGuestAccess.IsEligibleView(nview) && PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetGuestPerms, sender, actor))
                 Apply(nview, raw, actor);
         });
     }

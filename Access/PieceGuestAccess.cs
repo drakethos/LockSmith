@@ -284,6 +284,19 @@ public static class PieceGuestAccess
         return AccessHoverDisplay.AccessCountLabel(team, guests.Count);
     }
 
+    /// <summary>
+    /// Request-time gate for the guest RPCs: the piece is a player-built chest or door LockSmith manages, or a private-family chest.
+    /// Checked when the request arrives, not when the RPCs are bound (a piece placed this session has no creator at Awake).
+    /// </summary>
+    internal static bool IsEligibleView(ZNetView nview)
+    {
+        var container = nview.GetComponentInChildren<Container>();
+        if (container != null)
+            return PieceAccessState.IsEligibleChest(container) || GroupAccessState.IsPrivateFamilyChest(container);
+
+        return PieceAccessState.IsEligibleDoor(nview.GetComponentInChildren<Door>());
+    }
+
     public static void RegisterRpcs(ZNetView nview)
     {
         if (nview == null || !nview.IsValid())
@@ -305,31 +318,31 @@ public static class PieceGuestAccess
 
         nview.Register<long, long>(GameHookTargets.RpcRemoveGuest, (long sender, long targetId, long playerId) =>
         {
-            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcRemoveGuest, sender, playerId))
+            if (IsEligibleView(nview) && PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcRemoveGuest, sender, playerId))
                 ApplyRemoveGuest(nview, targetId, playerId);
         });
 
         nview.Register<int, long>(GameHookTargets.RpcSetOptInReady, (long sender, int flag, long playerId) =>
         {
-            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetOptInReady, sender, playerId))
+            if (IsEligibleView(nview) && PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcSetOptInReady, sender, playerId))
                 ApplySetOptIn(nview, flag == 1, playerId);
         });
 
         nview.Register<long, string>(GameHookTargets.RpcOptInSelf, (long sender, long playerId, string playerName) =>
         {
-            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcOptInSelf, sender, playerId))
+            if (IsEligibleView(nview) && PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcOptInSelf, sender, playerId))
                 ApplyOptInSelf(nview, playerId, playerName);
         });
 
         nview.Register<long>(GameHookTargets.RpcOptOutSelf, (long sender, long playerId) =>
         {
-            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcOptOutSelf, sender, playerId))
+            if (IsEligibleView(nview) && PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcOptOutSelf, sender, playerId))
                 ApplyOptOutSelf(nview, playerId);
         });
 
         nview.Register<string, long>(GameHookTargets.RpcMergeGuests, (long sender, string raw, long playerId) =>
         {
-            if (PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcMergeGuests, sender, playerId))
+            if (IsEligibleView(nview) && PieceRpc.IsAuthenticSender(nview, GameHookTargets.RpcMergeGuests, sender, playerId))
                 ApplyMergeGuests(nview, raw, playerId);
         });
     }

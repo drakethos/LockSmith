@@ -37,6 +37,8 @@ BepInEx/plugins/DrakeMods-LockSmith/
 
 ## Version
 
+**0.6.2** — Fix: Join / Leave / add-people / permission requests from other players work on pieces built this session (they needed a reload); the server drops requests that pose as another player (**VerifyRpcSenders**). Requires DrakeModsLibs **1.0.0**.
+
 **0.6.1** — Fix: the per-person permission switches in the Lock window (Let others on, Switch public / private) save again. Requires DrakeModsLibs **1.0.0**.
 
 **0.6.0-beta.3** — Hexium beta. Smart tabs (Lock children only while on Lock; Ward/Groups after Enable LockSmith). Requires DrakeModsLibs **1.0.0-beta.3**.
@@ -131,7 +133,7 @@ These built-ins are a **courtesy** so common packs work out of the box. They are
 
 Third-party authors can register their own module **without** waiting on a LockSmith release:
 
-- SoftDependency GUID: `com.drakesworkshop.locksmith`
+- SoftDependency GUID: `com.drakemods.locksmith`
 - API: `LockSmith.API.LockSmithCompatApi.Register(ICompatModule)` (also `HasLocalWardAccess` / `IsInsideEnabledWard`)
 - Full guide: **[`docs/wiki/Compatibility-API.md`](docs/wiki/Compatibility-API.md)** (also intended for the [GitHub wiki](https://github.com/drakethos/LockSmith/wiki))
 

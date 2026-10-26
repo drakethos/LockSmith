@@ -1,0 +1,95 @@
+{
+  "name": "LockSmith-WardIsLove",
+  "description": "LockSmith with WardIsLove: ward coverage, locked / public / Join / guests / doors / ward members / ward off. Run with only WardIsLove enabled.",
+  "requireMods": [
+    {
+      "guid": "com.drakemods.locksmith",
+      "minVersion": "0.5.0"
+    },
+    {
+      "guid": "Azumatt.WardIsLove"
+    }
+  ],
+  "configOverrides": [
+    {
+      "guid": "com.drakemods.testlab",
+      "section": "TestControls",
+      "key": "AutoEnableDebugMode",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableDoors",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableGroupChests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnablePersonalPause",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnablePieceGuests",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableOptInAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableGuestPublicToggle",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableDesignate",
+      "value": "false"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableManagedAccess",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "EnableAddNearby",
+      "value": "true"
+    },
+    {
+      "guid": "com.drakemods.locksmith",
+      "section": "02 Features",
+      "key": "RequireActiveWard",
+      "value": "true"
+    }
+  ],
+  "setup": {
+    "timeOfDay": 0.5,
+    "freezeTime": 1,
+    "god": 0,
+    "noBuild": "off",
+    "hideUnlockPopups": 1
+  },
+  "resetBetweenTests": true
+}

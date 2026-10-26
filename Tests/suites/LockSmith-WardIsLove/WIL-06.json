@@ -1,0 +1,112 @@
+{
+  "name": "WIL-06 doors: locked for strangers, public opens them",
+  "description": "WardIsLove integration",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "wood_door",
+      "dz": 2.5,
+      "as": "door"
+    },
+    {
+      "do": "spawn",
+      "prefab": "guard_stone",
+      "dz": -2,
+      "owner": "Alice",
+      "enabled": true,
+      "radius": 15,
+      "as": "ward"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "expect": "0",
+      "label": "Bob cannot open the warded door"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "door",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice makes the door public"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "notContains": "0",
+      "label": "now Bob can open it"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

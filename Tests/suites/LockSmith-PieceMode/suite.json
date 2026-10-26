@@ -3,73 +3,73 @@
   "description": "EnablePieceMode: the hammer Public category builds always-open clones of chests and doors; the Lock menu leaves them alone.",
   "requireMods": [
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "minVersion": "0.6.0"
     }
   ],
   "configOverrides": [
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableChests",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableDoors",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableGroupChests",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnablePersonalPause",
       "value": "false"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnablePieceGuests",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableOptInAccess",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableGuestPublicToggle",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableDesignate",
       "value": "false"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableManagedAccess",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnableAddNearby",
       "value": "true"
     },
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "RequireActiveWard",
       "value": "true"
@@ -77,7 +77,7 @@
   ],
   "launchConfig": [
     {
-      "guid": "com.drakesworkshop.locksmith",
+      "guid": "com.drakemods.locksmith",
       "section": "02 Features",
       "key": "EnablePieceMode",
       "value": "true"

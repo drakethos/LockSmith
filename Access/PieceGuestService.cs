@@ -171,7 +171,9 @@ public static class PieceGuestService
 
     public static void RegisterRpc(Container container)
     {
-        if (!GuestsEnabled || !PieceAccessState.IsEligibleChest(container))
+        // A piece just placed has no creator yet when Awake runs (the game sets it right after), so "eligible" is not known
+        // here: bind for every buildable piece and let each handler check PieceGuestAccess.IsEligibleView when a request arrives.
+        if (!GuestsEnabled || container == null || container.GetComponentInParent<Piece>() == null)
             return;
 
         var nview = PieceAccessState.GetNetView(container);
@@ -180,7 +182,7 @@ public static class PieceGuestService
 
     public static void RegisterRpc(Door door)
     {
-        if (!GuestsEnabled || !PieceAccessState.IsEligibleDoor(door))
+        if (!GuestsEnabled || door == null || door.GetComponentInParent<Piece>() == null)
             return;
 
         var nview = PieceAccessState.GetNetView(door);

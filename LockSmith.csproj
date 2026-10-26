@@ -89,6 +89,7 @@
     <Compile Include="Access\GuestClipboard.cs" />
     <Compile Include="Access\GuestPerms.cs" />
     <Compile Include="Patches\PrivateAreaPatches.cs" />
+    <Compile Include="Patches\RpcSenderPatches.cs" />
     <Compile Include="API\LockSmithCompatApi.cs" />
     <Compile Include="Compat\CompatibilityManager.cs" />
     <Compile Include="Compat\IWardCompatModule.cs" />

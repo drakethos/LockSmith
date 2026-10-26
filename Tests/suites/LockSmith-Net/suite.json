@@ -1,0 +1,20 @@
+// Network spike: Bjornita and Bob are virtual players (DrakesTestLab peerJoin) - second clients that send LockSmith's RPCs
+// to this game (the server). Hand-written; LockSmith's own baseline comes from the main suite.
+{
+  "name": "LockSmith-Net",
+  "description": "LockSmith RPCs from virtual players: permission checks on the owner, forged player ids and sender ids, the menu lease across clients, disconnect cleanup.",
+  "include": "../LockSmith/suite.json",
+  "requireMods": [ { "guid": "com.drakemods.testlab", "minVersion": "0.2.2" } ],
+  "resetBetweenTests": true,
+  "functions": {
+    "myWardedChest": {
+      "params": [ { "tag": "chest" } ],
+      "actions": [
+        { "do": "place", "prefab": "piece_chest_wood", "dz": 2.5, "as": "{{tag}}" },
+        { "do": "spawn", "prefab": "guard_stone", "dz": -2, "owner": "me", "enabled": true, "radius": 15, "as": "ward" },
+        { "do": "wait", "seconds": 0.5 },
+        { "do": "hook", "name": "lock.isPublic", "args": { "target": "{{tag}}" }, "expect": false, "label": "starts private", "stop": true }
+      ]
+    }
+  }
+}

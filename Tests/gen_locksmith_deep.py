@@ -7,7 +7,7 @@ the run script switches it on with launchConfig). Tests/ is never packaged."""
 import json, os, shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-GUID = 'com.drakesworkshop.locksmith'
+GUID = 'com.drakemods.locksmith'
 NOERR = {'check': 'noErrors', 'source': 'LockSmith'}
 
 

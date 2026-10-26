@@ -76,6 +76,15 @@ internal static class LockSmithTestHooks
         return chest != null ? global::LockSmith.UI.PieceAccessMenu.TryOpenLockMenu(chest, P) : global::LockSmith.UI.PieceAccessMenu.TryOpenLockMenu(door!, P);
     }
 
+    /// <summary>The Lock menu's action labels for the piece as the current player would see them, separated by " | " (diagnostic).</summary>
+    [TestHook("lock.menuActions")]
+    static string MenuActions(GameObject? target = null)
+    {
+        var (chest, door, _) = Piece(target);
+        var actions = global::LockSmith.UI.PieceAccessMenu.WheelActions(chest, door);
+        return actions == null ? "(none: menu unavailable)" : string.Join(" | ", actions.Select(a => a.Label));
+    }
+
     [TestHook("lock.menuOpen")]
     static bool MenuOpen() => global::LockSmith.UI.PieceAccessMenu.IsOpen;
 
@@ -294,6 +303,82 @@ internal static class LockSmithTestHooks
     {
         var area = Ward(target);
         return ((WardLevel)WardService.SwitchMinimum(area.GetComponent<ZNetView>())).ToString();
+    }
+
+    // ---------- ward mods (WardIsLove, Arcane Ward, Protective Wards)
+
+    static long PlayerId(string who) => who.ToLowerInvariant() switch
+    {
+        "" or "me" => Me, "alice" => 100001L, "bob" => 100002L, "carol" => 100003L, "amy" => 100004L,
+        _ => 200000L + Math.Abs(who.GetStableHashCode() % 100000)
+    };
+
+    /// <summary>Switch the game's debug mode (admin override) on or off. Arcane Ward and Protective Wards let a debug-mode player through
+    /// every ward, so ward tests switch it off to be treated like a normal player.</summary>
+    [TestHook("lock.debugMode")]
+    static bool DebugMode(Dictionary<string, object?> args)
+    {
+        var field = HarmonyLib.AccessTools.Field(typeof(Player), "m_debugMode") ?? throw new InvalidOperationException("Player.m_debugMode not found");
+        field.SetValue(null, B(args, "on"));
+        return (bool)field.GetValue(null)!;
+    }
+
+    /// <summary>Is the game's debug mode (admin override) on right now?</summary>
+    [TestHook("lock.debugModeIs")]
+    static bool DebugModeIs() => HarmonyLib.AccessTools.Field(typeof(Player), "m_debugMode")?.GetValue(null) is true;
+
+    /// <summary>Which ward modules LockSmith found active, e.g. "Vanilla,WardIsLove" (informational).</summary>
+    [TestHook("lock.compatActive")]
+    static string CompatActive() =>
+        string.Join(",", new[] { "VanillaPrivateArea", "WardIsLove", "ProtectiveWards", "ArcaneWard", "DevCommands" }
+            .Where(global::LockSmith.Compat.CompatibilityManager.HasActiveModule));
+
+    /// <summary>Is the named ward module active (WardIsLove, ProtectiveWards, ArcaneWard)?</summary>
+    [TestHook("lock.hasCompat")]
+    static bool HasCompat(Dictionary<string, object?> args) => global::LockSmith.Compat.CompatibilityManager.HasActiveModule(S(args, "id"));
+
+    /// <summary>Does LockSmith see the piece inside an enabled ward (through the active ward modules)?</summary>
+    [TestHook("lock.insideWard")]
+    static bool InsideWard(GameObject? target = null) => WardAccess.IsInsideEnabledWard(Piece(target).view.transform.position);
+
+    /// <summary>Does the current player have ward access at the piece (through the active ward modules)?</summary>
+    [TestHook("lock.wardAllows")]
+    static bool WardAllows(GameObject? target = null) => WardAccess.HasLocalWardAccess(Piece(target).view.transform.position);
+
+    /// <summary>Spawn a KG Arcane Ward owned by the current player (play-as first): radius, enabled (default true), permitted = "Bob,Carol".
+    /// Returns the ward so the step can tag it with "as".</summary>
+    [TestHook("lock.spawnArcaneWard")]
+    static GameObject SpawnArcaneWard(Dictionary<string, object?> args)
+    {
+        var prefab = ZNetScene.instance?.GetPrefab("ArcaneWard") ?? throw new InvalidOperationException("Arcane Ward is not loaded (no ArcaneWard prefab)");
+        var type = HarmonyLib.AccessTools.TypeByName("kg_ArcaneWard.ArcaneWardComponent") ?? throw new InvalidOperationException("ArcaneWardComponent not found");
+        var dz = args.ContainsKey("dz") ? Convert.ToSingle(args["dz"], CultureInfo.InvariantCulture) : -2f;
+        var pos = P.transform.position + P.transform.forward * dz;
+        pos.y = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(pos) : pos.y;
+        var go = UnityEngine.Object.Instantiate(prefab, pos, Quaternion.identity);
+        var zdo = go.GetComponent<ZNetView>().GetZDO() ?? throw new InvalidOperationException("the ward has no ZDO");
+        var radius = args.ContainsKey("radius") ? Convert.ToInt32(Convert.ToDouble(args["radius"], CultureInfo.InvariantCulture)) : 15;
+        zdo.Set("Radius", radius);
+        zdo.Set("Fuel", 100000f);
+        zdo.Set("Enabled", B(args, "enabled", true));
+
+        // owner was written by the ward itself when it woke up (the current player); add the permitted players
+        var comp = go.GetComponent(type);
+        var cacheField = HarmonyLib.AccessTools.Field(type, "_cachedPermittedPlayers");
+        var permitted = cacheField?.GetValue(comp) as Dictionary<long, string> ?? new Dictionary<long, string>();
+        foreach (var name in S(args, "permitted").Split(',', ';').Select(x => x.Trim()).Where(x => x.Length > 0))
+            permitted[PlayerId(name)] = name;
+        zdo.Set("permitted", permitted.Count);
+        var i = 0;
+        foreach (var kv in permitted)
+        {
+            zdo.Set("pu_id" + i, kv.Key);
+            zdo.Set("pu_name" + i, kv.Value);
+            i++;
+        }
+
+        cacheField?.SetValue(comp, permitted);
+        return go;
     }
 
     // ---------- groups (config\LockSmith\groups.txt, per computer)

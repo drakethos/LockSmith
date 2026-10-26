@@ -1,0 +1,113 @@
+{
+  "name": "AW-06 doors: locked for strangers, public opens them",
+  "description": "ArcaneWard integration",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "wood_door",
+      "dz": 2.5,
+      "as": "door"
+    },
+    {
+      "do": "hook",
+      "name": "lock.spawnArcaneWard",
+      "as": "ward",
+      "args": {
+        "radius": 15,
+        "enabled": true,
+        "permitted": ""
+      }
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "expect": "0",
+      "label": "Bob cannot open the warded door"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "door",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice makes the door public"
+    },
+    {
+      "do": "playAs",
+      "who": "Bob"
+    },
+    {
+      "do": "face",
+      "target": "door"
+    },
+    {
+      "do": "interact",
+      "target": "door"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "check",
+      "check": "zdo",
+      "target": "door",
+      "key": "state",
+      "default": "0",
+      "notContains": "0",
+      "label": "now Bob can open it"
+    },
+    {
+      "do": "playAs",
+      "who": "me"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}

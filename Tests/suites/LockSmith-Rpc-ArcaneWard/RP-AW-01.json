@@ -1,0 +1,120 @@
+{
+  "name": "RP-AW-01 a stranger cannot make a warded chest public over the wire",
+  "description": "over the wire, ArcaneWard",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "lock.debugMode",
+      "args": {
+        "on": false
+      },
+      "expect": false,
+      "label": "debug mode (admin override) off: wards treat us like a normal player"
+    },
+    {
+      "do": "playAs",
+      "who": "Alice"
+    },
+    {
+      "do": "place",
+      "prefab": "piece_chest_wood",
+      "dz": 2.5,
+      "as": "chest"
+    },
+    {
+      "do": "hook",
+      "name": "lock.spawnArcaneWard",
+      "as": "ward",
+      "args": {
+        "radius": 15,
+        "enabled": true,
+        "permitted": ""
+      }
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "peerJoin",
+      "name": "Bob",
+      "dx": 3,
+      "dz": 1,
+      "as": "bob"
+    },
+    {
+      "do": "check",
+      "check": "peerConnected",
+      "peer": "Bob",
+      "label": "Bob is connected like a second client"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithSetChestPublic",
+      "args": [
+        1,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": false,
+      "label": "Bob's request is refused: the chest stays private"
+    },
+    {
+      "do": "hook",
+      "name": "lock.setPublic",
+      "args": {
+        "target": "chest",
+        "on": true
+      },
+      "expect": true,
+      "label": "Alice makes it public"
+    },
+    {
+      "do": "peerRpc",
+      "peer": "Bob",
+      "target": "chest",
+      "method": "RPC_LockSmithSetChestPublic",
+      "args": [
+        0,
+        "@Bob"
+      ],
+      "types": [
+        "int",
+        "long"
+      ],
+      "wait": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "lock.isPublic",
+      "args": {
+        "target": "chest"
+      },
+      "expect": true,
+      "label": "Bob cannot make it private either"
+    },
+    {
+      "do": "peerLeave",
+      "name": "*"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "LockSmith"
+    }
+  ]
+}
