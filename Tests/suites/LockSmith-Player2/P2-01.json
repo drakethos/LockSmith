@@ -1,0 +1,13 @@
+{
+  "name": "P2-01 a real stranger is refused a warded private chest",
+  "description": "Player 1 builds a private chest inside its ward. Player 2 (no ward access) presses E on it for real: the chest does not open and stays private.",
+  "steps": [
+    { "do": "ping", "on": "player2", "connectTimeout": 120 },
+    "myWardedChest()",
+    "player2Presses()",
+    { "do": "check", "on": "player2", "check": "uiVisible", "name": "InventoryGui", "expect": false, "label": "the chest does not open for Player 2" },
+    { "do": "hook", "name": "lock.isPublic", "args": { "target": "chest" }, "expect": false, "label": "and it is still private" },
+    { "do": "closeUi", "on": "player2" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}

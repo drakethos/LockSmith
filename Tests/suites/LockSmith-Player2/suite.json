@@ -1,0 +1,34 @@
+// LockSmith with a REAL second player (DrakesTestLab server connect mode): this game is Player 1 and builds the pieces; a second
+// lab client on the same dedicated server is Player 2 and presses E on them. Hand-written. Needs DrakesTestLabServer on the server.
+{
+  "name": "LockSmith-Player2",
+  "description": "Access rules checked with a real second player: a stranger is refused a warded chest, and gets in once the owner makes it public.",
+  "include": "../LockSmith/suite.json",
+  "requireMods": [
+    { "guid": "com.drakemods.locksmith", "minVersion": "0.6.3" },
+    { "guid": "com.drakemods.testlab", "minVersion": "0.4.1" }
+  ],
+  // the server owns the world: never reset or reload it between tests
+  "resetBetweenTests": false,
+  "functions": {
+    "myWardedChest": {
+      "params": [ { "tag": "chest" } ],
+      "actions": [
+        { "do": "place", "prefab": "piece_chest_wood", "dz": 2.5, "as": "{{tag}}" },
+        { "do": "spawn", "prefab": "guard_stone", "dz": -2, "owner": "me", "enabled": true, "radius": 15, "as": "ward" },
+        { "do": "wait", "seconds": 0.5 },
+        { "do": "hook", "name": "lock.isPublic", "args": { "target": "{{tag}}" }, "expect": false, "label": "starts private", "stop": true }
+      ]
+    },
+    "player2Presses": {
+      "params": [ { "tag": "chest" } ],
+      "actions": [
+        { "do": "wait", "seconds": 2 },
+        { "do": "teleport", "on": "player2", "to": "{{tag}}", "distance": 2 },
+        { "do": "wait", "seconds": 1 },
+        { "do": "interact", "on": "player2", "target": "{{tag}}" },
+        { "do": "wait", "seconds": 1.5 }
+      ]
+    }
+  }
+}

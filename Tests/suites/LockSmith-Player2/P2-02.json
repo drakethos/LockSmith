@@ -1,0 +1,20 @@
+{
+  "name": "P2-02 a real stranger gets in once the chest is public",
+  "description": "Player 1 makes the chest public (as the Lock menu does). Player 2 presses E on it for real: it opens. Player 1 makes it private again and Player 2 is refused again.",
+  "steps": [
+    { "do": "ping", "on": "player2", "connectTimeout": 120 },
+    "myWardedChest()",
+    { "do": "hook", "name": "lock.setPublic", "args": { "target": "chest", "on": true }, "expect": true, "label": "Player 1 makes it public" },
+    "player2Presses()",
+    { "do": "check", "on": "player2", "check": "uiVisible", "name": "InventoryGui", "expect": true, "label": "the public chest opens for Player 2" },
+    { "do": "closeUi", "on": "player2" },
+    // Player 2 opened it, so Player 2 now owns the chest: the make-private request travels to Player 2 and back. The hook's own answer is the state before that finishes, so wait and read the state.
+    { "do": "hook", "name": "lock.setPublic", "args": { "target": "chest", "on": false } },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "lock.isPublic", "args": { "target": "chest" }, "expect": false, "label": "Player 1 made it private again" },
+    { "do": "interact", "on": "player2", "target": "chest" },
+    { "do": "wait", "seconds": 1.5 },
+    { "do": "check", "on": "player2", "check": "uiVisible", "name": "InventoryGui", "expect": false, "label": "private again: refused again" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "LockSmith" } ]
+}
