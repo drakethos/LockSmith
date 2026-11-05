@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DrakeModsLibs.API;
 using DrakeModsLibs.Integration;
 using DrakeModsLibs.UI;
 using LockSmith.Access;
+using LockSmith.Compat.ServerTeams;
 using UnityEngine;
 
 namespace LockSmith.UI;
@@ -34,8 +36,19 @@ public static class PieceAccessMenu
     static LockTab _tab = LockTab.Piece;
     static string? _extraId;
     static PrivateArea? _wardArea;
+    static PrivateArea? _teamWard;
+    static bool _teamWardOpen;
 
     public static bool IsOpen => Menu.IsOpen || Confirm.IsOpen;
+
+    /// <summary>The open menu is a Team Ward (one Shift+E with LockSmith, not the Teams admin window).</summary>
+    public static bool TeamWardMenuOpen => _teamWardOpen;
+
+    /// <summary>True while that menu is up and the local player is not a server admin, so the protect switches stay off.</summary>
+    public static bool TeamWardControlsLocked => _teamWardOpen && !TeamWardBridge.LocalIsAdmin();
+
+    /// <summary>Tab labels on the open menu, left to right. Empty when it is closed.</summary>
+    public static string TabOrder => Menu.IsOpen ? Menu.TabLabels : "";
 
     /// <summary>AltPlace + E. Returns false (vanilla runs) when this player has nothing to do here.</summary>
     public static bool TryOpenLockMenu(Container container, Humanoid user, LockTab startTab = LockTab.Piece) =>
@@ -51,6 +64,24 @@ public static class PieceAccessMenu
     public static bool HasLockMenu(Container container) => LockMenuActionCount(container, null) > 0 || WardOffOpens(container, null);
 
     public static bool HasLockMenu(Door door) => LockMenuActionCount(null, door) > 0 || WardOffOpens(null, door);
+
+    /// <summary>
+    /// Shift+Use on a chest or door that will open this menu belongs to LockSmith, so RenameIt's piece workshop leaves it alone.
+    /// The Name tab (registered by RenameIt) is how that piece is renamed. Pieces with no Lock menu stay with the workshop.
+    /// </summary>
+    internal static void RegisterInteractClaim() =>
+        PieceInteractionClaims.Register("LockSmith", ClaimsPiece);
+
+    static bool ClaimsPiece(Piece piece)
+    {
+        if (!piece)
+            return false;
+        var container = piece.GetComponent<Container>() ?? piece.GetComponentInChildren<Container>();
+        if (container != null && HasLockMenu(container))
+            return true;
+        var door = piece.GetComponent<Door>() ?? piece.GetComponentInChildren<Door>();
+        return door != null && HasLockMenu(door);
+    }
     /// <summary>The piece sits in a ward that is off (so LockSmith won't manage it) and the player has a role in that ward.</summary>
     static bool WardIsOffHere(Target t, Player player) =>
         !t.PrivateFamily
@@ -177,9 +208,160 @@ public static class PieceAccessMenu
         && !PublicPieceRegistration.IsPublicPiece(door)
         && PieceAccessState.IsEligibleDoor(door);
 
+    const float TeamWardReach = 12f;
+    static readonly PieceMenuTab TeamTab = new("teams.ward", "Team", _ => false, _ => { }, group: "teams", isRoot: true);
+
+    /// <summary>
+    /// Shift+E on a Team Ward. The same Lock menu, with a Team tab and a Lock tab that stays team-managed.
+    /// Returns false when Teams is absent or this is not a Team Ward, so the caller can keep its own window.
+    /// </summary>
+    public static bool TryOpenTeamWard(PrivateArea area, Humanoid user)
+    {
+        if (!area || user is not Player player)
+            return false;
+        if (!TeamWardBridge.IsTeamWard(area))
+            return false;
+        if (Vector3.Distance(player.transform.position, area.transform.position) > TeamWardReach)
+            return false;
+
+        Close();
+        _teamWard = area;
+        _teamWardOpen = true;
+        var extras = TeamExtras(area);
+        var lead = LowestRoot(extras);
+        if (lead != null && PieceMenuTabs.Rank(lead.Id) < PieceMenuTabs.Rank("locksmith"))
+        {
+            _tab = LockTab.Extra;
+            _extraId = lead.Id;
+        }
+        else
+        {
+            _tab = LockTab.Piece;
+            _extraId = null;
+        }
+
+        _nextRefresh = Time.time + RefreshSeconds;
+        RenderTeam(player, force: true);
+        return Menu.IsOpen;
+    }
+
+    internal static void RefreshTeamWard()
+    {
+        var local = Player.m_localPlayer;
+        if (_teamWard && local != null)
+            RenderTeam(local, force: true);
+    }
+
+    static List<PieceMenuTab> TeamExtras(PrivateArea area)
+    {
+        var extras = PieceMenuTabs.For((Component)area);
+        if (!extras.Exists(e => e.Id == TeamTab.Id))
+            extras.Insert(0, TeamTab);
+        return extras;
+    }
+
+    static void RenderTeam(Player player, bool force)
+    {
+        var area = _teamWard;
+        if (!area || player == null)
+        {
+            Close();
+            return;
+        }
+
+        var extras = TeamExtras(area);
+        if (_tab == LockTab.Extra && !extras.Exists(e => e.Id == _extraId))
+            _tab = LockTab.Piece;
+
+        var tabs = new LockTabs
+        {
+            ShowWard = false,
+            ShowGroups = false,
+            Active = _tab,
+            ActiveExtraId = _extraId,
+            Extras = extras,
+            Select = tab =>
+            {
+                _tab = tab;
+                _extraId = null;
+                RefreshTeamWard();
+            },
+            SelectExtra = extra =>
+            {
+                _tab = LockTab.Extra;
+                _extraId = extra.Id;
+                RefreshTeamWard();
+            },
+        };
+
+        var sig = new StringBuilder();
+        sig.Append(_tab).Append('|').Append(_extraId).Append('|').Append(TeamWardBridge.LocalIsAdmin());
+        sig.Append('|').Append(TeamWardBridge.TeamName(area));
+        sig.Append(TeamWardBridge.Protects(area, "Build"));
+        sig.Append(TeamWardBridge.Protects(area, "Chest"));
+        sig.Append(TeamWardBridge.Protects(area, "Door"));
+        if (!Changed(sig, force))
+            return;
+
+        var subtitle = TeamWardBridge.TeamName(area);
+        if (_tab == LockTab.Extra && extras.Find(e => e.Id == _extraId) is { } extra && extra.Id != TeamTab.Id)
+        {
+            Menu.OpenExtra("Team Ward", subtitle, extra, area, TeamWardBridge.LocalIsAdmin(), RefreshTeamWard, tabs, Close);
+            return;
+        }
+
+        if (_tab == LockTab.Extra)
+            Menu.OpenBody("Team Ward", subtitle, tabs, Close, body => TeamWardMenu.FillTeam(body, area));
+        else
+            Menu.OpenBody("Team Ward", subtitle, tabs, Close, body => TeamWardMenu.FillLock(body));
+    }
+
+    static void TickTeam()
+    {
+        if (!Menu.IsOpen && !Confirm.IsOpen)
+        {
+            Close();
+            return;
+        }
+
+        if (!Menu.IsOpen || Time.time < _nextRefresh)
+            return;
+        _nextRefresh = Time.time + RefreshSeconds;
+
+        var local = Player.m_localPlayer;
+        if (!_teamWard || local == null
+            || Vector3.Distance(local.transform.position, _teamWard.transform.position) > TeamWardReach)
+        {
+            Close();
+            return;
+        }
+
+        RenderTeam(local, force: false);
+    }
+
+    static PieceMenuTab? LowestRoot(List<PieceMenuTab> extras)
+    {
+        PieceMenuTab? lead = null;
+        foreach (var extra in extras)
+        {
+            if (!extra.IsRoot || !extra.Leads)
+                continue;
+            if (lead == null || PieceMenuTabs.Rank(extra.Id) < PieceMenuTabs.Rank(lead.Id))
+                lead = extra;
+        }
+
+        return lead;
+    }
+
     /// <summary>Called every frame from the plugin: refresh state, close when the piece is gone or far away.</summary>
     public static void Tick()
     {
+        if (_teamWardOpen)
+        {
+            TickTeam();
+            return;
+        }
+
         if (_leaseView == null)
             return;
 
@@ -217,6 +399,8 @@ public static class PieceAccessMenu
         Confirm.Close();
         _tab = LockTab.Piece;
         _wardArea = null;
+        _teamWard = null;
+        _teamWardOpen = false;
         Menu.CloseSilent();
         ReleaseLease();
         _chest = null;
@@ -288,11 +472,16 @@ public static class PieceAccessMenu
                 _nextRenew = Time.time + PieceMenuLock.RenewSeconds;
                 _tab = startTab;
                 _extraId = null;
-                // Other mods' tabs lead the shared menu: open on the first one unless a specific tab was asked for.
-                if (startTab == LockTab.Piece && !wardOff && _chest != null && PieceMenuTabs.For(_chest) is { Count: > 0 } leading)
+                // The lowest-ranked leading root in PieceTabOrder opens the menu (Shop before Mail).
+                // A root with Leads false (RenameIt's Name) stays on the row and must not take that opening tab.
+                if (startTab == LockTab.Piece && !wardOff && _chest != null)
                 {
-                    _tab = LockTab.Extra;
-                    _extraId = leading[0].Id;
+                    var lead = LowestRoot(PieceMenuTabs.For(_chest));
+                    if (lead != null)
+                    {
+                        _tab = LockTab.Extra;
+                        _extraId = lead.Id;
+                    }
                 }
                 Reopen();
             },
@@ -355,13 +544,21 @@ public static class PieceAccessMenu
             return;
         }
 
-        if (_tab == LockTab.Extra && target.Chest != null && tabs.Extras.Find(e => e.Id == _extraId) is { } extra)
+        if (_tab == LockTab.Extra && tabs.Extras.Find(e => e.Id == _extraId) is { } extra)
         {
-            if (!Changed(sig, force))
+            Component? host = target.Chest != null ? target.Chest : target.Door;
+            if (host == null)
+            {
+                _tab = LockTab.Piece;
+            }
+            else
+            {
+                if (!Changed(sig, force))
+                    return;
+                var canManage = PieceGuestAccess.CanManageGuests(target.Nview, player.GetPlayerID());
+                Menu.OpenExtra(target.Name, extra.Title, extra, host, canManage, Reopen, tabs, closed);
                 return;
-            var canManage = PieceGuestAccess.CanManageGuests(target.Nview, player.GetPlayerID());
-            Menu.OpenExtra(target.Name, extra.Title, extra, target.Chest, canManage, Reopen, tabs, closed);
-            return;
+            }
         }
 
         if (_tab == LockTab.Groups)
@@ -409,6 +606,8 @@ public static class PieceAccessMenu
         var tabs = new LockTabs { Select = SelectTab, SelectExtra = SelectExtra };
         if (t.Chest != null)
             tabs.Extras = PieceMenuTabs.For(t.Chest);
+        else if (t.Door != null)
+            tabs.Extras = PieceMenuTabs.For(t.Door);
         try
         {
             // Keep the Lock tab lean until designation: Ward and Groups appear only once LockSmith is on.

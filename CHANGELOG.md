@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Icon.** Brass knot on the workshop brown. DrakeMods, LockSmith, the ward with the key over it, and the portrait. Version stays 0.6.3 until the next release.
+- A Team Ward opens in the Lock menu. Its own switches stay off, and only a server admin changes what the ward protects.
+
 ## 0.6.3
 
 Hexium only. Requires **DrakeModsLibs 1.0.0**.

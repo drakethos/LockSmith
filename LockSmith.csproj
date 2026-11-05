@@ -113,6 +113,8 @@
     <Compile Include="UI\LockWheel.cs" />
     <Compile Include="UI\LockSections.cs" />
     <Compile Include="UI\PieceAccessMenu.cs" />
+    <Compile Include="UI\TeamWardMenu.cs" />
+    <Compile Include="Compat\ServerTeams\TeamWardBridge.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

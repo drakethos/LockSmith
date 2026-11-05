@@ -35,6 +35,7 @@ namespace LockSmith
             Log = Logger;
 
             LockSmithConfig.Bind(Config, Logger);
+            UI.PieceAccessMenu.RegisterInteractClaim();
 
 
 

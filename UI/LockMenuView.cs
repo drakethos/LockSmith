@@ -240,17 +240,19 @@ public sealed class LockMenuView
                     ? (active ? UkButtonKind.ChildSelected : UkButtonKind.Child)
                     : (active ? UkButtonKind.Selected : UkButtonKind.Ghost);
                 var button = UkControls.MakeButton(extra.Title, () => tabs.SelectExtra(captured), kind);
+                button.name = extra.Id;
                 button.style.height = 40;
                 button.style.marginRight = 6;
                 _tabRow.Add(button);
             }
         }
         if (!tabs.OnlyWard)
-            AddTab(tabs, LockTab.Piece, tabs.Extras.Count > 0 ? "Lock" : "Piece", child: false);
+            AddTab(tabs, LockTab.Piece, tabs.Extras.Count > 0 ? "Lock" : "Piece", child: false, "locksmith");
         if (showWard)
-            AddTab(tabs, LockTab.Ward, "Ward", child: true);
+            AddTab(tabs, LockTab.Ward, "Ward", child: true, "locksmith.ward");
         if (showGroups)
-            AddTab(tabs, LockTab.Groups, "Groups", child: true);
+            AddTab(tabs, LockTab.Groups, "Groups", child: true, "locksmith.groups");
+        SortTabRow();
 
         _window.Body.Clear();
         _window.Footer.Clear();
@@ -306,16 +308,54 @@ public sealed class LockMenuView
         return Mathf.Clamp(row, BaseWidth, MaxWidth);
     }
 
-    void AddTab(LockTabs tabs, LockTab tab, string label, bool child)
+    /// <summary>Visible tab labels, left to right. Order comes from <see cref="PieceMenuTabs.Rank"/>.</summary>
+    public string TabLabels
+    {
+        get
+        {
+            var names = new List<string>();
+            foreach (var child in _tabRow.Children())
+                if (child is Button button && !string.IsNullOrEmpty(button.text))
+                    names.Add(button.text);
+            return string.Join(",", names);
+        }
+    }
+
+    void SortTabRow()
+    {
+        var indexed = new List<KeyValuePair<int, VisualElement>>();
+        var i = 0;
+        foreach (var child in _tabRow.Children())
+            indexed.Add(new KeyValuePair<int, VisualElement>(i++, child));
+        indexed.Sort((a, b) =>
+        {
+            var rank = PieceMenuTabs.Rank(a.Value.name).CompareTo(PieceMenuTabs.Rank(b.Value.name));
+            return rank != 0 ? rank : a.Key.CompareTo(b.Key);
+        });
+        _tabRow.Clear();
+        foreach (var pair in indexed)
+            _tabRow.Add(pair.Value);
+    }
+
+    void AddTab(LockTabs tabs, LockTab tab, string label, bool child, string id)
     {
         var active = tabs.Active == tab;
         var kind = child
             ? (active ? UkButtonKind.ChildSelected : UkButtonKind.Child)
             : (active ? UkButtonKind.Selected : UkButtonKind.Ghost);
         var button = UkControls.MakeButton(label, () => tabs.Select(tab), kind);
+        button.name = id;
         button.style.height = 40;
         button.style.marginRight = 6;
         _tabRow.Add(button);
+    }
+
+    public void OpenBody(string title, string? subtitle, LockTabs tabs, Action? onClosed, Action<VisualElement> fill)
+    {
+        Frame(title, subtitle, tabs, onClosed);
+        var body = new VisualElement().Column();
+        fill(body);
+        Finish(body, null);
     }
 
     void Finish(VisualElement body, VisualElement? footerLeft)
@@ -677,13 +717,23 @@ public sealed class LockMenuView
     // ---- Groups tab -------------------------------------------------------------------------------
 
     /// <summary>A tab another mod added: it fills the body, the window supplies the frame, tabs and Close.</summary>
-    public void OpenExtra(string title, string? subtitle, PieceMenuTab tab, Container piece, bool canManage, Action rebuild, LockTabs tabs, Action? onClosed)
+    public void OpenExtra(string title, string? subtitle, PieceMenuTab tab, Component host, bool canManage, Action rebuild, LockTabs tabs, Action? onClosed)
     {
         Frame(title, subtitle, tabs, onClosed);
         var body = new VisualElement().Column();
+        if (!host)
+        {
+            body.Add(UkControls.Text("This tab could not be drawn.", 14, UkTheme.TextMuted));
+            Finish(body, null);
+            return;
+        }
+
         try
         {
-            tab.Build(new PieceMenuTabContext(piece, body, canManage, rebuild));
+            var ctx = host is Container chest
+                ? new PieceMenuTabContext(chest, body, canManage, rebuild)
+                : new PieceMenuTabContext(host, body, canManage, rebuild);
+            tab.Build(ctx);
         }
         catch (Exception ex)
         {

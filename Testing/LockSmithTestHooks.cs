@@ -88,6 +88,16 @@ internal static class LockSmithTestHooks
     [TestHook("lock.menuOpen")]
     static bool MenuOpen() => global::LockSmith.UI.PieceAccessMenu.IsOpen;
 
+    [TestHook("lock.teamMenu")]
+    static bool TeamMenu() => global::LockSmith.UI.PieceAccessMenu.TeamWardMenuOpen;
+
+    [TestHook("lock.teamLocked")]
+    static bool TeamLocked() => global::LockSmith.UI.PieceAccessMenu.TeamWardControlsLocked;
+
+    /// <summary>Tab labels on the open Lock menu, left to right (Libs PieceTabOrder).</summary>
+    [TestHook("lock.tabOrder")]
+    static string TabOrder() => global::LockSmith.UI.PieceAccessMenu.TabOrder;
+
     [TestHook("lock.closeMenu")]
     static bool CloseMenu()
     {
