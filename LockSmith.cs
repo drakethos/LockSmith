@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using BepInEx;
 using BepInEx.Logging;
@@ -34,7 +34,12 @@ namespace LockSmith
             Instance = this;
             Log = Logger;
 
-            LockSmithConfig.Bind(Config, Logger);
+            // BepInEx rewrites the whole .cfg on every Bind by default: batch them into one save.
+            var saveOnSet = Config.SaveOnConfigSet;
+            Config.SaveOnConfigSet = false;
+            try { LockSmithConfig.Bind(Config, Logger); }
+            finally { Config.SaveOnConfigSet = saveOnSet; }
+            Config.Save();
             UI.PieceAccessMenu.RegisterInteractClaim();
 
 

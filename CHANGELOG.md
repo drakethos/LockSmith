@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.6.4
 
-- **Icon.** Brass knot on the workshop brown. DrakeMods, LockSmith, the ward with the key over it, and the portrait. Version stays 0.6.3 until the next release.
+Hexium only. Requires **DrakeModsLibs 1.0.0**.
+
+- **Faster start-up (about 1.0 s down to 0.2 s).** The ward-mod checks (WardIsLove, ProtectiveWards, ArcaneWard) no longer scan every loaded type when that mod is not installed, and the settings are saved once instead of once each. No change to behaviour.
+- **Icon.** Brass knot on the workshop brown. DrakeMods, LockSmith, the ward with the key over it, and the portrait. 
 - A Team Ward opens in the Lock menu. Its own switches stay off, and only a server admin changes what the ward protects.
 
 ## 0.6.3

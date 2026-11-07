@@ -27,9 +27,21 @@ internal sealed class DevCommandsModule : IWardCompatModule
     public bool TryActivate()
     {
         IsActive = IsPluginLoaded(PluginGuid)
-                   || AccessTools.TypeByName("DevCommands.DevCommands") != null
-                   || AccessTools.TypeByName("DevCommands") != null;
+                   || AnyAssemblyNamedDevCommands();
         return IsActive;
+    }
+
+    // Checks assembly names only: AccessTools.TypeByName scans every type of every assembly (~80 ms each, twice).
+    private static bool AnyAssemblyNamedDevCommands()
+    {
+        foreach (var a in System.AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var n = a.GetName().Name;
+            if (n != null && n.IndexOf("DevCommands", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+        }
+
+        return false;
     }
 
     public void ApplyHarmonyPatches(Harmony harmony)

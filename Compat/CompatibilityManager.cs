@@ -54,11 +54,21 @@ public static class CompatibilityManager
             return;
 
         // Present modules only. Mutual exclusivity among foreign mods is their problem.
+        // The ward mods are soft dependencies, so BepInEx loads them first and an absent one is simply not in PluginInfos.
+        // Skipping it avoids the module's AccessTools.TypeByName probes, which scan every type of every loaded assembly (~80 ms each).
+        void RegisterIfLoaded(ICompatModule module)
+        {
+            var guid = module.SoftDependencyGuid;
+            if (guid != null && !BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
+                return;
+            Host.Register(module);
+        }
+
         Host.Register(new VanillaPrivateAreaModule());
-        Host.Register(new WardIsLoveModule());
-        Host.Register(new ProtectiveWardsModule());
-        Host.Register(new ArcaneWardModule());
-        Host.Register(new DevCommandsModule());
+        RegisterIfLoaded(new WardIsLoveModule());
+        RegisterIfLoaded(new ProtectiveWardsModule());
+        RegisterIfLoaded(new ArcaneWardModule());
+        Host.Register(new DevCommandsModule()); // its own check also finds DevCommands loaded as a plain DLL, so it is not skipped by guid
         Host.Initialize(harmony);
     }
 
