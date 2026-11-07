@@ -124,7 +124,7 @@ jobs:
         run: |
           set -euo pipefail
           # Compile against the Libs release LockSmith is pinned to (must match the DrakeModsLibs version in mod.package.props).
-          git clone --depth 1 --branch v1.0.0 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
+          git clone --depth 1 --branch v1.0.6 https://github.com/drakethos/DrakesWorkshopLibs.git ci_libs/DrakeModsLibsSrc
           nuget restore ci_libs/DrakeModsLibsSrc/DrakeModsLibs.csproj -PackagesDirectory ci_libs/DrakeModsLibsSrc/packages
           CI_ROOT="$(pwd)/ci_valheim"
           MANAGED="$CI_ROOT/valheim_Data/Managed"

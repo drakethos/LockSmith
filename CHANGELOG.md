@@ -2,7 +2,7 @@
 
 ## 0.6.4
 
-Hexium only. Requires **DrakeModsLibs 1.0.0**.
+Hexium only. Requires **DrakeModsLibs 1.0.6** (the Lock menu already used the Libs 1.0.3 piece-claims API; the pin and the release build now say so).
 
 - **Faster start-up (about 1.0 s down to 0.2 s).** The ward-mod checks (WardIsLove, ProtectiveWards, ArcaneWard) no longer scan every loaded type when that mod is not installed, and the settings are saved once instead of once each. No change to behaviour.
 - **Icon.** Brass knot on the workshop brown. DrakeMods, LockSmith, the ward with the key over it, and the portrait. 
