@@ -1,0 +1,324 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DrakesTestLab results</title><style>:root{--bg:#f6f4ef;--fg:#1f1d1a;--card:#fff;--muted:#6b665d;--line:#e2ddd2;--pass:#2f7d46;--fail:#b3261e;--skip:#8a6d1f}@media(prefers-color-scheme:dark){:root{--bg:#191714;--fg:#ece7dd;--card:#24211d;--muted:#a59e91;--line:#3a352e;--pass:#6fcf8b;--fail:#ff8a80;--skip:#e0c068}}body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,Segoe UI,sans-serif}main{max-width:1100px;margin:0 auto}h1{font-size:22px;margin:0 0 4px}.sum{color:var(--muted);margin-bottom:16px}details{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:8px 0;padding:8px 12px}summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}summary b{min-width:52px}.Passed{color:var(--pass)}.Failed{color:var(--fail)}.Skipped{color:var(--skip)}.muted{color:var(--muted)}ul{margin:6px 0;padding-left:20px}li{margin:2px 0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;color:var(--muted)}.shots{display:flex;gap:8px;flex-wrap:wrap}.shots img{max-width:100%;width:340px;border-radius:6px;border:1px solid var(--line)}.filters{margin:8px 0}.filters label{margin-right:12px}</style></head><body><main><h1>DrakesTestLab results</h1><div class="sum">2026-10-23 20:39 &middot; <span class="Passed">12 passed</span>, <span class="Failed">0 failed</span>, <span class="Skipped">0 skipped</span></div><div class="filters"><label><input type="checkbox" id="onlyFailed"> Only failed</label></div><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-01 a warded chest keeps strangers out</strong></span><span class="muted">6.5s</span></summary><ul><li><span class="Passed">&#10003;</span> Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Bob has no ward access: wardAccess: do=check, expect=false, label=Bob has no ward access <span class="muted">&rarr; access blocked</span></li><li><span class="Passed">&#10003;</span> Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/19: do=playAs, who=Alice
+step 2/19: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/19: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/19: do=wait, seconds=0.5
+step 5/19: do=closeUi
+step 6/19: do=face, target=chest
+step 7/19: do=interact, target=chest
+  -&gt; True
+step 8/19: do=wait, seconds=0.4
+step 9/19: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest
+  check ok: Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest -&gt; visible
+step 10/19: do=closeUi
+step 11/19: do=playAs, who=Bob
+step 12/19: do=check, check=wardAccess, expect=false, label=Bob has no ward access
+  check ok: Bob has no ward access: wardAccess: do=check, expect=false, label=Bob has no ward access -&gt; access blocked
+step 13/19: do=closeUi
+step 14/19: do=face, target=chest
+step 15/19: do=interact, target=chest
+  -&gt; True
+step 16/19: do=wait, seconds=0.4
+step 17/19: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob cannot open it
+  check ok: Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it -&gt; not visible
+step 18/19: do=closeUi
+step 19/19: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-02 make public lets anyone open, private locks again</strong></span><span class="muted">8.1s</span></summary><ul><li><span class="Passed">&#10003;</span> a player-built chest in a ward can be managed: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in a ward can be managed <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> the hover says it is public: hoverText: do=check, target=chest, contains=ublic, label=the hover says it is public <span class="muted">&rarr; hover text &#39;Chest [Public] | [&lt;color=yellow&gt;&lt;b&gt;E&lt;/b&gt;&lt;/color&gt;] Open | [&lt;color=yellow&gt;&lt;b&gt;Shift&lt;/b&gt;&lt;/color&gt;+&lt;color=yellow&gt;&lt;b&gt;E&lt;/b&gt;&lt;/color&gt;] Lock menu&#39;</span></li><li><span class="Passed">&#10003;</span> Bob can open a public chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open a public chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Bob cannot make it private (still public): do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=true, label=Bob cannot make it private (still public) <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes it private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/25: do=playAs, who=Alice
+step 2/25: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/25: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/25: do=wait, seconds=0.5
+step 5/25: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in a ward can be managed
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 6/25: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/25: do=check, check=hoverText, target=chest, contains=ublic, label=the hover says it is public
+  check ok: the hover says it is public: hoverText: do=check, target=chest, contains=ublic, label=the hover says it is public -&gt; hover text &#39;Chest [Public] | [&lt;color=yellow&gt;&lt;b&gt;E&lt;/b&gt;&lt;/color&gt;] Open | [&lt;color=yellow&gt;&lt;b&gt;Shift&lt;/b&gt;&lt;/color&gt;+&lt;color=yellow&gt;&lt;b&gt;E&lt;/b&gt;&lt;/color&gt;] Lock menu&#39;
+step 8/25: do=playAs, who=Bob
+step 9/25: do=closeUi
+step 10/25: do=face, target=chest
+step 11/25: do=interact, target=chest
+  -&gt; True
+step 12/25: do=wait, seconds=0.4
+step 13/25: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob can open a public chest
+  check ok: Bob can open a public chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open a public chest -&gt; visible
+step 14/25: do=closeUi
+step 15/25: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=true, label=Bob cannot make it private (still public)
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 16/25: do=playAs, who=Alice
+step 17/25: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 18/25: do=playAs, who=Bob
+step 19/25: do=closeUi
+step 20/25: do=face, target=chest
+step 21/25: do=interact, target=chest
+  -&gt; True
+step 22/25: do=wait, seconds=0.4
+step 23/25: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob is locked out again
+  check ok: Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again -&gt; not visible
+step 24/25: do=closeUi
+step 25/25: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-03 strangers cannot make a chest public</strong></span><span class="muted">4.5s</span></summary><ul><li><span class="Passed">&#10003;</span> Bob tries to make it public: refused: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=Bob tries to make it public: refused <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> still locked: uiVisible: do=check, name=InventoryGui, expect=false, label=still locked <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/13: do=playAs, who=Alice
+step 2/13: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/13: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/13: do=wait, seconds=0.5
+step 5/13: do=playAs, who=Bob
+step 6/13: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=Bob tries to make it public: refused
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/13: do=closeUi
+step 8/13: do=face, target=chest
+step 9/13: do=interact, target=chest
+  -&gt; True
+step 10/13: do=wait, seconds=0.4
+step 11/13: do=check, check=uiVisible, name=InventoryGui, expect=false, label=still locked
+  check ok: still locked: uiVisible: do=check, name=InventoryGui, expect=false, label=still locked -&gt; not visible
+step 12/13: do=closeUi
+step 13/13: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-04 RequireActiveWard: no ward, no managing</strong></span><span class="muted">2.5s</span></summary><ul><li><span class="Passed">&#10003;</span> outside a ward the chest cannot be made public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=outside a ward the chest cannot be made public <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/7: do=playAs, who=Alice
+step 2/7: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/7: do=wait, seconds=0.5
+step 4/7: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=outside a ward the chest cannot be made public
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 5/7: do=setConfig, values={02 Features/RequireActiveWard=false}
+step 6/7: do=hook, name=lock.setPublic, args={target=chest, on=true}, label=observed with RequireActiveWard off (informational)
+  -&gt; True
+step 7/7: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-05 Join: owner opens Join, a player joins, gets in, is removed</strong></span><span class="muted">10.4s</span></summary><ul><li><span class="Passed">&#10003;</span> Alice opens Join: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob joins with AltPlace+E: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins with AltPlace+E <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> a guest can open the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a guest can open the chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> a guest cannot manage the guest list: do=hook, name=lock.canManageGuests, args={target=chest}, expect=false, label=a guest cannot manage the guest list <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is listed: do=hook, name=lock.guests, args={target=chest}, contains=Bob, label=Bob is listed <span class="muted">&rarr; hook returned &#39;Bob&#39;</span></li><li><span class="Passed">&#10003;</span> Alice removes Bob: do=hook, name=lock.removeGuest, args={target=chest, who=Bob}, expect=true, label=Alice removes Bob <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> removed guests are locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=removed guests are locked out <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/30: do=playAs, who=Alice
+step 2/30: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/30: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/30: do=wait, seconds=0.5
+step 5/30: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 6/30: do=playAs, who=Bob
+step 7/30: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/30: do=wait, seconds=0.4
+step 9/30: do=click, button=Join access
+step 10/30: do=wait, seconds=0.5
+step 11/30: do=hook, name=lock.closeMenu
+  -&gt; True
+step 12/30: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins with AltPlace+E
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 13/30: do=closeUi
+step 14/30: do=face, target=chest
+step 15/30: do=interact, target=chest
+  -&gt; True
+step 16/30: do=wait, seconds=0.4
+step 17/30: do=check, check=uiVisible, name=InventoryGui, expect=true, label=a guest can open the chest
+  check ok: a guest can open the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a guest can open the chest -&gt; visible
+step 18/30: do=closeUi
+step 19/30: do=hook, name=lock.canManageGuests, args={target=chest}, expect=false, label=a guest cannot manage the guest list
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 20/30: do=playAs, who=Alice
+step 21/30: do=hook, name=lock.guests, args={target=chest}, contains=Bob, label=Bob is listed
+  -&gt; Bob
+  check ok: hook returned &#39;Bob&#39;
+step 22/30: do=hook, name=lock.removeGuest, args={target=chest, who=Bob}, expect=true, label=Alice removes Bob
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 23/30: do=playAs, who=Bob
+step 24/30: do=closeUi
+step 25/30: do=face, target=chest
+step 26/30: do=interact, target=chest
+  -&gt; True
+step 27/30: do=wait, seconds=0.4
+step 28/30: do=check, check=uiVisible, name=InventoryGui, expect=false, label=removed guests are locked out
+  check ok: removed guests are locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=removed guests are locked out -&gt; not visible
+step 29/30: do=closeUi
+step 30/30: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-06 Join closed: nobody can join</strong></span><span class="muted">4.0s</span></summary><ul><li><span class="Passed">&#10003;</span> no Join access button is offered: uiVisible: do=check, name=Join access, expect=false, label=no Join access button is offered <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> Join is not open: AltPlace+E does not add Bob: do=hook, name=lock.isGuest, args={target=chest}, expect=false, label=Join is not open: AltPlace+E does not add Bob <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/11: do=playAs, who=Alice
+step 2/11: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/11: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/11: do=wait, seconds=0.5
+step 5/11: do=playAs, who=Bob
+step 6/11: do=hook, name=lock.openMenu, args={target=chest}, label=AltPlace+E (informational: may open with nothing to do)
+  -&gt; False
+step 7/11: do=wait, seconds=0.4
+step 8/11: do=check, check=uiVisible, name=Join access, expect=false, label=no Join access button is offered
+  check ok: no Join access button is offered: uiVisible: do=check, name=Join access, expect=false, label=no Join access button is offered -&gt; not visible
+step 9/11: do=hook, name=lock.closeMenu
+  -&gt; True
+step 10/11: do=hook, name=lock.isGuest, args={target=chest}, expect=false, label=Join is not open: AltPlace+E does not add Bob
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 11/11: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-07 guests switched off</strong></span><span class="muted">7.3s</span></summary><ul><li><span class="Passed">&#10003;</span> do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob joins: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> with EnablePieceGuests off a guest is not let in: uiVisible: do=check, name=InventoryGui, expect=false, label=with EnablePieceGuests off a guest is not let in <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/20: do=playAs, who=Alice
+step 2/20: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/20: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/20: do=wait, seconds=0.5
+step 5/20: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 6/20: do=playAs, who=Bob
+step 7/20: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/20: do=wait, seconds=0.4
+step 9/20: do=click, button=Join access
+step 10/20: do=wait, seconds=0.5
+step 11/20: do=hook, name=lock.closeMenu
+  -&gt; True
+step 12/20: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 13/20: do=setConfig, values={02 Features/EnablePieceGuests=false}
+step 14/20: do=closeUi
+step 15/20: do=face, target=chest
+step 16/20: do=interact, target=chest
+  -&gt; True
+step 17/20: do=wait, seconds=0.4
+step 18/20: do=check, check=uiVisible, name=InventoryGui, expect=false, label=with EnablePieceGuests off a guest is not let in
+  check ok: with EnablePieceGuests off a guest is not let in: uiVisible: do=check, name=InventoryGui, expect=false, label=with EnablePieceGuests off a guest is not let in -&gt; not visible
+step 19/20: do=closeUi
+step 20/20: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-08 Join switched off</strong></span><span class="muted">2.5s</span></summary><ul><li><span class="Passed">&#10003;</span> Join cannot be opened: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=false, label=Join cannot be opened <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/7: do=setConfig, values={02 Features/EnableOptInAccess=false}
+step 2/7: do=playAs, who=Alice
+step 3/7: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/7: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/7: do=wait, seconds=0.5
+step 6/7: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=false, label=Join cannot be opened
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/7: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-09 doors: locked for strangers, public opens them</strong></span><span class="muted">6.3s</span></summary><ul><li><span class="Passed">&#10003;</span> Bob cannot open Alice&#39;s warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open Alice&#39;s warded door <span class="muted">&rarr; state = &#39;0&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes the door public: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it <span class="muted">&rarr; state = &#39;-1&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/17: do=playAs, who=Alice
+step 2/17: do=place, prefab=wood_door, dz=2.5, as=door
+  built wood_door (free)
+step 3/17: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/17: do=wait, seconds=0.5
+step 5/17: do=playAs, who=Bob
+step 6/17: do=face, target=door
+step 7/17: do=interact, target=door
+  -&gt; True
+step 8/17: do=wait, seconds=0.6
+step 9/17: do=check, check=zdo, target=door, key=state, default=0, expect=0, label=Bob cannot open Alice&#39;s warded door
+  check ok: Bob cannot open Alice&#39;s warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open Alice&#39;s warded door -&gt; state = &#39;0&#39;
+step 10/17: do=playAs, who=Alice
+step 11/17: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 12/17: do=playAs, who=Bob
+step 13/17: do=face, target=door
+step 14/17: do=interact, target=door
+  -&gt; True
+step 15/17: do=wait, seconds=0.6
+step 16/17: do=check, check=zdo, target=door, key=state, default=0, notContains=0, label=now Bob can open it
+  check ok: now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it -&gt; state = &#39;-1&#39;
+step 17/17: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-10 team chest: personal pause</strong></span><span class="muted">13.1s</span></summary><ul><li><span class="Passed">&#10003;</span> Alice makes her private chest a team chest: do=hook, name=lock.setTeam, args={target=chest, on=true}, expect=true, label=Alice makes her private chest a team chest <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice opens Join on it: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join on it <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob joins the team with AltPlace+E: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins the team with AltPlace+E <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> a team member opens the private chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a team member opens the private chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Alice makes it personal: do=hook, name=lock.setTeam, args={target=chest, on=false}, expect=false, label=Alice makes it personal <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> personal: friends are locked out (names kept): uiVisible: do=check, name=InventoryGui, expect=false, label=personal: friends are locked out (names kept) <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> Bob is still on the list: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob is still on the list <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes it team again: do=hook, name=lock.setTeam, args={target=chest, on=true}, expect=true, label=Alice makes it team again <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> team again: Bob is back in: uiVisible: do=check, name=InventoryGui, expect=true, label=team again: Bob is back in <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/39: do=setConfig, values={02 Features/EnablePersonalPause=true}
+step 2/39: do=playAs, who=Alice
+step 3/39: do=place, prefab=piece_chest_private, dz=2.5, as=chest
+  built piece_chest_private (free)
+step 4/39: do=wait, seconds=0.5
+step 5/39: do=hook, name=lock.setTeam, args={target=chest, on=true}, expect=true, label=Alice makes her private chest a team chest
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 6/39: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join on it
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/39: do=playAs, who=Bob
+step 8/39: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/39: do=wait, seconds=0.4
+step 10/39: do=click, button=Join access
+step 11/39: do=wait, seconds=0.5
+step 12/39: do=hook, name=lock.closeMenu
+  -&gt; True
+step 13/39: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins the team with AltPlace+E
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 14/39: do=closeUi
+step 15/39: do=face, target=chest
+step 16/39: do=interact, target=chest
+  -&gt; True
+step 17/39: do=wait, seconds=0.4
+step 18/39: do=check, check=uiVisible, name=InventoryGui, expect=true, label=a team member opens the private chest
+  check ok: a team member opens the private chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a team member opens the private chest -&gt; visible
+step 19/39: do=closeUi
+step 20/39: do=playAs, who=Alice
+step 21/39: do=hook, name=lock.setTeam, args={target=chest, on=false}, expect=false, label=Alice makes it personal
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 22/39: do=playAs, who=Bob
+step 23/39: do=closeUi
+step 24/39: do=face, target=chest
+step 25/39: do=interact, target=chest
+  -&gt; True
+step 26/39: do=wait, seconds=0.4
+step 27/39: do=check, check=uiVisible, name=InventoryGui, expect=false, label=personal: friends are locked out (names kept)
+  check ok: personal: friends are locked out (names kept): uiVisible: do=check, name=InventoryGui, expect=false, label=personal: friends are locked out (names kept) -&gt; not visible
+step 28/39: do=closeUi
+step 29/39: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob is still on the list
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 30/39: do=playAs, who=Alice
+step 31/39: do=hook, name=lock.setTeam, args={target=chest, on=true}, expect=true, label=Alice makes it team again
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 32/39: do=playAs, who=Bob
+step 33/39: do=closeUi
+step 34/39: do=face, target=chest
+step 35/39: do=interact, target=chest
+  -&gt; True
+step 36/39: do=wait, seconds=0.4
+step 37/39: do=check, check=uiVisible, name=InventoryGui, expect=true, label=team again: Bob is back in
+  check ok: team again: Bob is back in: uiVisible: do=check, name=InventoryGui, expect=true, label=team again: Bob is back in -&gt; visible
+step 38/39: do=closeUi
+step 39/39: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-11 features off: chests and managed access</strong></span><span class="muted">3.0s</span></summary><ul><li><span class="Passed">&#10003;</span> EnableChests off: chests cannot be made public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=EnableChests off: chests cannot be made public <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> EnableManagedAccess off: placed pieces are left alone: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=EnableManagedAccess off: placed pieces are left alone <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/9: do=playAs, who=Alice
+step 2/9: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/9: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/9: do=wait, seconds=0.5
+step 5/9: do=setConfig, values={02 Features/EnableChests=false}
+step 6/9: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=EnableChests off: chests cannot be made public
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/9: do=setConfig, values={02 Features/EnableChests=true, 02 Features/EnableManagedAccess=false}
+step 8/9: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=EnableManagedAccess off: placed pieces are left alone
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 9/9: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith / <strong>L-12 guest public toggle needs the Toggle permission</strong></span><span class="muted">7.2s</span></summary><ul><li><span class="Passed">&#10003;</span> do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob joins: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> a plain guest cannot make it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=a plain guest cannot make it public <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice gives Bob the Toggle permission: do=hook, name=lock.grantPerm, args={target=chest, who=Bob, perms=toggle}, expect=Toggle, label=Alice gives Bob the Toggle permission <span class="muted">&rarr; hook returned &#39;Toggle&#39;</span></li><li><span class="Passed">&#10003;</span> now Bob may make it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=now Bob may make it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> and private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/21: do=playAs, who=Alice
+step 2/21: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 3/21: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 4/21: do=wait, seconds=0.5
+step 5/21: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 6/21: do=playAs, who=Bob
+step 7/21: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/21: do=wait, seconds=0.4
+step 9/21: do=click, button=Join access
+step 10/21: do=wait, seconds=0.5
+step 11/21: do=hook, name=lock.closeMenu
+  -&gt; True
+step 12/21: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 13/21: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=a plain guest cannot make it public
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 14/21: do=playAs, who=Alice
+step 15/21: do=hook, name=lock.grantPerm, args={target=chest, who=Bob, perms=toggle}, expect=Toggle, label=Alice gives Bob the Toggle permission
+  -&gt; Toggle
+  check ok: hook returned &#39;Toggle&#39;
+step 16/21: do=playAs, who=Bob
+step 17/21: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=now Bob may make it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 18/21: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 19/21: do=setConfig, values={02 Features/EnableGuestPublicToggle=false}
+step 20/21: do=hook, name=lock.setPublic, args={target=chest, on=true}, label=observed with EnableGuestPublicToggle off (informational)
+  -&gt; True
+step 21/21: do=playAs, who=me</pre></details><script>document.getElementById('onlyFailed').onchange=function(e){document.querySelectorAll('details.t').forEach(function(d){d.style.display=e.target.checked&&!d.classList.contains('t-Failed')?'none':''})}</script></main></body></html>

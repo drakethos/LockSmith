@@ -40,7 +40,6 @@ $ErrorActionPreference = 'Stop'
 # Nested runs see VALHEIM_QUEUE_HELD and do not queue again; without the queue script (outside the dev tree) it just runs.
 $valheimQueue = Join-Path $PSScriptRoot '..\..\DrakesWorkshop\scripts\Valheim-Queue.ps1'
 if (-not $NoQueue -and -not $env:VALHEIM_QUEUE_HELD -and (Test-Path -LiteralPath $valheimQueue)) {
-    $env:VALHEIM_QUEUE_HELD = '1'
     $passOn = foreach ($p in $PSBoundParameters.GetEnumerator()) {
         if ($p.Key -in 'NoQueue', 'Priority', 'QueueName') { continue }
         if ($p.Value -is [System.Management.Automation.SwitchParameter]) { if ($p.Value.IsPresent) { "-$($p.Key)" } }

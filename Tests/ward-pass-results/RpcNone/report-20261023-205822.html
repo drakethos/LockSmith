@@ -1,0 +1,632 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DrakesTestLab results</title><style>:root{--bg:#f6f4ef;--fg:#1f1d1a;--card:#fff;--muted:#6b665d;--line:#e2ddd2;--pass:#2f7d46;--fail:#b3261e;--skip:#8a6d1f}@media(prefers-color-scheme:dark){:root{--bg:#191714;--fg:#ece7dd;--card:#24211d;--muted:#a59e91;--line:#3a352e;--pass:#6fcf8b;--fail:#ff8a80;--skip:#e0c068}}body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,Segoe UI,sans-serif}main{max-width:1100px;margin:0 auto}h1{font-size:22px;margin:0 0 4px}.sum{color:var(--muted);margin-bottom:16px}details{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:8px 0;padding:8px 12px}summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}summary b{min-width:52px}.Passed{color:var(--pass)}.Failed{color:var(--fail)}.Skipped{color:var(--skip)}.muted{color:var(--muted)}ul{margin:6px 0;padding-left:20px}li{margin:2px 0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;color:var(--muted)}.shots{display:flex;gap:8px;flex-wrap:wrap}.shots img{max-width:100%;width:340px;border-radius:6px;border:1px solid var(--line)}.filters{margin:8px 0}.filters label{margin-right:12px}</style></head><body><main><h1>DrakesTestLab results</h1><div class="sum">2026-10-23 21:00 &middot; <span class="Passed">23 passed</span>, <span class="Failed">1 failed</span>, <span class="Skipped">0 skipped</span></div><div class="filters"><label><input type="checkbox" id="onlyFailed"> Only failed</label></div><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-01 ArcaneWard is active in LockSmith</strong></span><span class="muted">0.9s</span></summary><ul><li><span class="Passed">&#10003;</span> do=hook, name=lock.debugMode, args={on=false}, expect=false <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> LockSmith activated its ArcaneWard module: do=hook, name=lock.hasCompat, args={id=ArcaneWard}, expect=true, label=LockSmith activated its ArcaneWard module <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/3: do=hook, name=lock.debugMode, args={on=false}, expect=false
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/3: do=hook, name=lock.hasCompat, args={id=ArcaneWard}, expect=true, label=LockSmith activated its ArcaneWard module
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 3/3: do=hook, name=lock.compatActive, label=active ward modules (informational)
+  -&gt; VanillaPrivateArea,WardIsLove,ProtectiveWards,ArcaneWard</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-02 LockSmith sees the ward and who is let in</strong></span><span class="muted">4.0s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> debug mode (admin override) is really off: do=hook, name=lock.debugModeIs, expect=false, label=debug mode (admin override) is really off <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> the chest is inside the enabled ArcaneWard ward: do=hook, name=lock.insideWard, args={target=chest}, expect=true, label=the chest is inside the enabled ArcaneWard ward <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice (owner) has ward access: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Alice (owner) has ward access <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob (stranger) has no ward access: do=hook, name=lock.wardAllows, args={target=chest}, expect=false, label=Bob (stranger) has no ward access <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/11: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/11: do=playAs, who=Alice
+step 3/11: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/11: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=true, permitted=}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/11: do=wait, seconds=0.6
+step 6/11: do=hook, name=lock.debugModeIs, expect=false, label=debug mode (admin override) is really off
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/11: do=hook, name=lock.insideWard, args={target=chest}, expect=true, label=the chest is inside the enabled ArcaneWard ward
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/11: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Alice (owner) has ward access
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/11: do=playAs, who=Bob
+step 10/11: do=hook, name=lock.wardAllows, args={target=chest}, expect=false, label=Bob (stranger) has no ward access
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 11/11: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-03 a warded chest keeps strangers out, owner gets in</strong></span><span class="muted">7.0s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/19: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/19: do=playAs, who=Alice
+step 3/19: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/19: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=true, permitted=}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/19: do=wait, seconds=0.6
+step 6/19: do=closeUi
+step 7/19: do=face, target=chest
+step 8/19: do=interact, target=chest
+  -&gt; True
+step 9/19: do=wait, seconds=0.4
+step 10/19: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest
+  check ok: Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest -&gt; visible
+step 11/19: do=closeUi
+step 12/19: do=playAs, who=Bob
+step 13/19: do=closeUi
+step 14/19: do=face, target=chest
+step 15/19: do=interact, target=chest
+  -&gt; False
+step 16/19: do=wait, seconds=0.4
+step 17/19: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob cannot open it
+  check ok: Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it -&gt; not visible
+step 18/19: do=closeUi
+step 19/19: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-04 make public lets a stranger past the ward, private locks again</strong></span><span class="muted">8.2s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> a player-built chest in the ward can be managed: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in the ward can be managed <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob opens the public chest (ArcaneWard must not block it): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob opens the public chest (ArcaneWard must not block it) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Alice makes it private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/24: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/24: do=playAs, who=Alice
+step 3/24: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/24: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=true, permitted=}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/24: do=wait, seconds=0.6
+step 6/24: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in the ward can be managed
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/24: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/24: do=playAs, who=Bob
+step 9/24: do=closeUi
+step 10/24: do=face, target=chest
+step 11/24: do=interact, target=chest
+  -&gt; True
+step 12/24: do=wait, seconds=0.4
+step 13/24: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob opens the public chest (ArcaneWard must not block it)
+  check ok: Bob opens the public chest (ArcaneWard must not block it): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob opens the public chest (ArcaneWard must not block it) -&gt; visible
+step 14/24: do=closeUi
+step 15/24: do=playAs, who=Alice
+step 16/24: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 17/24: do=playAs, who=Bob
+step 18/24: do=closeUi
+step 19/24: do=face, target=chest
+step 20/24: do=interact, target=chest
+  -&gt; False
+step 21/24: do=wait, seconds=0.4
+step 22/24: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob is locked out again
+  check ok: Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again -&gt; not visible
+step 23/24: do=closeUi
+step 24/24: do=playAs, who=me</pre></details><details class="t t-Failed" open><summary><b class="Failed">FAILED</b><span>LockSmith-ArcaneWard / <strong>AW-05 Join: a stranger joins, gets in, is removed</strong></span><span class="muted">4.2s</span><span class="muted">step 10/29: do=click, button=Join access failed: no visible button or toggle matching &#39;Join access&#39; (Unity UI or UI Toolkit)</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice opens Join: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li></ul><div class="shots"><a href="run-20261023-205822/LockSmith-ArcaneWard_AW-05_Join__a_stranger_joins,_gets_in,_is_removed_01_failure.png"><img loading="lazy" src="run-20261023-205822/LockSmith-ArcaneWard_AW-05_Join__a_stranger_joins,_gets_in,_is_removed_01_failure.png" alt="run-20261023-205822/LockSmith-ArcaneWard_AW-05_Join__a_stranger_joins,_gets_in,_is_removed_01_failure.png"></a></div><pre>step 1/29: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/29: do=playAs, who=Alice
+step 3/29: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/29: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=true, permitted=}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/29: do=wait, seconds=0.6
+step 6/29: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/29: do=playAs, who=Bob
+step 8/29: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/29: do=wait, seconds=0.4
+step 10/29: do=click, button=Join access
+  screenshot: C:\Users\house\AppData\Roaming\com.kesomannen.gale\valheim\profiles\drakeWardTest\BepInEx\config\DrakesTestLab\results\run-20261023-205822\LockSmith-ArcaneWard_AW-05_Join__a_stranger_joins,_gets_in,_is_removed_01_failure.png</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-06 doors: locked for strangers, public opens them</strong></span><span class="muted">7.2s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob cannot open the warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door <span class="muted">&rarr; state = &#39;0&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes the door public: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it <span class="muted">&rarr; state = &#39;1&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/18: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/18: do=playAs, who=Alice
+step 3/18: do=place, prefab=wood_door, dz=2.5, as=door
+  built wood_door (free)
+step 4/18: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=true, permitted=}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/18: do=wait, seconds=0.6
+step 6/18: do=playAs, who=Bob
+step 7/18: do=face, target=door
+step 8/18: do=interact, target=door
+  -&gt; False
+step 9/18: do=wait, seconds=0.6
+step 10/18: do=check, check=zdo, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door
+  check ok: Bob cannot open the warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door -&gt; state = &#39;0&#39;
+step 11/18: do=playAs, who=Alice
+step 12/18: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 13/18: do=playAs, who=Bob
+step 14/18: do=face, target=door
+step 15/18: do=interact, target=door
+  -&gt; True
+step 16/18: do=wait, seconds=0.6
+step 17/18: do=check, check=zdo, target=door, key=state, default=0, notContains=0, label=now Bob can open it
+  check ok: now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it -&gt; state = &#39;1&#39;
+step 18/18: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-07 a ward member keeps full access and may manage</strong></span><span class="muted">7.9s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is on the ward and has access: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Bob is on the ward and has access <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> a ward member opens the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a ward member opens the chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> a ward member can make it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=a ward member can make it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> and private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Carol (not on the ward) is still locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/23: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/23: do=playAs, who=Alice
+step 3/23: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/23: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=true, permitted=Bob}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/23: do=wait, seconds=0.6
+step 6/23: do=playAs, who=Bob
+step 7/23: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Bob is on the ward and has access
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/23: do=closeUi
+step 9/23: do=face, target=chest
+step 10/23: do=interact, target=chest
+  -&gt; True
+step 11/23: do=wait, seconds=0.4
+step 12/23: do=check, check=uiVisible, name=InventoryGui, expect=true, label=a ward member opens the chest
+  check ok: a ward member opens the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a ward member opens the chest -&gt; visible
+step 13/23: do=closeUi
+step 14/23: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=a ward member can make it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 15/23: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 16/23: do=playAs, who=Carol
+step 17/23: do=closeUi
+step 18/23: do=face, target=chest
+step 19/23: do=interact, target=chest
+  -&gt; False
+step 20/23: do=wait, seconds=0.4
+step 21/23: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out
+  check ok: Carol (not on the ward) is still locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out -&gt; not visible
+step 22/23: do=closeUi
+step 23/23: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ArcaneWard / <strong>AW-08 ward switched off: no protection, no managing</strong></span><span class="muted">5.4s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> a switched-off ward does not count as covering: do=hook, name=lock.insideWard, args={target=chest}, expect=false, label=a switched-off ward does not count as covering <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> nothing to manage outside an active ward: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=nothing to manage outside an active ward <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob can open it (the ward is off): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open it (the ward is off) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/15: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/15: do=playAs, who=Alice
+step 3/15: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/15: do=hook, name=lock.spawnArcaneWard, as=ward, args={radius=15, enabled=false, permitted=}
+  -&gt; ArcaneWard(Clone) (UnityEngine.GameObject)
+step 5/15: do=wait, seconds=0.6
+step 6/15: do=hook, name=lock.insideWard, args={target=chest}, expect=false, label=a switched-off ward does not count as covering
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/15: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=nothing to manage outside an active ward
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 8/15: do=playAs, who=Bob
+step 9/15: do=closeUi
+step 10/15: do=face, target=chest
+step 11/15: do=interact, target=chest
+  -&gt; True
+step 12/15: do=wait, seconds=0.4
+step 13/15: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob can open it (the ward is off)
+  check ok: Bob can open it (the ward is off): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open it (the ward is off) -&gt; visible
+step 14/15: do=closeUi
+step 15/15: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-01 ProtectiveWards is active in LockSmith</strong></span><span class="muted">0.9s</span></summary><ul><li><span class="Passed">&#10003;</span> do=hook, name=lock.debugMode, args={on=false}, expect=false <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> LockSmith activated its ProtectiveWards module: do=hook, name=lock.hasCompat, args={id=ProtectiveWards}, expect=true, label=LockSmith activated its ProtectiveWards module <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/3: do=hook, name=lock.debugMode, args={on=false}, expect=false
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/3: do=hook, name=lock.hasCompat, args={id=ProtectiveWards}, expect=true, label=LockSmith activated its ProtectiveWards module
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 3/3: do=hook, name=lock.compatActive, label=active ward modules (informational)
+  -&gt; VanillaPrivateArea,WardIsLove,ProtectiveWards,ArcaneWard</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-02 LockSmith sees the ward and who is let in</strong></span><span class="muted">3.8s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> debug mode (admin override) is really off: do=hook, name=lock.debugModeIs, expect=false, label=debug mode (admin override) is really off <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> the chest is inside the enabled ProtectiveWards ward: do=hook, name=lock.insideWard, args={target=chest}, expect=true, label=the chest is inside the enabled ProtectiveWards ward <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice (owner) has ward access: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Alice (owner) has ward access <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob (stranger) has no ward access: do=hook, name=lock.wardAllows, args={target=chest}, expect=false, label=Bob (stranger) has no ward access <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/11: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/11: do=playAs, who=Alice
+step 3/11: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/11: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/11: do=wait, seconds=0.6
+step 6/11: do=hook, name=lock.debugModeIs, expect=false, label=debug mode (admin override) is really off
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/11: do=hook, name=lock.insideWard, args={target=chest}, expect=true, label=the chest is inside the enabled ProtectiveWards ward
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/11: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Alice (owner) has ward access
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/11: do=playAs, who=Bob
+step 10/11: do=hook, name=lock.wardAllows, args={target=chest}, expect=false, label=Bob (stranger) has no ward access
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 11/11: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-03 a warded chest keeps strangers out, owner gets in</strong></span><span class="muted">6.8s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/19: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/19: do=playAs, who=Alice
+step 3/19: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/19: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/19: do=wait, seconds=0.6
+step 6/19: do=closeUi
+step 7/19: do=face, target=chest
+step 8/19: do=interact, target=chest
+  -&gt; True
+step 9/19: do=wait, seconds=0.4
+step 10/19: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest
+  check ok: Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest -&gt; visible
+step 11/19: do=closeUi
+step 12/19: do=playAs, who=Bob
+step 13/19: do=closeUi
+step 14/19: do=face, target=chest
+step 15/19: do=interact, target=chest
+  -&gt; True
+step 16/19: do=wait, seconds=0.4
+step 17/19: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob cannot open it
+  check ok: Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it -&gt; not visible
+step 18/19: do=closeUi
+step 19/19: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-04 make public lets a stranger past the ward, private locks again</strong></span><span class="muted">8.1s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> a player-built chest in the ward can be managed: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in the ward can be managed <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob opens the public chest (ProtectiveWards must not block it): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob opens the public chest (ProtectiveWards must not block it) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Alice makes it private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/24: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/24: do=playAs, who=Alice
+step 3/24: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/24: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/24: do=wait, seconds=0.6
+step 6/24: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in the ward can be managed
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/24: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/24: do=playAs, who=Bob
+step 9/24: do=closeUi
+step 10/24: do=face, target=chest
+step 11/24: do=interact, target=chest
+  -&gt; True
+step 12/24: do=wait, seconds=0.4
+step 13/24: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob opens the public chest (ProtectiveWards must not block it)
+  check ok: Bob opens the public chest (ProtectiveWards must not block it): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob opens the public chest (ProtectiveWards must not block it) -&gt; visible
+step 14/24: do=closeUi
+step 15/24: do=playAs, who=Alice
+step 16/24: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 17/24: do=playAs, who=Bob
+step 18/24: do=closeUi
+step 19/24: do=face, target=chest
+step 20/24: do=interact, target=chest
+  -&gt; True
+step 21/24: do=wait, seconds=0.4
+step 22/24: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob is locked out again
+  check ok: Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again -&gt; not visible
+step 23/24: do=closeUi
+step 24/24: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-05 Join: a stranger joins, gets in, is removed</strong></span><span class="muted">10.6s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice opens Join: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob joins with AltPlace+E: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins with AltPlace+E <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> the guest opens the chest (ProtectiveWards must let a guest through): uiVisible: do=check, name=InventoryGui, expect=true, label=the guest opens the chest (ProtectiveWards must let a guest through) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Alice removes Bob: do=hook, name=lock.removeGuest, args={target=chest, who=Bob}, expect=true, label=Alice removes Bob <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> removed guests are locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=removed guests are locked out <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/29: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/29: do=playAs, who=Alice
+step 3/29: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/29: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/29: do=wait, seconds=0.6
+step 6/29: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/29: do=playAs, who=Bob
+step 8/29: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/29: do=wait, seconds=0.4
+step 10/29: do=click, button=Join access
+step 11/29: do=wait, seconds=0.5
+step 12/29: do=hook, name=lock.closeMenu
+  -&gt; True
+step 13/29: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins with AltPlace+E
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 14/29: do=closeUi
+step 15/29: do=face, target=chest
+step 16/29: do=interact, target=chest
+  -&gt; True
+step 17/29: do=wait, seconds=0.4
+step 18/29: do=check, check=uiVisible, name=InventoryGui, expect=true, label=the guest opens the chest (ProtectiveWards must let a guest through)
+  check ok: the guest opens the chest (ProtectiveWards must let a guest through): uiVisible: do=check, name=InventoryGui, expect=true, label=the guest opens the chest (ProtectiveWards must let a guest through) -&gt; visible
+step 19/29: do=closeUi
+step 20/29: do=playAs, who=Alice
+step 21/29: do=hook, name=lock.removeGuest, args={target=chest, who=Bob}, expect=true, label=Alice removes Bob
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 22/29: do=playAs, who=Bob
+step 23/29: do=closeUi
+step 24/29: do=face, target=chest
+step 25/29: do=interact, target=chest
+  -&gt; True
+step 26/29: do=wait, seconds=0.4
+step 27/29: do=check, check=uiVisible, name=InventoryGui, expect=false, label=removed guests are locked out
+  check ok: removed guests are locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=removed guests are locked out -&gt; not visible
+step 28/29: do=closeUi
+step 29/29: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-06 doors: locked for strangers, public opens them</strong></span><span class="muted">6.9s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob cannot open the warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door <span class="muted">&rarr; state = &#39;0&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes the door public: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it <span class="muted">&rarr; state = &#39;-1&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/18: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/18: do=playAs, who=Alice
+step 3/18: do=place, prefab=wood_door, dz=2.5, as=door
+  built wood_door (free)
+step 4/18: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/18: do=wait, seconds=0.6
+step 6/18: do=playAs, who=Bob
+step 7/18: do=face, target=door
+step 8/18: do=interact, target=door
+  -&gt; True
+step 9/18: do=wait, seconds=0.6
+step 10/18: do=check, check=zdo, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door
+  check ok: Bob cannot open the warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door -&gt; state = &#39;0&#39;
+step 11/18: do=playAs, who=Alice
+step 12/18: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 13/18: do=playAs, who=Bob
+step 14/18: do=face, target=door
+step 15/18: do=interact, target=door
+  -&gt; True
+step 16/18: do=wait, seconds=0.6
+step 17/18: do=check, check=zdo, target=door, key=state, default=0, notContains=0, label=now Bob can open it
+  check ok: now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it -&gt; state = &#39;-1&#39;
+step 18/18: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-07 a ward member keeps full access and may manage</strong></span><span class="muted">7.8s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is on the ward and has access: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Bob is on the ward and has access <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> a ward member opens the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a ward member opens the chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> a ward member can make it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=a ward member can make it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> and private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Carol (not on the ward) is still locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/23: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/23: do=playAs, who=Alice
+step 3/23: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/23: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward, permitted=[Bob]
+step 5/23: do=wait, seconds=0.6
+step 6/23: do=playAs, who=Bob
+step 7/23: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Bob is on the ward and has access
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/23: do=closeUi
+step 9/23: do=face, target=chest
+step 10/23: do=interact, target=chest
+  -&gt; True
+step 11/23: do=wait, seconds=0.4
+step 12/23: do=check, check=uiVisible, name=InventoryGui, expect=true, label=a ward member opens the chest
+  check ok: a ward member opens the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a ward member opens the chest -&gt; visible
+step 13/23: do=closeUi
+step 14/23: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=a ward member can make it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 15/23: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 16/23: do=playAs, who=Carol
+step 17/23: do=closeUi
+step 18/23: do=face, target=chest
+step 19/23: do=interact, target=chest
+  -&gt; True
+step 20/23: do=wait, seconds=0.4
+step 21/23: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out
+  check ok: Carol (not on the ward) is still locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out -&gt; not visible
+step 22/23: do=closeUi
+step 23/23: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-ProtectiveWards / <strong>PW-08 ward switched off: no protection, no managing</strong></span><span class="muted">5.5s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> a switched-off ward does not count as covering: do=hook, name=lock.insideWard, args={target=chest}, expect=false, label=a switched-off ward does not count as covering <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> nothing to manage outside an active ward: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=nothing to manage outside an active ward <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob can open it (the ward is off): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open it (the ward is off) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/15: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/15: do=playAs, who=Alice
+step 3/15: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/15: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=false, radius=15, as=ward
+step 5/15: do=wait, seconds=0.6
+step 6/15: do=hook, name=lock.insideWard, args={target=chest}, expect=false, label=a switched-off ward does not count as covering
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/15: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=nothing to manage outside an active ward
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 8/15: do=playAs, who=Bob
+step 9/15: do=closeUi
+step 10/15: do=face, target=chest
+step 11/15: do=interact, target=chest
+  -&gt; True
+step 12/15: do=wait, seconds=0.4
+step 13/15: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob can open it (the ward is off)
+  check ok: Bob can open it (the ward is off): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open it (the ward is off) -&gt; visible
+step 14/15: do=closeUi
+step 15/15: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-01 WardIsLove is active in LockSmith</strong></span><span class="muted">0.9s</span></summary><ul><li><span class="Passed">&#10003;</span> do=hook, name=lock.debugMode, args={on=false}, expect=false <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> LockSmith activated its WardIsLove module: do=hook, name=lock.hasCompat, args={id=WardIsLove}, expect=true, label=LockSmith activated its WardIsLove module <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/3: do=hook, name=lock.debugMode, args={on=false}, expect=false
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/3: do=hook, name=lock.hasCompat, args={id=WardIsLove}, expect=true, label=LockSmith activated its WardIsLove module
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 3/3: do=hook, name=lock.compatActive, label=active ward modules (informational)
+  -&gt; VanillaPrivateArea,WardIsLove,ProtectiveWards,ArcaneWard</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-02 LockSmith sees the ward and who is let in</strong></span><span class="muted">3.7s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> debug mode (admin override) is really off: do=hook, name=lock.debugModeIs, expect=false, label=debug mode (admin override) is really off <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> the chest is inside the enabled WardIsLove ward: do=hook, name=lock.insideWard, args={target=chest}, expect=true, label=the chest is inside the enabled WardIsLove ward <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice (owner) has ward access: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Alice (owner) has ward access <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob (stranger) has no ward access: do=hook, name=lock.wardAllows, args={target=chest}, expect=false, label=Bob (stranger) has no ward access <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/11: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/11: do=playAs, who=Alice
+step 3/11: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/11: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/11: do=wait, seconds=0.6
+step 6/11: do=hook, name=lock.debugModeIs, expect=false, label=debug mode (admin override) is really off
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/11: do=hook, name=lock.insideWard, args={target=chest}, expect=true, label=the chest is inside the enabled WardIsLove ward
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/11: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Alice (owner) has ward access
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/11: do=playAs, who=Bob
+step 10/11: do=hook, name=lock.wardAllows, args={target=chest}, expect=false, label=Bob (stranger) has no ward access
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 11/11: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-03 a warded chest keeps strangers out, owner gets in</strong></span><span class="muted">6.7s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/19: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/19: do=playAs, who=Alice
+step 3/19: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/19: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/19: do=wait, seconds=0.6
+step 6/19: do=closeUi
+step 7/19: do=face, target=chest
+step 8/19: do=interact, target=chest
+  -&gt; True
+step 9/19: do=wait, seconds=0.4
+step 10/19: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest
+  check ok: Alice (ward owner) opens her chest: uiVisible: do=check, name=InventoryGui, expect=true, label=Alice (ward owner) opens her chest -&gt; visible
+step 11/19: do=closeUi
+step 12/19: do=playAs, who=Bob
+step 13/19: do=closeUi
+step 14/19: do=face, target=chest
+step 15/19: do=interact, target=chest
+  -&gt; True
+step 16/19: do=wait, seconds=0.4
+step 17/19: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob cannot open it
+  check ok: Bob cannot open it: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob cannot open it -&gt; not visible
+step 18/19: do=closeUi
+step 19/19: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-04 make public lets a stranger past the ward, private locks again</strong></span><span class="muted">8.6s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> a player-built chest in the ward can be managed: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in the ward can be managed <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob opens the public chest (WardIsLove must not block it): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob opens the public chest (WardIsLove must not block it) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Alice makes it private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/24: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/24: do=playAs, who=Alice
+step 3/24: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/24: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/24: do=wait, seconds=0.6
+step 6/24: do=hook, name=lock.isEligible, args={target=chest}, expect=true, label=a player-built chest in the ward can be managed
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/24: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=Alice makes it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/24: do=playAs, who=Bob
+step 9/24: do=closeUi
+step 10/24: do=face, target=chest
+step 11/24: do=interact, target=chest
+  -&gt; True
+step 12/24: do=wait, seconds=0.4
+step 13/24: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob opens the public chest (WardIsLove must not block it)
+  check ok: Bob opens the public chest (WardIsLove must not block it): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob opens the public chest (WardIsLove must not block it) -&gt; visible
+step 14/24: do=closeUi
+step 15/24: do=playAs, who=Alice
+step 16/24: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=Alice makes it private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 17/24: do=playAs, who=Bob
+step 18/24: do=closeUi
+step 19/24: do=face, target=chest
+step 20/24: do=interact, target=chest
+  -&gt; True
+step 21/24: do=wait, seconds=0.4
+step 22/24: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Bob is locked out again
+  check ok: Bob is locked out again: uiVisible: do=check, name=InventoryGui, expect=false, label=Bob is locked out again -&gt; not visible
+step 23/24: do=closeUi
+step 24/24: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-05 Join: a stranger joins, gets in, is removed</strong></span><span class="muted">10.6s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Alice opens Join: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> AltPlace+E opens the Lock menu: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> Bob joins with AltPlace+E: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins with AltPlace+E <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> the guest opens the chest (WardIsLove must let a guest through): uiVisible: do=check, name=InventoryGui, expect=true, label=the guest opens the chest (WardIsLove must let a guest through) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> Alice removes Bob: do=hook, name=lock.removeGuest, args={target=chest, who=Bob}, expect=true, label=Alice removes Bob <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> removed guests are locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=removed guests are locked out <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/29: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/29: do=playAs, who=Alice
+step 3/29: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/29: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/29: do=wait, seconds=0.6
+step 6/29: do=hook, name=lock.openJoin, args={target=chest, on=true}, expect=true, label=Alice opens Join
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 7/29: do=playAs, who=Bob
+step 8/29: do=hook, name=lock.openMenu, args={target=chest}, expect=true, label=AltPlace+E opens the Lock menu, stop=true
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 9/29: do=wait, seconds=0.4
+step 10/29: do=click, button=Join access
+step 11/29: do=wait, seconds=0.5
+step 12/29: do=hook, name=lock.closeMenu
+  -&gt; True
+step 13/29: do=hook, name=lock.isGuest, args={target=chest}, expect=true, label=Bob joins with AltPlace+E
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 14/29: do=closeUi
+step 15/29: do=face, target=chest
+step 16/29: do=interact, target=chest
+  -&gt; True
+step 17/29: do=wait, seconds=0.4
+step 18/29: do=check, check=uiVisible, name=InventoryGui, expect=true, label=the guest opens the chest (WardIsLove must let a guest through)
+  check ok: the guest opens the chest (WardIsLove must let a guest through): uiVisible: do=check, name=InventoryGui, expect=true, label=the guest opens the chest (WardIsLove must let a guest through) -&gt; visible
+step 19/29: do=closeUi
+step 20/29: do=playAs, who=Alice
+step 21/29: do=hook, name=lock.removeGuest, args={target=chest, who=Bob}, expect=true, label=Alice removes Bob
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 22/29: do=playAs, who=Bob
+step 23/29: do=closeUi
+step 24/29: do=face, target=chest
+step 25/29: do=interact, target=chest
+  -&gt; True
+step 26/29: do=wait, seconds=0.4
+step 27/29: do=check, check=uiVisible, name=InventoryGui, expect=false, label=removed guests are locked out
+  check ok: removed guests are locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=removed guests are locked out -&gt; not visible
+step 28/29: do=closeUi
+step 29/29: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-06 doors: locked for strangers, public opens them</strong></span><span class="muted">6.9s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob cannot open the warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door <span class="muted">&rarr; state = &#39;0&#39;</span></li><li><span class="Passed">&#10003;</span> Alice makes the door public: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it <span class="muted">&rarr; state = &#39;-1&#39;</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/18: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/18: do=playAs, who=Alice
+step 3/18: do=place, prefab=wood_door, dz=2.5, as=door
+  built wood_door (free)
+step 4/18: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward
+step 5/18: do=wait, seconds=0.6
+step 6/18: do=playAs, who=Bob
+step 7/18: do=face, target=door
+step 8/18: do=interact, target=door
+  -&gt; True
+step 9/18: do=wait, seconds=0.6
+step 10/18: do=check, check=zdo, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door
+  check ok: Bob cannot open the warded door: zdo: do=check, target=door, key=state, default=0, expect=0, label=Bob cannot open the warded door -&gt; state = &#39;0&#39;
+step 11/18: do=playAs, who=Alice
+step 12/18: do=hook, name=lock.setPublic, args={target=door, on=true}, expect=true, label=Alice makes the door public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 13/18: do=playAs, who=Bob
+step 14/18: do=face, target=door
+step 15/18: do=interact, target=door
+  -&gt; True
+step 16/18: do=wait, seconds=0.6
+step 17/18: do=check, check=zdo, target=door, key=state, default=0, notContains=0, label=now Bob can open it
+  check ok: now Bob can open it: zdo: do=check, target=door, key=state, default=0, notContains=0, label=now Bob can open it -&gt; state = &#39;-1&#39;
+step 18/18: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-07 a ward member keeps full access and may manage</strong></span><span class="muted">7.8s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob is on the ward and has access: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Bob is on the ward and has access <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> a ward member opens the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a ward member opens the chest <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> a ward member can make it public: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=a ward member can make it public <span class="muted">&rarr; hook returned &#39;True&#39;</span></li><li><span class="Passed">&#10003;</span> and private again: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Carol (not on the ward) is still locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out <span class="muted">&rarr; not visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/23: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/23: do=playAs, who=Alice
+step 3/23: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/23: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=true, radius=15, as=ward, permitted=[Bob]
+step 5/23: do=wait, seconds=0.6
+step 6/23: do=playAs, who=Bob
+step 7/23: do=hook, name=lock.wardAllows, args={target=chest}, expect=true, label=Bob is on the ward and has access
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 8/23: do=closeUi
+step 9/23: do=face, target=chest
+step 10/23: do=interact, target=chest
+  -&gt; True
+step 11/23: do=wait, seconds=0.4
+step 12/23: do=check, check=uiVisible, name=InventoryGui, expect=true, label=a ward member opens the chest
+  check ok: a ward member opens the chest: uiVisible: do=check, name=InventoryGui, expect=true, label=a ward member opens the chest -&gt; visible
+step 13/23: do=closeUi
+step 14/23: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=true, label=a ward member can make it public
+  -&gt; True
+  check ok: hook returned &#39;True&#39;
+step 15/23: do=hook, name=lock.setPublic, args={target=chest, on=false}, expect=false, label=and private again
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 16/23: do=playAs, who=Carol
+step 17/23: do=closeUi
+step 18/23: do=face, target=chest
+step 19/23: do=interact, target=chest
+  -&gt; True
+step 20/23: do=wait, seconds=0.4
+step 21/23: do=check, check=uiVisible, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out
+  check ok: Carol (not on the ward) is still locked out: uiVisible: do=check, name=InventoryGui, expect=false, label=Carol (not on the ward) is still locked out -&gt; not visible
+step 22/23: do=closeUi
+step 23/23: do=playAs, who=me</pre></details><details class="t t-Passed"><summary><b class="Passed">PASSED</b><span>LockSmith-WardIsLove / <strong>WIL-08 ward switched off: no protection, no managing</strong></span><span class="muted">5.2s</span></summary><ul><li><span class="Passed">&#10003;</span> debug mode (admin override) off: wards treat us like a normal player: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> a switched-off ward does not count as covering: do=hook, name=lock.insideWard, args={target=chest}, expect=false, label=a switched-off ward does not count as covering <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> nothing to manage outside an active ward: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=nothing to manage outside an active ward <span class="muted">&rarr; hook returned &#39;False&#39;</span></li><li><span class="Passed">&#10003;</span> Bob can open it (the ward is off): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open it (the ward is off) <span class="muted">&rarr; visible</span></li><li><span class="Passed">&#10003;</span> noErrors: source=LockSmith <span class="muted">&rarr; no errors since the test started</span></li></ul><pre>step 1/15: do=hook, name=lock.debugMode, args={on=false}, expect=false, label=debug mode (admin override) off: wards treat us like a normal player
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 2/15: do=playAs, who=Alice
+step 3/15: do=place, prefab=piece_chest_wood, dz=2.5, as=chest
+  built piece_chest_wood (free)
+step 4/15: do=spawn, prefab=guard_stone, dz=-2, owner=Alice, enabled=false, radius=15, as=ward
+step 5/15: do=wait, seconds=0.6
+step 6/15: do=hook, name=lock.insideWard, args={target=chest}, expect=false, label=a switched-off ward does not count as covering
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 7/15: do=hook, name=lock.setPublic, args={target=chest, on=true}, expect=false, label=nothing to manage outside an active ward
+  -&gt; False
+  check ok: hook returned &#39;False&#39;
+step 8/15: do=playAs, who=Bob
+step 9/15: do=closeUi
+step 10/15: do=face, target=chest
+step 11/15: do=interact, target=chest
+  -&gt; True
+step 12/15: do=wait, seconds=0.4
+step 13/15: do=check, check=uiVisible, name=InventoryGui, expect=true, label=Bob can open it (the ward is off)
+  check ok: Bob can open it (the ward is off): uiVisible: do=check, name=InventoryGui, expect=true, label=Bob can open it (the ward is off) -&gt; visible
+step 14/15: do=closeUi
+step 15/15: do=playAs, who=me</pre></details><script>document.getElementById('onlyFailed').onchange=function(e){document.querySelectorAll('details.t').forEach(function(d){d.style.display=e.target.checked&&!d.classList.contains('t-Failed')?'none':''})}</script></main></body></html>

@@ -1,0 +1,11 @@
+=== pass 'AllArcane': ward mods on = [WardIsLove, ArcaneWard, ProtectiveWards]  suites = LockSmith-ArcaneWard
+Valheim is already running. Close it first (this script only stops a game it started itself).
+All ward mods switched back on.
+
+
+Pass      ExitCode
+----      --------
+AllArcane        2
+
+
+(exit code: 0 = all passed, 1 = a test failed, 2 = could not start, 3 = timed out / no results)

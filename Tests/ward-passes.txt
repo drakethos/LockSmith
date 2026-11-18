@@ -1,0 +1,13 @@
+powershell : C:\Modding\Vahleim\Mod\LockSmith\Tests\Run-WardPasses.ps1 : Cannot validate argument on parameter 
+'Passes'. The 
+At line:1 char:302
++ ... tch {} } }; powershell -NoProfile -ExecutionPolicy Bypass -File "C:\M ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Modding\Vahl... 'Passes'. The :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+argument "ProtectiveWards,All" does not belong to the set "None,WardIsLove,ArcaneWard,ProtectiveWards,All" specified 
+by the ValidateSet attribute. Supply an argument that is in the set and then try the command again.
+    + CategoryInfo          : InvalidData: (:) [Run-WardPasses.ps1], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ParameterArgumentValidationError,Run-WardPasses.ps1
+ 
