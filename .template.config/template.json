@@ -1,0 +1,25 @@
+{
+    "author": "Drakemod",
+    "name": "Valheim Mod",
+    "description": "Base drakemod valheim template.",
+    "identity": "Drakemod.ModName.1.0",
+    "shortName": "drakemod",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "MyProject",
+    "symbols": {
+        "Framework": {
+            "type": "parameter",
+            "description": "The target framework for the project.",
+            "datatype": "choice",
+            "choices": [
+                {
+                    "choice": "v4.8.1"
+                }
+            ],
+            "defaultValue": "v4.8.1"
+        }
+    }
+}

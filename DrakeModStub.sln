@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LockSmith", "LockSmith.csproj", "{5DF97E86-BF46-46C5-894F-6B2D80EA6645}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrakeModStub", "DrakeModStub.csproj", "{5DF97E86-BF46-46C5-894F-6B2D80EA6645}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
